@@ -1,43 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
-using System.Text;
 using System.Windows.Forms;
 using ASCompletion.Context;
 using ASCompletion.Model;
-using PluginCore;
 
 namespace QuickNavigatePlugin
 {
     public partial class QuickOutlineForm : Form
     {
-        public const int ICON_FILE = 0;
-        public const int ICON_FOLDER_CLOSED = 1;
-        public const int ICON_FOLDER_OPEN = 2;
-        public const int ICON_CHECK_SYNTAX = 3;
-        public const int ICON_QUICK_BUILD = 4;
-        public const int ICON_PACKAGE = 5;
-        public const int ICON_INTERFACE = 6;
-        public const int ICON_INTRINSIC_TYPE = 7;
-        public const int ICON_TYPE = 8;
-        public const int ICON_VAR = 9;
-        public const int ICON_PROTECTED_VAR = 10;
-        public const int ICON_PRIVATE_VAR = 11;
-        public const int ICON_CONST = 12;
-        public const int ICON_PROTECTED_CONST = 13;
-        public const int ICON_PRIVATE_CONST = 14;
-        public const int ICON_FUNCTION = 15;
-        public const int ICON_PROTECTED_FUNCTION = 16;
-        public const int ICON_PRIVATE_FUNCTION = 17;
-        public const int ICON_PROPERTY = 18;
-        public const int ICON_PROTECTED_PROPERTY = 19;
-        public const int ICON_PRIVATE_PROPERTY = 20;
-        public const int ICON_TEMPLATE = 21;
-        public const int ICON_DECLARATION = 22;
-        
         private PluginMain plugin;
         
         public QuickOutlineForm(PluginMain plugin)
@@ -54,35 +24,46 @@ namespace QuickNavigatePlugin
 
         private void InitTree()
         {
-            //IContainer components;
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(ASCompletion.PluginUI));
             ImageList treeIcons = new ImageList();
-            treeIcons.ImageStream = ((ImageListStreamer)(resources.GetObject("treeIcons.ImageStream")));
             treeIcons.TransparentColor = Color.Transparent;
-            treeIcons.Images.SetKeyName(0, "FilePlain.png");
-            treeIcons.Images.SetKeyName(1, "FolderClosed.png");
-            treeIcons.Images.SetKeyName(2, "FolderOpen.png");
-            treeIcons.Images.SetKeyName(3, "CheckAS.png");
-            treeIcons.Images.SetKeyName(4, "QuickBuild.png");
-            treeIcons.Images.SetKeyName(5, "Package.png");
-            treeIcons.Images.SetKeyName(6, "Interface.png");
-            treeIcons.Images.SetKeyName(7, "Intrinsic.png");
-            treeIcons.Images.SetKeyName(8, "Class.png");
-            treeIcons.Images.SetKeyName(9, "Variable.png");
-            treeIcons.Images.SetKeyName(10, "VariableProtected.png");
-            treeIcons.Images.SetKeyName(11, "VariablePrivate.png");
-            treeIcons.Images.SetKeyName(12, "Const.png");
-            treeIcons.Images.SetKeyName(13, "ConstProtected.png");
-            treeIcons.Images.SetKeyName(14, "ConstPrivate.png");
-            treeIcons.Images.SetKeyName(15, "Method.png");
-            treeIcons.Images.SetKeyName(16, "MethodProtected.png");
-            treeIcons.Images.SetKeyName(17, "MethodPrivate.png");
-            treeIcons.Images.SetKeyName(18, "Property.png");
-            treeIcons.Images.SetKeyName(19, "PropertyProtected.png");
-            treeIcons.Images.SetKeyName(20, "PropertyPrivate.png");
-            treeIcons.Images.SetKeyName(21, "Template.png");
-            treeIcons.Images.SetKeyName(22, "Declaration.png");
-
+            treeIcons.Images.AddRange(new Bitmap[] {
+                new Bitmap(ASCompletion.PluginUI.GetStream("FilePlain.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("FolderClosed.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("FolderOpen.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("CheckAS.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("QuickBuild.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Package.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Interface.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Intrinsic.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Class.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Variable.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("VariableProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("VariablePrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("VariableStatic.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("VariableStaticProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("VariableStaticPrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Const.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("ConstProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("ConstPrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Const.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("ConstProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("ConstPrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Method.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("MethodProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("MethodPrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("MethodStatic.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("MethodStaticProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("MethodStaticPrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Property.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("PropertyProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("PropertyPrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("PropertyStatic.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("PropertyStaticProtected.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("PropertyStaticPrivate.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Template.png")),
+                new Bitmap(ASCompletion.PluginUI.GetStream("Declaration.png"))
+            });
+        
             tree.ImageList = treeIcons;
         }
 
@@ -148,8 +129,7 @@ namespace QuickNavigatePlugin
             // classes
             foreach (ClassModel classModel in model.Classes)
             {
-                int imageNum = ((classModel.Flags & FlagType.Intrinsic) > 0) ? ICON_INTRINSIC_TYPE :
-                    ((classModel.Flags & FlagType.Interface) > 0) ? ICON_INTERFACE : ICON_TYPE;
+                int imageNum = ASCompletion.PluginUI.GetIcon(classModel.Flags, classModel.Access);
                 TreeNode node = new TreeNode(classModel.Name, imageNum, imageNum);
                 node.Tag = "class";
                 tree.Nodes.Add(node);
@@ -169,17 +149,9 @@ namespace QuickNavigatePlugin
                 
                 MemberTreeNode node = null;
                 int imageIndex;
-                if ((member.Flags & FlagType.Constant) > 0)
+                if ((member.Flags & (FlagType.Constant | FlagType.Variable | FlagType.Function)) > 0)
                 {
-                    imageIndex = ((member.Access & Visibility.Private) > 0) ? ICON_PRIVATE_CONST :
-                        ((member.Access & Visibility.Protected) > 0) ? ICON_PROTECTED_CONST : ICON_CONST;
-                    node = new MemberTreeNode(member, imageIndex);
-                    nodes.Add(node);
-                }
-                else if ((member.Flags & FlagType.Variable) > 0)
-                {
-                    imageIndex = ((member.Access & Visibility.Private) > 0) ? ICON_PRIVATE_VAR :
-                        ((member.Access & Visibility.Protected) > 0) ? ICON_PROTECTED_VAR : ICON_VAR;
+                    imageIndex = ASCompletion.PluginUI.GetIcon(member.Flags, member.Access);
                     node = new MemberTreeNode(member, imageIndex);
                     nodes.Add(node);
                 }
@@ -187,15 +159,8 @@ namespace QuickNavigatePlugin
                 {
                     if (node != null && node.Text == member.ToString()) // "collapse" properties
                         continue;
-                    imageIndex = ((member.Access & Visibility.Private) > 0) ? ICON_PRIVATE_PROPERTY :
-                        ((member.Access & Visibility.Protected) > 0) ? ICON_PROTECTED_PROPERTY : ICON_PROPERTY;
-                    node = new MemberTreeNode(member, imageIndex);
-                    nodes.Add(node);
-                }
-                else if ((member.Flags & FlagType.Function) > 0)
-                {
-                    imageIndex = ((member.Access & Visibility.Private) > 0) ? ICON_PRIVATE_FUNCTION :
-                        ((member.Access & Visibility.Protected) > 0) ? ICON_PROTECTED_FUNCTION : ICON_FUNCTION;
+
+                    imageIndex = ASCompletion.PluginUI.GetIcon(member.Flags, member.Access);
                     node = new MemberTreeNode(member, imageIndex);
                     nodes.Add(node);
                 }

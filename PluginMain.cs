@@ -147,19 +147,20 @@ namespace QuickNavigatePlugin
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             ToolStripMenuItem menuItem;
+            System.Drawing.Image image;
 
-            menuItem = new ToolStripMenuItem("Open Resource", PluginBase.MainForm.FindImage("209"),
-                new EventHandler(ShowResourceForm), Keys.Control | Keys.R);
+            image = PluginBase.MainForm.FindImage("209");
+            menuItem = new ToolStripMenuItem("Open Resource", image, ShowResourceForm, Keys.Control | Keys.R);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.OpenResource", menuItem);
             menu.DropDownItems.Add(menuItem);
 
-            menuItem = new ToolStripMenuItem("Open Type", PluginBase.MainForm.FindImage("99|16|0|0"),
-                new EventHandler(ShowTypeForm), Keys.Control | Keys.Y);
+            image = PluginBase.MainForm.FindImage("99|16|0|0");
+            menuItem = new ToolStripMenuItem("Open Type", image, ShowTypeForm, Keys.Control | Keys.Y);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.OpenType", menuItem);
             menu.DropDownItems.Add(menuItem);
-            
-            menuItem = new ToolStripMenuItem("Quick Outline", PluginBase.MainForm.FindImage("315|16|0|0"),
-                new EventHandler(ShowOutlineForm), Keys.Control | Keys.Shift | Keys.O);
+
+            image = PluginBase.MainForm.FindImage("315|16|0|0");
+            menuItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", menuItem);
             menu.DropDownItems.Add(menuItem);
         }
