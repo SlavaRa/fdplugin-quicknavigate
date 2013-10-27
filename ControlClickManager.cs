@@ -5,9 +5,6 @@ using System.Windows.Forms;
 using ASCompletion.Completion;
 using ASCompletion.Context;
 using FlashDevelop;
-using PluginCore.Controls;
-using PluginCore.Managers;
-using PluginCore.Utilities;
 using ScintillaNet;
 
 namespace QuickNavigatePlugin
@@ -103,11 +100,8 @@ namespace QuickNavigatePlugin
                 {
                     if (wParam == (IntPtr) 514) //mouseUp
                     {
-                        if (currentWord != null)
-                        {
-                            if (!timer.Enabled)
-                                timer.Start();
-                        }
+                        if (currentWord != null && !timer.Enabled)
+                            timer.Start();
                     }
                     else
                     {
@@ -126,11 +120,8 @@ namespace QuickNavigatePlugin
                         }
                     }
                 }
-                else
-                {
-                    if (currentWord != null)
-                        SetCurrentWord(null);
-                }
+                else if (currentWord != null)
+                    SetCurrentWord(null);
             }
             return CallNextHookEx(hHook, nCode, wParam, lParam);
         }
@@ -152,16 +143,9 @@ namespace QuickNavigatePlugin
 
                 ASResult result = ASComplete.GetExpressionType(sciControl, word.EndPos);
                 if (!result.IsNull())
-                {
                     SetCurrentWord(word);
-                    //string text = ASComplete.GetToolTipText(result);
-				    //if (text != null)
-        			//	UITools.Tip.ShowAtMouseLocation(text);
-                }
                 else
-                {
                     SetCurrentWord(null);
-                }
             }
         }
 
@@ -217,5 +201,3 @@ namespace QuickNavigatePlugin
         public int EndPos;
     }
 }
-
-
