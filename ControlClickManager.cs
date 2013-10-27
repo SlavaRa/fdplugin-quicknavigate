@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using ASCompletion.Completion;
 using ASCompletion.Context;
-using FlashDevelop;
 using ScintillaNet;
+using PluginCore;
 
 namespace QuickNavigatePlugin
 {
@@ -88,7 +88,6 @@ namespace QuickNavigatePlugin
         {
             if (nCode >= 0 && sciControl != null)
             {
-                //TraceManager.Add(wParam.ToString());
                 MouseHookStruct hookStruct = (MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(MouseHookStruct));
                 if (wParam == (IntPtr) 513) //mouseDown
                 {
@@ -161,7 +160,6 @@ namespace QuickNavigatePlugin
 
             if (currentWord != null)
                 Highlight(currentWord);
-                
         }
 
         private void UnHighlight(Word word)
@@ -176,8 +174,7 @@ namespace QuickNavigatePlugin
         {
             sciControl.CursorType = 8;
             Int32 mask = 1 << sciControl.StyleBits;
-            ScintillaNet.Configuration.Language language
-                = MainForm.Instance.SciConfig.GetLanguage(sciControl.ConfigurationLanguage);
+            ScintillaNet.Configuration.Language language = PluginBase.MainForm.SciConfig.GetLanguage(sciControl.ConfigurationLanguage);
             sciControl.SetIndicStyle(0, (Int32)ScintillaNet.Enums.IndicatorStyle.RoundBox);
             sciControl.SetIndicFore(0, language.editorstyle.HighlightBackColor);
             sciControl.StartStyling(word.StartPos, mask);
@@ -191,10 +188,12 @@ namespace QuickNavigatePlugin
         {
             if (word1 == null && word2 == null)
                 return true;
+
             if (word1 == null || word2 == null)
                 return false;
+
             return word1.StartPos == word2.StartPos
-                   && word1.EndPos == word2.EndPos;
+                && word1.EndPos == word2.EndPos;
         }
 
         public int StartPos;

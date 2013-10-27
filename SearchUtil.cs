@@ -124,8 +124,6 @@ namespace QuickNavigatePlugin
                 partNum++;
             }
 
-            //if (si == sl) Console.WriteLine(String.Join(" ", parts.ToArray()));
-
             return si == sl;
         }
 
