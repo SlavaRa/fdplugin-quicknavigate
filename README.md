@@ -1,0 +1,2 @@
+fd-quick-navigate-plugin
+========================
