@@ -121,12 +121,9 @@ namespace QuickNavigatePlugin
             if (model == FileModel.Ignore)
                 return;
 
-            // members
             if (model.Members.Count > 0)
-            {
                 AddMembers(tree.Nodes, model.Members);
-            }
-            // classes
+            
             foreach (ClassModel classModel in model.Classes)
             {
                 int imageNum = ASCompletion.PluginUI.GetIcon(classModel.Flags, classModel.Access);
@@ -140,41 +137,30 @@ namespace QuickNavigatePlugin
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
-            String searchedText = textBox.Text.ToLower().Trim();
+            string searchedText = textBox.Text.ToLower().Trim();
             foreach (MemberModel member in members)
             {
-                String memberText = member.ToString().ToLower();
+                string memberText = member.ToString().ToLower();
                 if (searchedText.Length > 0 && !memberText.StartsWith(searchedText))
                     continue;
                 
                 MemberTreeNode node = null;
-                int imageIndex;
-                if ((member.Flags & (FlagType.Constant | FlagType.Variable | FlagType.Function)) > 0)
+                if ((member.Flags & (FlagType.Constant | FlagType.Variable | FlagType.Function | FlagType.Getter | FlagType.Setter)) > 0)
                 {
-                    imageIndex = ASCompletion.PluginUI.GetIcon(member.Flags, member.Access);
+                    int imageIndex = ASCompletion.PluginUI.GetIcon(member.Flags, member.Access);
                     node = new MemberTreeNode(member, imageIndex);
                     nodes.Add(node);
                 }
-                else if ((member.Flags & (FlagType.Getter | FlagType.Setter)) > 0)
-                {
-                    if (node != null && node.Text == member.ToString()) // "collapse" properties
-                        continue;
 
-                    imageIndex = ASCompletion.PluginUI.GetIcon(member.Flags, member.Access);
-                    node = new MemberTreeNode(member, imageIndex);
-                    nodes.Add(node);
-                }
                 if (tree.SelectedNode == null)
                     tree.SelectedNode = node;
             }
         }
-        
+
         private void QuickOutlineForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
-            {
                 Close();
-            }
             else if (e.KeyCode == Keys.Enter)
             {
                 e.Handled = true;
@@ -222,4 +208,3 @@ class MemberTreeNode : TreeNode
         Tag = member.Name + "@" + member.LineFrom;
     }
 }
-
