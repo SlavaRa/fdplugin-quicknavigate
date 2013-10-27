@@ -16,3 +16,7 @@
 .svn/pristine/f1/f1fb5c24b06f5285a19173c9c4f834ea90ec5363.svn-base
 .svn/pristine/f9/f9962670b156bc2c80081f7951cea080f1bc6fe4.svn-base
 .svn/wc.db
+obj/Debug/QuickNavigatePlugin.OpenResourceForm.resources
+obj/Debug/QuickNavigatePlugin.OpenTypeForm.resources
+obj/Debug/QuickNavigatePlugin.QuickOutlineForm.resources
+obj/Debug/QuickNavigatePlugin.csproj.FileListAbsolute.txt
