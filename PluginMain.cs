@@ -209,7 +209,7 @@ namespace QuickNavigatePlugin
             ObjectSerializer.Serialize(settingFilename, settingObject);
         }
 
-        public List<String> GetProjectFiles()
+        public List<string> GetProjectFiles()
         {
             if (!settingObject.ResourcesCaching || projectFiles.Count == 0)
                 reloadProjectFiles();
@@ -226,39 +226,34 @@ namespace QuickNavigatePlugin
         {
             projectFiles.Clear();
 
-            List<String> folders = GetProjectFolders();
-            foreach (String folder in folders)
-            {
+            List<string> folders = GetProjectFolders();
+            foreach (string folder in folders)
                 if (Directory.Exists(folder))
                     projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
-            }
         }
 
         public bool isFileOpened(String file)
         {
             foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
-            {
                 if (doc.FileName == file)
                     return true;
-            }
+
             return false;
         }
 
         public List<String> GetProjectFolders()
         {
             String projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
-            List<String> folders = new List<String>();
+            List<string> folders = new List<string>();
             folders.Add(projectFolder);
 
             if (!settingObject.SearchExternalClassPath)
                 return folders;
 
-            foreach (String path in PluginBase.CurrentProject.SourcePaths)
+            foreach (string path in PluginBase.CurrentProject.SourcePaths)
             {
                 if (Path.IsPathRooted(path))
-                {
                     folders.Add(path);
-                }
                 else
                 {
                     String folder = Path.GetFullPath(Path.Combine(projectFolder, path));

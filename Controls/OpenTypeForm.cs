@@ -5,8 +5,6 @@ using System.Windows.Forms;
 using PluginCore;
 using ASCompletion.Context;
 using ASCompletion.Model;
-using System.IO;
-using ASCompletion.Completion;
 using ASCompletion;
 
 namespace QuickNavigatePlugin
@@ -15,8 +13,8 @@ namespace QuickNavigatePlugin
     {
         private const int MAX_ITEMS = 100;
         
-        private List<String> projectTypes;
-        private List<String> openedTypes;
+        private List<string> projectTypes;
+        private List<string> openedTypes;
         private Font nameFont;
         private Font pathFont;
         private PluginMain plugin;
@@ -63,8 +61,8 @@ namespace QuickNavigatePlugin
                 var fullName = (string) listBox.Items[e.Index];
 
                 int slashIndex = fullName.LastIndexOf('.');
-                String path = " " + fullName.Substring(0, slashIndex + 1);
-                String name = fullName.Substring(slashIndex + 1);
+                string path = " " + fullName.Substring(0, slashIndex + 1);
+                string name = fullName.Substring(slashIndex + 1);
 
                 int pathSize = (int) e.Graphics.MeasureString(path, pathFont).Width - 4;
                 Rectangle pathBounds = e.Bounds;
@@ -92,7 +90,7 @@ namespace QuickNavigatePlugin
 
         private void fillListBox()
         {
-            List<String> matchedItems;
+            List<string> matchedItems;
 
             if (textBox.Text.Length > 0)
             {
@@ -106,15 +104,13 @@ namespace QuickNavigatePlugin
                 matchedItems = openedTypes;
             }
 
-            foreach (String item in matchedItems)
-            {
+            foreach (string item in matchedItems)
                 listBox.Items.Add(item);
-            }
         }
 
         private void CreateItemsList()
         {
-            projectTypes = new List<String>();
+            projectTypes = new List<string>();
             openedTypes = new List<string>();
 
             dictionary = new Dictionary<string, ClassModel>();
@@ -123,9 +119,7 @@ namespace QuickNavigatePlugin
                 return;
 
             foreach (PathModel path in context.Classpath)
-            {
                 path.ForeachFile(fileModelDelegate);
-            }
         }
 
         private bool fileModelDelegate(FileModel model)

@@ -165,7 +165,7 @@ namespace QuickNavigatePlugin
         private void UnHighlight(Word word)
         {
             sciControl.CursorType = -1;
-            Int32 mask = 1 << sciControl.StyleBits;
+            int mask = 1 << sciControl.StyleBits;
             sciControl.StartStyling(word.StartPos, mask);
             sciControl.SetStyling(word.EndPos - word.StartPos, 0);
         }
@@ -173,7 +173,7 @@ namespace QuickNavigatePlugin
         private void Highlight(Word word)
         {
             sciControl.CursorType = 8;
-            Int32 mask = 1 << sciControl.StyleBits;
+            int mask = 1 << sciControl.StyleBits;
             ScintillaNet.Configuration.Language language = PluginBase.MainForm.SciConfig.GetLanguage(sciControl.ConfigurationLanguage);
             sciControl.SetIndicStyle(0, (Int32)ScintillaNet.Enums.IndicatorStyle.RoundBox);
             sciControl.SetIndicFore(0, language.editorstyle.HighlightBackColor);

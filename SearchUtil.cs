@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace QuickNavigatePlugin
 {
     class SearchUtil
     {
-        static public List<String> getMatchedItems(List<String> source, String searchText, String pathSeparator, int limit)
+        static public List<String> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit)
         {
-            List<String> matchedItems = new List<string>();
+            List<string> matchedItems = new List<string>();
             int i = 0;
 
-            foreach (String item in source)
+            foreach (string item in source)
             {
-                String itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
+                string itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
 
                 if (itemName.Length < searchText.Length)
                     continue;
@@ -29,9 +28,9 @@ namespace QuickNavigatePlugin
             return matchedItems;
         }
 
-        static private List<String> GetParts(String item)
+        static private List<string> GetParts(string item)
         {
-            List<String> parts = new List<string>();
+            List<string> parts = new List<string>();
 
             char[] chars = item.ToCharArray();
             int i = 0;
@@ -47,7 +46,7 @@ namespace QuickNavigatePlugin
                 if (i == length)
                     break;
 
-                String part = chars[i].ToString();
+                string part = chars[i].ToString();
                 var j = i + 1;
 
                 if (j == length)
@@ -92,9 +91,9 @@ namespace QuickNavigatePlugin
             return parts;
         }
 
-        static private bool AdvancedSearchMatch(String item, String searchText)
+        static private bool AdvancedSearchMatch(string item, string searchText)
         {
-            List<String> parts = GetParts(item);
+            List<string> parts = GetParts(item);
 
             if (parts.Count == 0)
                 return false;
