@@ -69,33 +69,22 @@ namespace QuickNavigatePlugin
 
         private void tree_DrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            Rectangle fillBounds = new Rectangle(e.Node.Bounds.Location, e.Node.Bounds.Size);
-            fillBounds.X -= 1;
-            fillBounds.Width += 10;
-
-            Rectangle textBounds = new Rectangle(e.Node.Bounds.Location, e.Node.Bounds.Size);
-            textBounds.X += 2;
-            textBounds.Width += 10;
-            
             if ((e.State & TreeNodeStates.Selected) != 0)
             {
-                e.Graphics.FillRectangle(Brushes.SaddleBrown, fillBounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, textBounds);
+                int width = e.Bounds.Width + 10;
+                e.Graphics.FillRectangle(Brushes.SaddleBrown, e.Bounds.X, e.Bounds.Y, width, e.Bounds.Height);
+                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
                 using (Pen focusPen = new Pen(Color.Gray))
                 {
                     focusPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
-                    Rectangle focusBounds = fillBounds;
-                    focusBounds.Size = new Size(focusBounds.Width - 1,
-                    focusBounds.Height - 1);
-                    e.Graphics.DrawRectangle(focusPen, focusBounds);
+                    e.Graphics.DrawRectangle(focusPen, e.Bounds.X, e.Bounds.Y, width - 1, e.Bounds.Height - 1);
                 }
             }
             else
             {
-                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), fillBounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, textBounds);
+                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
+                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
             }
-            
         }
 
         private void Navigate()
