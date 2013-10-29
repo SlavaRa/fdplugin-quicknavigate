@@ -5,7 +5,7 @@ namespace QuickNavigatePlugin
 {
     class SearchUtil
     {
-        static public List<String> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit)
+        public static List<String> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit)
         {
             List<string> matchedItems = new List<string>();
             int i = 0;
@@ -28,7 +28,49 @@ namespace QuickNavigatePlugin
             return matchedItems;
         }
 
-        static private List<string> GetParts(string item)
+        private static bool SimpleSearchMatch(string item, string search)
+        {
+            if (search.ToLower() == search)
+                return item.ToLower().IndexOf(search.ToLower()) > -1;
+
+            return item.IndexOf(search) > -1;
+        }
+
+        private static bool AdvancedSearchMatch(string item, string searchText)
+        {
+            List<string> parts = GetParts(item);
+
+            if (parts.Count == 0)
+                return false;
+            
+            int partNum = 0;
+            
+            char[] search = searchText.ToLower().ToCharArray();
+            int si = 0;
+            int sl = searchText.Length;
+
+            while (si < sl && partNum < parts.Count)
+            {
+                char[] part = parts[partNum].ToCharArray();
+                int pi = 0;
+                int pl = part.Length;
+
+                while (si < sl && pi < pl && search[si] == part[pi])
+                {
+                    si++;
+                    pi++;
+                }
+
+                if (pi == 0)
+                    break;
+
+                partNum++;
+            }
+
+            return si == sl;
+        }
+
+        private static List<string> GetParts(string item)
         {
             List<string> parts = new List<string>();
 
@@ -39,9 +81,7 @@ namespace QuickNavigatePlugin
             while (i < length)
             {
                 while (i < length && !char.IsLetter(chars[i]))
-                {
                     i++;
-                }
 
                 if (i == length)
                     break;
@@ -55,9 +95,8 @@ namespace QuickNavigatePlugin
                 else if (char.IsLower(chars[i + 1]))
                 {
                     while (j < length && (char.IsLower(chars[j]) || char.IsDigit(chars[j])))
-                    {
                         part += chars[j++];
-                    }
+
                 }
                 else if (char.IsUpper(chars[i + 1]))
                 {
@@ -89,49 +128,6 @@ namespace QuickNavigatePlugin
             }
 
             return parts;
-        }
-
-        static private bool AdvancedSearchMatch(string item, string searchText)
-        {
-            List<string> parts = GetParts(item);
-
-            if (parts.Count == 0)
-                return false;
-            
-            int partNum = 0;
-            
-            char[] search = searchText.ToLower().ToCharArray();
-            int si = 0;
-            int sl = searchText.Length;
-
-            while (si < sl && partNum < parts.Count)
-            {
-                char[] part = parts[partNum].ToCharArray();
-                int pi = 0;
-                int pl = part.Length;
-
-                while (si < sl && pi < pl
-                    && search[si] == part[pi])
-                {
-                    si++;
-                    pi++;
-                }
-
-                if (pi == 0)
-                    break;
-
-                partNum++;
-            }
-
-            return si == sl;
-        }
-
-        static bool SimpleSearchMatch(string item, string search)
-        {
-            if (search.ToLower() == search)
-                return item.ToLower().IndexOf(search.ToLower()) > -1;
-            else
-                return item.IndexOf(search) > -1;
         }
 
     }
