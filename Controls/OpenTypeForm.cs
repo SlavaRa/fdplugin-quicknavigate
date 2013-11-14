@@ -13,12 +13,12 @@ namespace QuickNavigatePlugin
     {
         private const int MAX_ITEMS = 100;
         
-        private List<string> projectTypes;
-        private List<string> openedTypes;
+        private readonly List<string> projectTypes = new List<string>();
+        private readonly List<string> openedTypes = new List<string>();
         private Font nameFont;
         private Font pathFont;
         private PluginMain plugin;
-        private Dictionary<String, ClassModel> dictionary;
+        private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
         private IASContext context;
 
         public OpenTypeForm(PluginMain plugin)
@@ -30,7 +30,6 @@ namespace QuickNavigatePlugin
                 Size = (plugin.Settings as Settings).TypeFormSize;
 
             pathFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
-            //nameFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
             nameFont = new Font("Courier New", 10, FontStyle.Regular);
 
             DetectContext();
@@ -48,13 +47,9 @@ namespace QuickNavigatePlugin
         private void listBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-            {
                 e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds);
-            }
             else
-            {
                 e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
-            }
 
             if (e.Index >= 0)
             {
@@ -65,14 +60,9 @@ namespace QuickNavigatePlugin
                 string name = fullName.Substring(slashIndex + 1);
 
                 int pathSize = (int) e.Graphics.MeasureString(path, pathFont).Width - 4;
-                Rectangle pathBounds = e.Bounds;
-                var nameBounds = new Rectangle(
-                    e.Bounds.X + pathSize,
-                    e.Bounds.Y + 1,
-                    e.Bounds.Width - pathSize,
-                    e.Bounds.Height + 1);
+                var nameBounds = new Rectangle(e.Bounds.X + pathSize, e.Bounds.Y + 1, e.Bounds.Width - pathSize, e.Bounds.Height + 1);
 
-                e.Graphics.DrawString(path, pathFont, Brushes.Gray, pathBounds);
+                e.Graphics.DrawString(path, pathFont, Brushes.Gray, e.Bounds);
                 e.Graphics.DrawString(name, nameFont, Brushes.Black, nameBounds);
                 e.DrawFocusRectangle();
             }
@@ -97,12 +87,10 @@ namespace QuickNavigatePlugin
                 matchedItems = SearchUtil.getMatchedItems(openedTypes, textBox.Text, ".", 0);
                 if (matchedItems.Capacity > 0)
                     matchedItems.Add("-----------------");
+
                 matchedItems.AddRange(SearchUtil.getMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS));
             }
-            else
-            {
-                matchedItems = openedTypes;
-            }
+            else matchedItems = openedTypes;
 
             foreach (string item in matchedItems)
                 listBox.Items.Add(item);
@@ -110,11 +98,10 @@ namespace QuickNavigatePlugin
 
         private void CreateItemsList()
         {
-            projectTypes = new List<string>();
-            openedTypes = new List<string>();
+            projectTypes.Clear();
+            openedTypes.Clear();
+            dictionary.Clear();
 
-            dictionary = new Dictionary<string, ClassModel>();
-            
             if (context == null || context.Classpath == null || context.Classpath.Count == 0)
                 return;
 
@@ -134,6 +121,7 @@ namespace QuickNavigatePlugin
                         openedTypes.Add(classModel.QualifiedName);
                     else
                         projectTypes.Add(classModel.QualifiedName);
+
                     dictionary.Add(classModel.QualifiedName, classModel);
                 }
             }
@@ -167,9 +155,7 @@ namespace QuickNavigatePlugin
         private void OpenTypeForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
-            {
                 Close();
-            }
             else if (e.KeyCode == Keys.Enter)
             {
                 e.Handled = true;

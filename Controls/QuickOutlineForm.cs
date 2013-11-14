@@ -130,7 +130,7 @@ namespace QuickNavigatePlugin
             foreach (MemberModel member in members)
             {
                 string memberText = member.ToString().ToLower();
-                if (searchedText.Length > 0 && !memberText.StartsWith(searchedText))
+                if (!string.IsNullOrEmpty(searchedText) && memberText.IndexOf(searchedText) == -1)
                     continue;
                 
                 MemberTreeNode node = null;

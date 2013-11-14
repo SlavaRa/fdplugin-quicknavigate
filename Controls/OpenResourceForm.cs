@@ -11,8 +11,8 @@ namespace QuickNavigatePlugin
     {
         private const int MAX_ITEMS = 100;
 
-        private List<string> projectFiles;
-        private List<string> openedFiles;
+        private readonly List<string> projectFiles = new List<string>();
+        private readonly List<string> openedFiles = new List<string>();
         private Font nameFont;
         private Font pathFont;
         private PluginMain plugin;
@@ -91,8 +91,8 @@ namespace QuickNavigatePlugin
 
         private void LoadFileList()
         {
-            openedFiles = new List<string>();
-            projectFiles = new List<string>();
+            openedFiles.Clear();
+            projectFiles.Clear();
             ShowMessage("Reading project files...");
             worker.RunWorkerAsync();
         }
@@ -117,10 +117,7 @@ namespace QuickNavigatePlugin
         {
             string path = System.IO.Path.GetDirectoryName(file);
             string name = System.IO.Path.GetFileName(file);
-            return path.Contains(".svn")
-                || path.Contains(".cvs")
-                || path.Contains(".git")
-                || name.Substring(0, 1) == ".";
+            return path.Contains(".svn") || path.Contains(".cvs") || path.Contains(".git") || name.Substring(0, 1) == ".";
         }
 
         private void Navigate()
