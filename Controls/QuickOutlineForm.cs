@@ -127,10 +127,12 @@ namespace QuickNavigatePlugin
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
             string searchedText = textBox.Text.ToLower().Trim();
+            bool searchedTextIsNotEmpty = !string.IsNullOrEmpty(searchedText);
             foreach (MemberModel member in members)
             {
                 string memberText = member.ToString().ToLower();
-                if (!string.IsNullOrEmpty(searchedText) && memberText.IndexOf(searchedText) == -1)
+
+                if (searchedTextIsNotEmpty && memberText.IndexOf(searchedText) == -1)
                     continue;
                 
                 MemberTreeNode node = null;
