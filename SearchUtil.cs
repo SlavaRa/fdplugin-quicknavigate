@@ -26,7 +26,7 @@ namespace QuickNavigatePlugin
 
                 if (itemName.Length < searchText.Length) continue;
 
-                if (SimpleSearchMatch(itemName, searchText) || AdvancedSearchMatch(itemName, searchText))
+                if (SimpleSearchMatch(itemName, searchText, wholeWord, matchCase) || AdvancedSearchMatch(itemName, searchText))
                 {
                     matchedItems.Add(item);
                     if (limit > 0 && i++ > limit) break;
@@ -43,7 +43,7 @@ namespace QuickNavigatePlugin
 
         private static bool SimpleSearchMatch(string item, string search, bool wholeWord, bool matchCase)
         {
-            if(!matchCase)
+            if (!matchCase)
             {
                 item = item.ToLower();
                 search = search.ToLower();
