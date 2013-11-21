@@ -101,4 +101,9 @@
       <Name>ASCompletion</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\OpenResourceForm.resx">
+      <DependentUpon>OpenResourceForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

@@ -5,7 +5,17 @@ namespace QuickNavigatePlugin
 {
     class SearchUtil
     {
-        public static List<String> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit)
+        public static List<string> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit) 
+        {
+            return getMatchedItems(source, searchText, pathSeparator, limit, false);
+        }
+
+        public static List<string> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord)
+        {
+            return getMatchedItems(source, searchText, pathSeparator, limit, false, false);
+        }
+
+        public static List<string> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
             List<string> matchedItems = new List<string>();
             int i = 0;
@@ -14,14 +24,12 @@ namespace QuickNavigatePlugin
             {
                 string itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
 
-                if (itemName.Length < searchText.Length)
-                    continue;
+                if (itemName.Length < searchText.Length) continue;
 
                 if (SimpleSearchMatch(itemName, searchText) || AdvancedSearchMatch(itemName, searchText))
                 {
                     matchedItems.Add(item);
-                    if (limit > 0 && i++ > limit)
-                        break;
+                    if (limit > 0 && i++ > limit) break;
                 }
             }
 
@@ -30,10 +38,19 @@ namespace QuickNavigatePlugin
 
         private static bool SimpleSearchMatch(string item, string search)
         {
-            if (search.ToLower() == search)
-                return item.ToLower().IndexOf(search.ToLower()) > -1;
+            return SimpleSearchMatch(item, search, false, false);
+        }
 
-            return item.IndexOf(search) > -1;
+        private static bool SimpleSearchMatch(string item, string search, bool wholeWord, bool matchCase)
+        {
+            if(!matchCase)
+            {
+                item = item.ToLower();
+                search = search.ToLower();
+            }
+
+            if (!wholeWord) return item.IndexOf(search) != -1;
+            else return item.StartsWith(search);
         }
 
         private static bool AdvancedSearchMatch(string item, string searchText)
@@ -96,7 +113,6 @@ namespace QuickNavigatePlugin
                 {
                     while (j < length && (char.IsLower(chars[j]) || char.IsDigit(chars[j])))
                         part += chars[j++];
-
                 }
                 else if (char.IsUpper(chars[i + 1]))
                 {
@@ -108,16 +124,14 @@ namespace QuickNavigatePlugin
                             var next = chars[j + 1];
                             if ((char.IsUpper(current) || char.IsDigit(current)) && (char.IsUpper(next) || char.IsDigit(next)))
                                 part += chars[j++];
-                            else
-                                break;
+                            else break;
                         }
                         else
                         {
                             var current = chars[j];
                             if (char.IsUpper(current) || char.IsDigit(current))
                                 part += chars[j++];
-                            else
-                                break;
+                            else break;
                         }
                     }
                 }

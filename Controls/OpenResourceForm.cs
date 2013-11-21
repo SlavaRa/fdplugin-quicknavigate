@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using PluginCore;
+using System.IO;
 
 namespace QuickNavigatePlugin
 {
@@ -65,28 +66,33 @@ namespace QuickNavigatePlugin
             listBox.BeginUpdate();
             listBox.Items.Clear();
             fillListBox();
-            if (listBox.Items.Count > 0)
-                listBox.SelectedIndex = 0;
+
+            if (listBox.Items.Count > 0) listBox.SelectedIndex = 0;
 
             listBox.EndUpdate();
         }
 
         private void fillListBox()
         {
+            Settings settings = (Settings)plugin.Settings;
+            bool wholeWord = settings.ResourceFormWholeWord;
+            bool matchCase = settings.ResourceFormMatchCase;
+
             List<string> matchedItems;
 
             if (textBox.Text.Length > 0)
             {
-                matchedItems = SearchUtil.getMatchedItems(openedFiles, textBox.Text, "\\", 0);
-                if (matchedItems.Capacity > 0)
-                    matchedItems.Add("-----------------");
+                matchedItems = SearchUtil.getMatchedItems(openedFiles, textBox.Text, "\\", 0, wholeWord, matchCase);
+                if (matchedItems.Capacity > 0) matchedItems.Add("-----------------");
 
-                matchedItems.AddRange(SearchUtil.getMatchedItems(projectFiles, textBox.Text, "\\", MAX_ITEMS));
+                matchedItems.AddRange(SearchUtil.getMatchedItems(projectFiles, textBox.Text, "\\", MAX_ITEMS, wholeWord, matchCase));
             }
             else matchedItems = openedFiles;
 
             foreach (string item in matchedItems)
+            {
                 listBox.Items.Add(item);
+            }
         }
 
         private void LoadFileList()
@@ -99,24 +105,22 @@ namespace QuickNavigatePlugin
 
         private void RebuildJob()
         {
+            IProject project = PluginBase.CurrentProject;
             List<string> allFiles = plugin.GetProjectFiles();
 
             foreach (string file in allFiles)
             {
-                if (isFileHidden(file))
-                    continue;
+                if (isFileHidden(file)) continue;
 
-                if (plugin.isFileOpened(file))
-                    openedFiles.Add(PluginBase.CurrentProject.GetRelativePath(file));
-                else
-                    projectFiles.Add(PluginBase.CurrentProject.GetRelativePath(file));
+                if (plugin.isFileOpened(file)) openedFiles.Add(project.GetRelativePath(file));
+                else projectFiles.Add(project.GetRelativePath(file));
             }
         }
 
-        private bool isFileHidden(String file)
+        private bool isFileHidden(string file)
         {
-            string path = System.IO.Path.GetDirectoryName(file);
-            string name = System.IO.Path.GetFileName(file);
+            string path = Path.GetDirectoryName(file);
+            string name = Path.GetFileName(file);
             return path.Contains(".svn") || path.Contains(".cvs") || path.Contains(".git") || name.Substring(0, 1) == ".";
         }
 
@@ -154,8 +158,7 @@ namespace QuickNavigatePlugin
 
         private void textBox_TextChanged(object sender, EventArgs e)
         {
-            if (!worker.IsBusy)
-                RefreshListBox();
+            if (!worker.IsBusy) RefreshListBox();
         }
 
         private void listBox_DoubleClick(object sender, EventArgs e)

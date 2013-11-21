@@ -28,26 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.messageLabel = new System.Windows.Forms.Label();
             this.textBox = new System.Windows.Forms.TextBox();
             this.listBox = new System.Windows.Forms.ListBox();
             this.refreshButton = new System.Windows.Forms.Button();
             this.worker = new System.ComponentModel.BackgroundWorker();
+            this.messageLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // messageLabel
-            // 
-            this.messageLabel.AutoSize = true;
-            this.messageLabel.Location = new System.Drawing.Point(12, 9);
-            this.messageLabel.Name = "messageLabel";
-            this.messageLabel.Size = new System.Drawing.Size(286, 13);
-            this.messageLabel.TabIndex = 0;
-            this.messageLabel.Text = "Search string: (Type case sensitive for more precise results)";
             // 
             // textBox
             // 
-            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.textBox.Location = new System.Drawing.Point(12, 26);
             this.textBox.Name = "textBox";
@@ -58,9 +49,9 @@
             // 
             // listBox
             // 
-            this.listBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox.BackColor = System.Drawing.Color.FloralWhite;
             this.listBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.listBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
@@ -72,8 +63,8 @@
             this.listBox.Size = new System.Drawing.Size(365, 194);
             this.listBox.TabIndex = 2;
             this.listBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox_DrawItem);
-            this.listBox.Resize += new System.EventHandler(this.listBox_Resize);
             this.listBox.DoubleClick += new System.EventHandler(this.listBox_DoubleClick);
+            this.listBox.Resize += new System.EventHandler(this.listBox_Resize);
             // 
             // refreshButton
             // 
@@ -92,15 +83,24 @@
             this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_DoWork);
             this.worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.worker_RunWorkerCompleted);
             // 
+            // messageLabel
+            // 
+            this.messageLabel.AutoSize = true;
+            this.messageLabel.Location = new System.Drawing.Point(12, 9);
+            this.messageLabel.Name = "messageLabel";
+            this.messageLabel.Size = new System.Drawing.Size(271, 13);
+            this.messageLabel.TabIndex = 4;
+            this.messageLabel.Text = "Search string: (UPPERCASE for search by abbreviation)";
+            // 
             // OpenResourceForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(389, 255);
+            this.Controls.Add(this.messageLabel);
             this.Controls.Add(this.refreshButton);
             this.Controls.Add(this.listBox);
             this.Controls.Add(this.textBox);
-            this.Controls.Add(this.messageLabel);
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -119,10 +119,10 @@
 
         #endregion
 
-        private System.Windows.Forms.Label messageLabel;
         private System.Windows.Forms.TextBox textBox;
         private System.Windows.Forms.ListBox listBox;
         private System.Windows.Forms.Button refreshButton;
         private System.ComponentModel.BackgroundWorker worker;
+        private System.Windows.Forms.Label messageLabel;
     }
 }

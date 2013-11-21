@@ -126,13 +126,17 @@ namespace QuickNavigatePlugin
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
-            string searchedText = textBox.Text.ToLower().Trim();
+            Settings settings = (Settings) plugin.Settings;
+            bool wholeWord = settings.OutlineFormWholeWord;
+            bool matchCase = settings.OutlineFormMatchCase;
+            string searchedText = matchCase ? textBox.Text.Trim() : textBox.Text.ToLower().Trim();
             bool searchedTextIsNotEmpty = !string.IsNullOrEmpty(searchedText);
+
             foreach (MemberModel member in members)
             {
-                string memberText = member.ToString().ToLower();
+                string memberText = matchCase ? member.ToString() : member.ToString().ToLower();
 
-                if (searchedTextIsNotEmpty && memberText.IndexOf(searchedText) == -1)
+                if (searchedTextIsNotEmpty && (!wholeWord && memberText.IndexOf(searchedText) == -1 || wholeWord && !memberText.StartsWith(searchedText)))
                     continue;
                 
                 MemberTreeNode node = null;
@@ -150,12 +154,16 @@ namespace QuickNavigatePlugin
 
         private void QuickOutlineForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape)
-                Close();
-            else if (e.KeyCode == Keys.Enter)
+            switch (e.KeyCode)
             {
-                e.Handled = true;
-                Navigate();
+                case Keys.Escape:
+                    Close();
+                    break;
+
+                case Keys.Enter:
+                    e.Handled = true;
+                    Navigate();
+                    break;
             }
         }
 
@@ -193,8 +201,7 @@ namespace QuickNavigatePlugin
 
 class MemberTreeNode : TreeNode
 {
-    public MemberTreeNode(MemberModel member, int imageIndex)
-        : base(member.ToString(), imageIndex, imageIndex)
+    public MemberTreeNode(MemberModel member, int imageIndex) : base(member.ToString(), imageIndex, imageIndex)
     {
         Tag = member.Name + "@" + member.LineFrom;
     }

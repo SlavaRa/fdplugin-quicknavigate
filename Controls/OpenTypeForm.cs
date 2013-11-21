@@ -73,27 +73,33 @@ namespace QuickNavigatePlugin
             listBox.BeginUpdate();
             listBox.Items.Clear();
             fillListBox();
-            if (listBox.Items.Count > 0)
-                listBox.SelectedIndex = 0;
+
+            if (listBox.Items.Count > 0) listBox.SelectedIndex = 0;
+
             listBox.EndUpdate();
         }
 
         private void fillListBox()
         {
+            Settings settings = (Settings)plugin.Settings;
+            bool wholeWord = settings.TypeFormWholeWord;
+            bool matchCase = settings.TypeFormMatchCase;
+
             List<string> matchedItems;
 
             if (textBox.Text.Length > 0)
             {
-                matchedItems = SearchUtil.getMatchedItems(openedTypes, textBox.Text, ".", 0);
-                if (matchedItems.Capacity > 0)
-                    matchedItems.Add("-----------------");
+                matchedItems = SearchUtil.getMatchedItems(openedTypes, textBox.Text, ".", 0, wholeWord, matchCase);
+                if (matchedItems.Capacity > 0) matchedItems.Add("-----------------");
 
-                matchedItems.AddRange(SearchUtil.getMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS));
+                matchedItems.AddRange(SearchUtil.getMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS, wholeWord, matchCase));
             }
             else matchedItems = openedTypes;
 
             foreach (string item in matchedItems)
+            {
                 listBox.Items.Add(item);
+            }
         }
 
         private void CreateItemsList()
@@ -106,24 +112,24 @@ namespace QuickNavigatePlugin
                 return;
 
             foreach (PathModel path in context.Classpath)
+            {
                 path.ForeachFile(fileModelDelegate);
+            }
         }
 
         private bool fileModelDelegate(FileModel model)
         {
             foreach (ClassModel classModel in model.Classes)
             {
-                if (!dictionary.ContainsKey(classModel.QualifiedName))
-                {
-                    bool isFileOpened = plugin.isFileOpened(classModel.InFile.FileName);
+                if (dictionary.ContainsKey(classModel.QualifiedName))
+                    continue;
 
-                    if (isFileOpened)
-                        openedTypes.Add(classModel.QualifiedName);
-                    else
-                        projectTypes.Add(classModel.QualifiedName);
+                bool isFileOpened = plugin.isFileOpened(classModel.InFile.FileName);
 
-                    dictionary.Add(classModel.QualifiedName, classModel);
-                }
+                if (isFileOpened) openedTypes.Add(classModel.QualifiedName);
+                else projectTypes.Add(classModel.QualifiedName);
+
+                dictionary.Add(classModel.QualifiedName, classModel);
             }
             
             return true;
@@ -132,8 +138,7 @@ namespace QuickNavigatePlugin
 
         private void Navigate()
         {
-            if (listBox.SelectedItem == null)
-                return;
+            if (listBox.SelectedItem == null) return;
 
             ClassModel classModel = dictionary[listBox.SelectedItem.ToString()];
             FileModel model = ModelsExplorer.Instance.OpenFile(classModel.InFile.FileName);
@@ -154,12 +159,16 @@ namespace QuickNavigatePlugin
 
         private void OpenTypeForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape)
-                Close();
-            else if (e.KeyCode == Keys.Enter)
+            switch (e.KeyCode)
             {
-                e.Handled = true;
-                Navigate();
+                case Keys.Escape:
+                    Close();
+                    break;
+
+                case Keys.Enter:
+                    e.Handled = true;
+                    Navigate();
+                    break;
             }
         }
 
