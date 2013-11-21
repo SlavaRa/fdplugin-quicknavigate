@@ -136,7 +136,7 @@ namespace QuickNavigatePlugin
         }
 
         /// <summary>
-        /// 
+        /// Adds the required event handlers
         /// </summary>
         public void AddEventHandlers()
         {
@@ -193,7 +193,7 @@ namespace QuickNavigatePlugin
         }
 
         /// <summary>
-        /// 
+        /// Loads the plugin settings
         /// </summary>
         public void LoadSettings()
         {
@@ -218,7 +218,7 @@ namespace QuickNavigatePlugin
         }
 
         /// <summary>
-        /// 
+        /// Saves the plugin settings
         /// </summary>
         public void SaveSettings()
         {
@@ -260,7 +260,7 @@ namespace QuickNavigatePlugin
         /// <summary>
         /// 
         /// </summary>
-        public bool isFileOpened(String file)
+        public bool isFileOpened(string file)
         {
             foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
                 if (doc.FileName == file)
