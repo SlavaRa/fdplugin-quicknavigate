@@ -12,19 +12,19 @@ namespace QuickNavigatePlugin
 {
 	public class PluginMain : IPlugin
 	{
-        private const Int32 PLUGIN_API = 1;
-        private const String PLUGIN_NAME = "QuickNavigatePlugin";
-        private const String PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
-        private const String PLUGIN_HELP = "www.flashdevelop.org/community/";
-        private const String PLUGIN_AUTH = "Canab";
-	    private const String SETTINGS_FILE = "Settings.fdb";
-        private const String PLUGIN_DESC = "QuickNavigate plugin";
+        private const int PLUGIN_API = 1;
+        private const string PLUGIN_NAME = "QuickNavigatePlugin";
+        private const string PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
+        private const string PLUGIN_HELP = "www.flashdevelop.org/community/";
+        private const string PLUGIN_AUTH = "Canab";
+	    private const string SETTINGS_FILE = "Settings.fdb";
+        private const string PLUGIN_DESC = "QuickNavigate plugin";
 
-        private String settingFilename;
+        private string settingFilename;
         private Settings settingObject;
 	    private ControlClickManager controlClickManager;
 
-        private List<String> projectFiles = new List<string>();
+        private List<string> projectFiles = new List<string>();
 
 	    #region Required Properties
 
@@ -113,13 +113,11 @@ namespace QuickNavigatePlugin
 		/// </summary>
 		public void HandleEvent(Object sender, NotifyEvent e, HandlingPriority prority)
 		{
-            if (e.Type == EventType.FileSwitch)
+            switch (e.Type)
             {
-                if (controlClickManager != null)
-                    controlClickManager.SciControl = PluginBase.MainForm.CurrentDocument.SciControl;
-            }
-            else if (e.Type == EventType.Command)
-            {
+                case EventType.FileSwitch:
+                    if (controlClickManager != null) controlClickManager.SciControl = PluginBase.MainForm.CurrentDocument.SciControl;
+                    break;
             }
 		}
 		
@@ -132,17 +130,22 @@ namespace QuickNavigatePlugin
         /// </summary>
         public void InitBasics()
         {
-            String dataPath = Path.Combine(PathHelper.DataDir, PLUGIN_NAME);
-            if (!Directory.Exists(dataPath))
-                Directory.CreateDirectory(dataPath);
+            string dataPath = Path.Combine(PathHelper.DataDir, PLUGIN_NAME);
+            if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
             settingFilename = Path.Combine(dataPath, SETTINGS_FILE);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void AddEventHandlers()
         {
             EventManager.AddEventHandler(this, EventType.FileSwitch | EventType.Command);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void CreateMenuItems()
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
@@ -165,23 +168,33 @@ namespace QuickNavigatePlugin
             menu.DropDownItems.Add(menuItem);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ShowResourceForm(object sender, EventArgs e)
 	    {
-            if (PluginBase.CurrentProject != null)
-                new OpenResourceForm(this).ShowDialog();
+            if (PluginBase.CurrentProject != null) new OpenResourceForm(this).ShowDialog();
 	    }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ShowTypeForm(object sender, EventArgs e)
         {
-            if (PluginBase.CurrentProject != null)
-                new OpenTypeForm(this).ShowDialog();
+            if (PluginBase.CurrentProject != null) new OpenTypeForm(this).ShowDialog();
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void ShowOutlineForm(object sender, EventArgs e)
         {
-            new QuickOutlineForm(this).ShowDialog();
+            if (PluginBase.CurrentProject != null) new QuickOutlineForm(this).ShowDialog();
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void LoadSettings()
         {
             if (File.Exists(settingFilename))
@@ -204,11 +217,17 @@ namespace QuickNavigatePlugin
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void SaveSettings()
         {
             ObjectSerializer.Serialize(settingFilename, settingObject);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public List<string> GetProjectFiles()
         {
             if (!settingObject.ResourcesCaching || projectFiles.Count == 0)
@@ -217,11 +236,17 @@ namespace QuickNavigatePlugin
             return projectFiles;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void invalidateCache()
         {
             projectFiles.Clear();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void reloadProjectFiles()
         {
             projectFiles.Clear();
@@ -232,6 +257,9 @@ namespace QuickNavigatePlugin
                     projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public bool isFileOpened(String file)
         {
             foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
@@ -241,24 +269,27 @@ namespace QuickNavigatePlugin
             return false;
         }
 
-        public List<String> GetProjectFolders()
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> GetProjectFolders()
         {
-            String projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
             List<string> folders = new List<string>();
+            IProject project = PluginBase.CurrentProject;
+            if (project == null) return folders;
+
+            string projectFolder = Path.GetDirectoryName(project.ProjectPath);
             folders.Add(projectFolder);
 
-            if (!settingObject.SearchExternalClassPath)
-                return folders;
+            if (!settingObject.SearchExternalClassPath) return folders;
 
-            foreach (string path in PluginBase.CurrentProject.SourcePaths)
+            foreach (string path in project.SourcePaths)
             {
-                if (Path.IsPathRooted(path))
-                    folders.Add(path);
+                if (Path.IsPathRooted(path)) folders.Add(path);
                 else
                 {
-                    String folder = Path.GetFullPath(Path.Combine(projectFolder, path));
-                    if (!folder.StartsWith(projectFolder))
-                        folders.Add(folder);
+                    string folder = Path.GetFullPath(Path.Combine(projectFolder, path));
+                    if (!folder.StartsWith(projectFolder)) folders.Add(folder);
                 }
             }
 
