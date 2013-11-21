@@ -51,8 +51,8 @@
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(355, 22);
             this.textBox.TabIndex = 1;
-            this.textBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_KeyDown);
+            this.textBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
+            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_KeyDown);
             // 
             // listBox
             // 
@@ -69,9 +69,9 @@
             this.listBox.Name = "listBox";
             this.listBox.Size = new System.Drawing.Size(355, 194);
             this.listBox.TabIndex = 2;
-            this.listBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox_DrawItem);
-            this.listBox.Resize += new System.EventHandler(this.listBox_Resize);
-            this.listBox.DoubleClick += new System.EventHandler(this.listBox_DoubleClick);
+            this.listBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ListBox_DrawItem);
+            this.listBox.Resize += new System.EventHandler(this.ListBox_Resize);
+            this.listBox.DoubleClick += new System.EventHandler(this.ListBox_DoubleClick);
             // 
             // OpenTypeForm
             // 

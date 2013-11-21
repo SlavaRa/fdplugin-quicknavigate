@@ -5,17 +5,17 @@ namespace QuickNavigatePlugin
 {
     class SearchUtil
     {
-        public static List<string> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit) 
+        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit) 
         {
-            return getMatchedItems(source, searchText, pathSeparator, limit, false);
+            return GetMatchedItems(source, searchText, pathSeparator, limit, false);
         }
 
-        public static List<string> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord)
+        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord)
         {
-            return getMatchedItems(source, searchText, pathSeparator, limit, false, false);
+            return GetMatchedItems(source, searchText, pathSeparator, limit, false, false);
         }
 
-        public static List<string> getMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord, bool matchCase)
+        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
             List<string> matchedItems = new List<string>();
             int i = 0;
@@ -26,7 +26,7 @@ namespace QuickNavigatePlugin
 
                 if (itemName.Length < searchText.Length) continue;
 
-                if (SimpleSearchMatch(itemName, searchText, wholeWord, matchCase) || AdvancedSearchMatch(itemName, searchText))
+                if (SimpleSearchMatch(itemName, searchText, wholeWord, matchCase) || AdvancedSearchMatch(itemName, searchText, matchCase))
                 {
                     matchedItems.Add(item);
                     if (limit > 0 && i++ > limit) break;
@@ -50,19 +50,24 @@ namespace QuickNavigatePlugin
             }
 
             if (!wholeWord) return item.IndexOf(search) != -1;
-            else return item.StartsWith(search);
+            return item.StartsWith(search);
         }
 
         private static bool AdvancedSearchMatch(string item, string searchText)
         {
-            List<string> parts = GetParts(item);
+            return AdvancedSearchMatch(item, searchText, false);
+        }
 
-            if (parts.Count == 0)
-                return false;
-            
+        private static bool AdvancedSearchMatch(string item, string searchText, bool matchCase)
+        {
+            List<string> parts = GetParts(item, matchCase);
+
+            if (parts.Count == 0) return false;
+
+            if (!matchCase) searchText = searchText.ToLower();
+
             int partNum = 0;
-            
-            char[] search = searchText.ToLower().ToCharArray();
+            char[] search = searchText.ToCharArray();
             int si = 0;
             int sl = searchText.Length;
 
@@ -78,8 +83,7 @@ namespace QuickNavigatePlugin
                     pi++;
                 }
 
-                if (pi == 0)
-                    break;
+                if (pi == 0) break;
 
                 partNum++;
             }
@@ -88,6 +92,11 @@ namespace QuickNavigatePlugin
         }
 
         private static List<string> GetParts(string item)
+        {
+            return GetParts(item, false);
+        }
+
+        private static List<string> GetParts(string item, bool matchCase)
         {
             List<string> parts = new List<string>();
 
@@ -100,8 +109,7 @@ namespace QuickNavigatePlugin
                 while (i < length && !char.IsLetter(chars[i]))
                     i++;
 
-                if (i == length)
-                    break;
+                if (i == length) break;
 
                 string part = chars[i].ToString();
                 var j = i + 1;
@@ -129,14 +137,15 @@ namespace QuickNavigatePlugin
                         else
                         {
                             var current = chars[j];
-                            if (char.IsUpper(current) || char.IsDigit(current))
-                                part += chars[j++];
+                            if (char.IsUpper(current) || char.IsDigit(current)) part += chars[j++];
                             else break;
                         }
                     }
                 }
 
-                parts.Add(part.ToLower());
+                if (!matchCase) part = part.ToLower();
+
+                parts.Add(part);
 
                 i = j;
             }

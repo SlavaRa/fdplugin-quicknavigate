@@ -42,8 +42,8 @@
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(305, 22);
             this.textBox.TabIndex = 0;
-            this.textBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
+            this.textBox.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
+            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox1_KeyDown);
             // 
             // tree
             // 
@@ -63,8 +63,8 @@
             this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(305, 173);
             this.tree.TabIndex = 1;
-            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.tree_DrawNode);
-            this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tree_NodeMouseDoubleClick);
+            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.Tree_DrawNode);
+            this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.Tree_NodeMouseDoubleClick);
             // 
             // QuickOutlineForm
             // 

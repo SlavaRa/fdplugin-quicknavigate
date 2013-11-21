@@ -197,23 +197,12 @@ namespace QuickNavigatePlugin
         /// </summary>
         public void LoadSettings()
         {
-            if (File.Exists(settingFilename))
-            {
-                try
-                {
-                    settingObject = new Settings();
-                    settingObject = (Settings) ObjectSerializer.Deserialize(settingFilename, settingObject);
-                }
-                catch
-                {
-                    settingObject = new Settings();
-                    SaveSettings();
-                }
-            }
+            settingObject = new Settings();
+            if (!File.Exists(settingFilename)) SaveSettings();
             else
             {
-                settingObject = new Settings();
-                SaveSettings();
+                object obj = ObjectSerializer.Deserialize(settingFilename, settingObject);
+                settingObject = (Settings)obj;
             }
         }
 

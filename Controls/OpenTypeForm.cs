@@ -44,42 +44,18 @@ namespace QuickNavigatePlugin
                 context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
         }
 
-        private void listBox_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-                e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds);
-            else
-                e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
-
-            if (e.Index >= 0)
-            {
-                var fullName = (string) listBox.Items[e.Index];
-
-                int slashIndex = fullName.LastIndexOf('.');
-                string path = " " + fullName.Substring(0, slashIndex + 1);
-                string name = fullName.Substring(slashIndex + 1);
-
-                int pathSize = (int) e.Graphics.MeasureString(path, pathFont).Width - 4;
-                var nameBounds = new Rectangle(e.Bounds.X + pathSize, e.Bounds.Y + 1, e.Bounds.Width - pathSize, e.Bounds.Height + 1);
-
-                e.Graphics.DrawString(path, pathFont, Brushes.Gray, e.Bounds);
-                e.Graphics.DrawString(name, nameFont, Brushes.Black, nameBounds);
-                e.DrawFocusRectangle();
-            }
-        }
-
         private void RefreshListBox()
         {
             listBox.BeginUpdate();
             listBox.Items.Clear();
-            fillListBox();
+            FillListBox();
 
             if (listBox.Items.Count > 0) listBox.SelectedIndex = 0;
 
             listBox.EndUpdate();
         }
 
-        private void fillListBox()
+        private void FillListBox()
         {
             Settings settings = (Settings)plugin.Settings;
             bool wholeWord = settings.TypeFormWholeWord;
@@ -89,10 +65,10 @@ namespace QuickNavigatePlugin
 
             if (textBox.Text.Length > 0)
             {
-                matchedItems = SearchUtil.getMatchedItems(openedTypes, textBox.Text, ".", 0, wholeWord, matchCase);
+                matchedItems = SearchUtil.GetMatchedItems(openedTypes, textBox.Text, ".", 0, wholeWord, matchCase);
                 if (matchedItems.Capacity > 0) matchedItems.Add("-----------------");
 
-                matchedItems.AddRange(SearchUtil.getMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS, wholeWord, matchCase));
+                matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS, wholeWord, matchCase));
             }
             else matchedItems = openedTypes;
 
@@ -113,11 +89,11 @@ namespace QuickNavigatePlugin
 
             foreach (PathModel path in context.Classpath)
             {
-                path.ForeachFile(fileModelDelegate);
+                path.ForeachFile(FileModelDelegate);
             }
         }
 
-        private bool fileModelDelegate(FileModel model)
+        private bool FileModelDelegate(FileModel model)
         {
             foreach (ClassModel classModel in model.Classes)
             {
@@ -134,7 +110,6 @@ namespace QuickNavigatePlugin
             
             return true;
         }
-
 
         private void Navigate()
         {
@@ -172,7 +147,7 @@ namespace QuickNavigatePlugin
             }
         }
 
-        private void textBox_KeyDown(object sender, KeyEventArgs e)
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Down && listBox.SelectedIndex < listBox.Items.Count - 1)
             {
@@ -186,17 +161,41 @@ namespace QuickNavigatePlugin
             }
         }
 
-        private void textBox_TextChanged(object sender, EventArgs e)
+        private void TextBox_TextChanged(object sender, EventArgs e)
         {
             RefreshListBox();
         }
 
-        private void listBox_DoubleClick(object sender, EventArgs e)
+        private void ListBox_DoubleClick(object sender, EventArgs e)
         {
             Navigate();
         }
 
-        private void listBox_Resize(object sender, EventArgs e)
+        private void ListBox_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds);
+            else
+                e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
+
+            if (e.Index >= 0)
+            {
+                var fullName = (string)listBox.Items[e.Index];
+
+                int slashIndex = fullName.LastIndexOf('.');
+                string path = " " + fullName.Substring(0, slashIndex + 1);
+                string name = fullName.Substring(slashIndex + 1);
+
+                int pathSize = (int)e.Graphics.MeasureString(path, pathFont).Width - 4;
+                var nameBounds = new Rectangle(e.Bounds.X + pathSize, e.Bounds.Y + 1, e.Bounds.Width - pathSize, e.Bounds.Height + 1);
+
+                e.Graphics.DrawString(path, pathFont, Brushes.Gray, e.Bounds);
+                e.Graphics.DrawString(name, nameFont, Brushes.Black, nameBounds);
+                e.DrawFocusRectangle();
+            }
+        }
+
+        private void ListBox_Resize(object sender, EventArgs e)
         {
             listBox.Refresh();
         }

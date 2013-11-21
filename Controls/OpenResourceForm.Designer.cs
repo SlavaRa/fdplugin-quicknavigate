@@ -44,8 +44,8 @@
             this.textBox.Name = "textBox";
             this.textBox.Size = new System.Drawing.Size(338, 22);
             this.textBox.TabIndex = 1;
-            this.textBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
-            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_KeyDown);
+            this.textBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
+            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_KeyDown);
             // 
             // listBox
             // 
@@ -62,9 +62,9 @@
             this.listBox.Name = "listBox";
             this.listBox.Size = new System.Drawing.Size(365, 194);
             this.listBox.TabIndex = 2;
-            this.listBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox_DrawItem);
-            this.listBox.DoubleClick += new System.EventHandler(this.listBox_DoubleClick);
-            this.listBox.Resize += new System.EventHandler(this.listBox_Resize);
+            this.listBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ListBox_DrawItem);
+            this.listBox.DoubleClick += new System.EventHandler(this.ListBox_DoubleClick);
+            this.listBox.Resize += new System.EventHandler(this.ListBox_Resize);
             // 
             // refreshButton
             // 
@@ -76,12 +76,12 @@
             this.refreshButton.Size = new System.Drawing.Size(22, 22);
             this.refreshButton.TabIndex = 3;
             this.refreshButton.UseVisualStyleBackColor = true;
-            this.refreshButton.Click += new System.EventHandler(this.refreshButton_Click);
+            this.refreshButton.Click += new System.EventHandler(this.RefreshButton_Click);
             // 
             // worker
             // 
-            this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_DoWork);
-            this.worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.worker_RunWorkerCompleted);
+            this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.Worker_DoWork);
+            this.worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.Worker_RunWorkerCompleted);
             // 
             // messageLabel
             // 

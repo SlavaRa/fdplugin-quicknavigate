@@ -67,26 +67,6 @@ namespace QuickNavigatePlugin
             tree.ImageList = treeIcons;
         }
 
-        private void tree_DrawNode(object sender, DrawTreeNodeEventArgs e)
-        {
-            if ((e.State & TreeNodeStates.Selected) != 0)
-            {
-                int width = e.Bounds.Width + 10;
-                e.Graphics.FillRectangle(Brushes.SaddleBrown, e.Bounds.X, e.Bounds.Y, width, e.Bounds.Height);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-                using (Pen focusPen = new Pen(Color.Gray))
-                {
-                    focusPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
-                    e.Graphics.DrawRectangle(focusPen, e.Bounds.X, e.Bounds.Y, width - 1, e.Bounds.Height - 1);
-                }
-            }
-            else
-            {
-                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            }
-        }
-
         private void Navigate()
         {
             if (tree.SelectedNode != null)
@@ -172,12 +152,12 @@ namespace QuickNavigatePlugin
             (plugin.Settings as Settings).OutlineFormSize = Size;
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void TextBox1_TextChanged(object sender, EventArgs e)
         {
             RefreshTree();
         }
 
-        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        private void TextBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Down && tree.SelectedNode != null && tree.SelectedNode.NextVisibleNode != null)
             {
@@ -191,7 +171,27 @@ namespace QuickNavigatePlugin
             }
         }
 
-        private void tree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void Tree_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            if ((e.State & TreeNodeStates.Selected) != 0)
+            {
+                int width = e.Bounds.Width + 10;
+                e.Graphics.FillRectangle(Brushes.SaddleBrown, e.Bounds.X, e.Bounds.Y, width, e.Bounds.Height);
+                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                using (Pen focusPen = new Pen(Color.Gray))
+                {
+                    focusPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+                    e.Graphics.DrawRectangle(focusPen, e.Bounds.X, e.Bounds.Y, width - 1, e.Bounds.Height - 1);
+                }
+            }
+            else
+            {
+                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
+                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            }
+        }
+
+        private void Tree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
