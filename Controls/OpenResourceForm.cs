@@ -1,10 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using PluginCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Forms;
-using PluginCore;
 using System.IO;
+using System.Windows.Forms;
 
 namespace QuickNavigatePlugin
 {
@@ -158,22 +158,36 @@ namespace QuickNavigatePlugin
                 }
             }
 
+            if (PluginBase.CurrentProject.Language.StartsWith("haxe"))
+            {
+                string haxePath = Environment.ExpandEnvironmentVariables("%HAXEPATH%");
+                if (!string.IsNullOrEmpty(haxePath)) folders.Add(Path.Combine(haxePath, "std"));
+            }
+
             return folders;
         }
 
-        #region eventHandlers
+        #region Event Handlers
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Down && listBox.SelectedIndex < listBox.Items.Count - 1)
+            switch (e.KeyCode)
             {
-                listBox.SelectedIndex++;
-                e.Handled = true;
-            }
-            else if (e.KeyCode == Keys.Up && listBox.SelectedIndex > 0)
-            {
-                listBox.SelectedIndex--;
-                e.Handled = true;
+                case Keys.Down:
+                    if (listBox.SelectedIndex < listBox.Items.Count - 1)
+                    {
+                        listBox.SelectedIndex++;
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Up:
+                    if (listBox.SelectedIndex > 0)
+                    {
+                        listBox.SelectedIndex--;
+                        e.Handled = true;
+                    }
+                    break;
             }
         }
 
@@ -191,7 +205,7 @@ namespace QuickNavigatePlugin
         {
             if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
                 e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds);
-            else
+            else 
                 e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
 
             if (e.Index >= 0)
@@ -223,15 +237,21 @@ namespace QuickNavigatePlugin
 
         private void OpenResourceForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape)
-                Close();
-            else if (e.KeyCode == Keys.Enter)
+            switch (e.KeyCode)
             {
-                e.Handled = true;
-                Navigate();
+                case Keys.Escape:
+                    Close();
+                    break;
+
+                case Keys.Enter:
+                    e.Handled = true;
+                    Navigate();
+                    break;
+
+                case Keys.R:
+                    if (e.Control && !worker.IsBusy) LoadFileList();
+                    break;
             }
-            else if (e.Control && e.KeyCode == Keys.R && !worker.IsBusy)
-                LoadFileList();
         }
 
         private void OpenResourceForm_FormClosing(object sender, FormClosingEventArgs e)
