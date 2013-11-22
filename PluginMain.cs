@@ -93,8 +93,7 @@ namespace QuickNavigatePlugin
             AddEventHandlers();
             CreateMenuItems();
 
-            if (settingObject.CtrlClickEnabled)
-                controlClickManager = new ControlClickManager();
+            if (settingObject.CtrlClickEnabled) controlClickManager = new ControlClickManager();
         }
 		
 		/// <summary>
@@ -192,7 +191,7 @@ namespace QuickNavigatePlugin
         /// </summary>
         private void ShowResourceForm(object sender, EventArgs e)
 	    {
-            if (PluginBase.CurrentProject != null) new OpenResourceForm(settingObject as Settings).ShowDialog();
+            if (PluginBase.CurrentProject != null) new OpenResourceForm(settingObject).ShowDialog();
 	    }
 
         /// <summary>
@@ -200,7 +199,7 @@ namespace QuickNavigatePlugin
         /// </summary>
         private void ShowTypeForm(object sender, EventArgs e)
         {
-            if (PluginBase.CurrentProject != null) new OpenTypeForm(settingObject as Settings).ShowDialog();
+            if (PluginBase.CurrentProject != null) new OpenTypeForm(settingObject).ShowDialog();
         }
 
         /// <summary>
@@ -208,7 +207,7 @@ namespace QuickNavigatePlugin
         /// </summary>
         private void ShowOutlineForm(object sender, EventArgs e)
         {
-            if (PluginBase.CurrentProject != null) new QuickOutlineForm(settingObject as Settings).ShowDialog();
+            if (PluginBase.CurrentProject != null) new QuickOutlineForm(settingObject).ShowDialog();
         }
 
 		#endregion
