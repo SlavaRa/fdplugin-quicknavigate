@@ -129,6 +129,8 @@ namespace QuickNavigatePlugin
             }
         }
 
+        #region Event Handlers
+
         private void QuickOutlineForm_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -202,6 +204,8 @@ namespace QuickNavigatePlugin
         {
             Navigate();
         }
+
+        #endregion
 
     }
 }

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ASCompletion;
+using ASCompletion.Context;
+using ASCompletion.Model;
+using PluginCore;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using PluginCore;
-using ASCompletion.Context;
-using ASCompletion.Model;
-using ASCompletion;
 
 namespace QuickNavigatePlugin
 {
@@ -130,6 +130,8 @@ namespace QuickNavigatePlugin
             Close();
         }
 
+        #region Event Handlers
+
         private void OpenTypeForm_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -202,5 +204,8 @@ namespace QuickNavigatePlugin
         {
             settings.TypeFormSize = Size;
         }
+
+        #endregion
+
     }
 }
