@@ -1,22 +1,22 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
+﻿using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
+using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace QuickNavigatePlugin
 {
     public partial class QuickOutlineForm : Form
     {
-        private PluginMain plugin;
+        private Settings settings;
         
-        public QuickOutlineForm(PluginMain plugin)
+        public QuickOutlineForm(Settings settings)
         {
-            this.plugin = plugin;
+            this.settings = settings;
             InitializeComponent();
 
-            if ((plugin.Settings as Settings).OutlineFormSize.Width > MinimumSize.Width)
-                Size = (plugin.Settings as Settings).OutlineFormSize;
+            if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
 
             InitTree();
             RefreshTree();
@@ -106,7 +106,6 @@ namespace QuickNavigatePlugin
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
-            Settings settings = (Settings) plugin.Settings;
             bool wholeWord = settings.OutlineFormWholeWord;
             bool matchCase = settings.OutlineFormMatchCase;
             string searchedText = matchCase ? textBox.Text.Trim() : textBox.Text.ToLower().Trim();
@@ -122,13 +121,11 @@ namespace QuickNavigatePlugin
                 MemberTreeNode node = null;
                 if ((member.Flags & (FlagType.Constant | FlagType.Variable | FlagType.Function | FlagType.Getter | FlagType.Setter)) > 0)
                 {
-                    int imageIndex = ASCompletion.PluginUI.GetIcon(member.Flags, member.Access);
-                    node = new MemberTreeNode(member, imageIndex);
+                    node = new MemberTreeNode(member, PluginUI.GetIcon(member.Flags, member.Access));
                     nodes.Add(node);
                 }
 
-                if (tree.SelectedNode == null)
-                    tree.SelectedNode = node;
+                if (tree.SelectedNode == null) tree.SelectedNode = node;
             }
         }
 
@@ -149,7 +146,7 @@ namespace QuickNavigatePlugin
 
         private void QuickOutlineForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            (plugin.Settings as Settings).OutlineFormSize = Size;
+            settings.OutlineFormSize = Size;
         }
 
         private void TextBox1_TextChanged(object sender, EventArgs e)
@@ -159,15 +156,25 @@ namespace QuickNavigatePlugin
 
         private void TextBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Down && tree.SelectedNode != null && tree.SelectedNode.NextVisibleNode != null)
+            if (tree.SelectedNode == null) return;
+
+            switch (e.KeyCode)
             {
-                tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
-                e.Handled = true;
-            }
-            else if (e.KeyCode == Keys.Up && tree.SelectedNode != null && tree.SelectedNode.PrevVisibleNode != null)
-            {
-                tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
-                e.Handled = true;
+                case Keys.Down:
+                    if (tree.SelectedNode.NextVisibleNode != null)
+                    {
+                        tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Up:
+                    if (tree.SelectedNode.PrevVisibleNode != null)
+                    {
+                        tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                        e.Handled = true;
+                    }
+                    break;
             }
         }
 

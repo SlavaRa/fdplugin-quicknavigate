@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using System.ComponentModel;
@@ -23,8 +22,6 @@ namespace QuickNavigatePlugin
         private string settingFilename;
         private Settings settingObject;
 	    private ControlClickManager controlClickManager;
-
-        private List<string> projectFiles = new List<string>();
 
 	    #region Required Properties
 
@@ -144,7 +141,7 @@ namespace QuickNavigatePlugin
         }
 
         /// <summary>
-        /// 
+        /// Creates the required menu items
         /// </summary>
         public void CreateMenuItems()
         {
@@ -166,30 +163,6 @@ namespace QuickNavigatePlugin
             menuItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", menuItem);
             menu.DropDownItems.Add(menuItem);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void ShowResourceForm(object sender, EventArgs e)
-	    {
-            if (PluginBase.CurrentProject != null) new OpenResourceForm(this).ShowDialog();
-	    }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void ShowTypeForm(object sender, EventArgs e)
-        {
-            if (PluginBase.CurrentProject != null) new OpenTypeForm(this).ShowDialog();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void ShowOutlineForm(object sender, EventArgs e)
-        {
-            if (PluginBase.CurrentProject != null) new QuickOutlineForm(this).ShowDialog();
         }
 
         /// <summary>
@@ -217,76 +190,28 @@ namespace QuickNavigatePlugin
         /// <summary>
         /// 
         /// </summary>
-        public List<string> GetProjectFiles()
-        {
-            if (!settingObject.ResourcesCaching || projectFiles.Count == 0)
-                reloadProjectFiles();
+        private void ShowResourceForm(object sender, EventArgs e)
+	    {
+            if (PluginBase.CurrentProject != null) new OpenResourceForm(settingObject as Settings).ShowDialog();
+	    }
 
-            return projectFiles;
+        /// <summary>
+        /// 
+        /// </summary>
+        private void ShowTypeForm(object sender, EventArgs e)
+        {
+            if (PluginBase.CurrentProject != null) new OpenTypeForm(settingObject as Settings).ShowDialog();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public void invalidateCache()
+        private void ShowOutlineForm(object sender, EventArgs e)
         {
-            projectFiles.Clear();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void reloadProjectFiles()
-        {
-            projectFiles.Clear();
-
-            List<string> folders = GetProjectFolders();
-            foreach (string folder in folders)
-                if (Directory.Exists(folder))
-                    projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool isFileOpened(string file)
-        {
-            foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
-                if (doc.FileName == file)
-                    return true;
-
-            return false;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<string> GetProjectFolders()
-        {
-            List<string> folders = new List<string>();
-            IProject project = PluginBase.CurrentProject;
-            if (project == null) return folders;
-
-            string projectFolder = Path.GetDirectoryName(project.ProjectPath);
-            folders.Add(projectFolder);
-
-            if (!settingObject.SearchExternalClassPath) return folders;
-
-            foreach (string path in project.SourcePaths)
-            {
-                if (Path.IsPathRooted(path)) folders.Add(path);
-                else
-                {
-                    string folder = Path.GetFullPath(Path.Combine(projectFolder, path));
-                    if (!folder.StartsWith(projectFolder)) folders.Add(folder);
-                }
-            }
-
-            return folders;
+            if (PluginBase.CurrentProject != null) new QuickOutlineForm(settingObject as Settings).ShowDialog();
         }
 
 		#endregion
 
 	}
-	
 }

@@ -1,10 +1,20 @@
-﻿using System;
+﻿using PluginCore;
+using System;
 using System.Collections.Generic;
 
 namespace QuickNavigatePlugin
 {
     class SearchUtil
     {
+        public static bool IsFileOpened(string file)
+        {
+            foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
+                if (doc.FileName == file)
+                    return true;
+
+            return false;
+        }
+
         public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit) 
         {
             return GetMatchedItems(source, searchText, pathSeparator, limit, false);

@@ -14,23 +14,20 @@ namespace QuickNavigatePlugin
 
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
+        private Settings settings;
         private Font nameFont;
         private Font pathFont;
-        private PluginMain plugin;
-        private string defaultMessage;
 
-        public OpenResourceForm(PluginMain plugin)
+        public OpenResourceForm(Settings settings)
         {
-            this.plugin = plugin;
+            this.settings = settings;
             InitializeComponent();
 
-            if ((plugin.Settings as Settings).ResourceFormSize.Width > MinimumSize.Width)
-                Size = (plugin.Settings as Settings).ResourceFormSize;
+            if (settings.ResourceFormSize.Width > MinimumSize.Width) Size = settings.ResourceFormSize;
 
             pathFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
             nameFont = new Font("Courier New", 10, FontStyle.Regular);
 
-            defaultMessage = messageLabel.Text;
             refreshButton.Image = PluginBase.MainForm.FindImage("66");
             new ToolTip().SetToolTip(refreshButton, "Ctrl+R");
 
@@ -50,7 +47,6 @@ namespace QuickNavigatePlugin
 
         private void FillListBox()
         {
-            Settings settings = (Settings)plugin.Settings;
             bool wholeWord = settings.ResourceFormWholeWord;
             bool matchCase = settings.ResourceFormMatchCase;
 
@@ -82,13 +78,13 @@ namespace QuickNavigatePlugin
         private void RebuildJob()
         {
             IProject project = PluginBase.CurrentProject;
-            List<string> allFiles = plugin.GetProjectFiles();
+            List<string> allFiles = GetProjectFiles();
 
             foreach (string file in allFiles)
             {
                 if (IsFileHidden(file)) continue;
 
-                if (plugin.isFileOpened(file)) openedFiles.Add(project.GetRelativePath(file));
+                if (SearchUtil.IsFileOpened(file)) openedFiles.Add(project.GetRelativePath(file));
                 else projectFiles.Add(project.GetRelativePath(file));
             }
         }
@@ -115,7 +111,56 @@ namespace QuickNavigatePlugin
             listBox.Items.Clear();
             listBox.Items.Add(text);
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> GetProjectFiles()
+        {
+            if (!settings.ResourcesCaching || projectFiles.Count == 0) reloadProjectFiles();
+            return projectFiles;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void reloadProjectFiles()
+        {
+            projectFiles.Clear();
+
+            List<string> folders = GetProjectFolders();
+            foreach (string folder in folders)
+                if (Directory.Exists(folder))
+                    projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> GetProjectFolders()
+        {
+            List<string> folders = new List<string>();
+            IProject project = PluginBase.CurrentProject;
+            if (project == null) return folders;
+
+            string projectFolder = Path.GetDirectoryName(project.ProjectPath);
+            folders.Add(projectFolder);
+
+            if (!settings.SearchExternalClassPath) return folders;
+
+            foreach (string path in project.SourcePaths)
+            {
+                if (Path.IsPathRooted(path)) folders.Add(path);
+                else
+                {
+                    string folder = Path.GetFullPath(Path.Combine(projectFolder, path));
+                    if (!folder.StartsWith(projectFolder)) folders.Add(folder);
+                }
+            }
+
+            return folders;
+        }
+
         #region eventHandlers
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
@@ -173,11 +218,7 @@ namespace QuickNavigatePlugin
 
         private void RefreshButton_Click(object sender, EventArgs e)
         {
-            if (!worker.IsBusy)
-            {
-                plugin.invalidateCache();
-                LoadFileList();
-            }
+            if (!worker.IsBusy) LoadFileList();
         }
 
         private void OpenResourceForm_KeyDown(object sender, KeyEventArgs e)
@@ -190,15 +231,12 @@ namespace QuickNavigatePlugin
                 Navigate();
             }
             else if (e.Control && e.KeyCode == Keys.R && !worker.IsBusy)
-            {
-                plugin.invalidateCache();
                 LoadFileList();
-            }
         }
 
         private void OpenResourceForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            (plugin.Settings as Settings).ResourceFormSize = Size;
+            settings.ResourceFormSize = Size;
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)

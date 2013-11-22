@@ -15,19 +15,18 @@ namespace QuickNavigatePlugin
         
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
+        private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
+        private Settings settings;
         private Font nameFont;
         private Font pathFont;
-        private PluginMain plugin;
-        private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
         private IASContext context;
 
-        public OpenTypeForm(PluginMain plugin)
+        public OpenTypeForm(Settings settings)
         {
-            this.plugin = plugin;
+            this.settings = settings;
             InitializeComponent();
 
-            if ((plugin.Settings as Settings).TypeFormSize.Width > MinimumSize.Width)
-                Size = (plugin.Settings as Settings).TypeFormSize;
+            if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
 
             pathFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
             nameFont = new Font("Courier New", 10, FontStyle.Regular);
@@ -57,7 +56,6 @@ namespace QuickNavigatePlugin
 
         private void FillListBox()
         {
-            Settings settings = (Settings)plugin.Settings;
             bool wholeWord = settings.TypeFormWholeWord;
             bool matchCase = settings.TypeFormMatchCase;
 
@@ -100,7 +98,7 @@ namespace QuickNavigatePlugin
                 if (dictionary.ContainsKey(classModel.QualifiedName))
                     continue;
 
-                bool isFileOpened = plugin.isFileOpened(classModel.InFile.FileName);
+                bool isFileOpened = SearchUtil.IsFileOpened(classModel.InFile.FileName);
 
                 if (isFileOpened) openedTypes.Add(classModel.QualifiedName);
                 else projectTypes.Add(classModel.QualifiedName);
@@ -202,7 +200,7 @@ namespace QuickNavigatePlugin
 
         private void OpenTypeForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            (plugin.Settings as Settings).TypeFormSize = Size;
+            settings.TypeFormSize = Size;
         }
     }
 }
