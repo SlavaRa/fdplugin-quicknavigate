@@ -1,4 +1,5 @@
 ﻿using PluginCore;
+using ProjectManager.Projects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -128,8 +129,7 @@ namespace QuickNavigatePlugin
         {
             projectFiles.Clear();
 
-            List<string> folders = GetProjectFolders();
-            foreach (string folder in folders)
+            foreach (string folder in GetProjectFolders())
                 if (Directory.Exists(folder))
                     projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
         }
@@ -158,8 +158,11 @@ namespace QuickNavigatePlugin
                 }
             }
 
-            if (PluginBase.CurrentProject.Language.StartsWith("haxe"))
+            if (project.Language.StartsWith("haxe"))
             {
+                foreach (string additiaonalPath in (project as Project).AdditionalPaths)
+                    folders.Add(additiaonalPath);
+
                 string haxePath = Environment.ExpandEnvironmentVariables("%HAXEPATH%");
                 if (!string.IsNullOrEmpty(haxePath)) folders.Add(Path.Combine(haxePath, "std"));
             }
