@@ -16,9 +16,9 @@ namespace QuickNavigatePlugin
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
-        private Settings settings;
-        private Font nameFont;
-        private Font pathFont;
+        private readonly Settings settings;
+        private readonly Font nameFont;
+        private readonly Font pathFont;
         private IASContext context;
 
         public OpenTypeForm(Settings settings)

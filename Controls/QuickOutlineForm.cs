@@ -9,7 +9,7 @@ namespace QuickNavigatePlugin
 {
     public partial class QuickOutlineForm : Form
     {
-        private Settings settings;
+        private readonly Settings settings;
         
         public QuickOutlineForm(Settings settings)
         {

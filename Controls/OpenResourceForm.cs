@@ -15,9 +15,9 @@ namespace QuickNavigatePlugin
 
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
-        private Settings settings;
-        private Font nameFont;
-        private Font pathFont;
+        private readonly Settings settings;
+        private readonly Font nameFont;
+        private readonly Font pathFont;
 
         public OpenResourceForm(Settings settings)
         {
@@ -79,9 +79,7 @@ namespace QuickNavigatePlugin
         private void RebuildJob()
         {
             IProject project = PluginBase.CurrentProject;
-            List<string> allFiles = GetProjectFiles();
-
-            foreach (string file in allFiles)
+            foreach (string file in GetProjectFiles())
             {
                 if (IsFileHidden(file)) continue;
 
