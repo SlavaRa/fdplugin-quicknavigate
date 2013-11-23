@@ -171,11 +171,7 @@ namespace QuickNavigatePlugin
         {
             settingObject = new Settings();
             if (!File.Exists(settingFilename)) SaveSettings();
-            else
-            {
-                object obj = ObjectSerializer.Deserialize(settingFilename, settingObject);
-                settingObject = (Settings)obj;
-            }
+            else settingObject = (Settings)ObjectSerializer.Deserialize(settingFilename, settingObject);
         }
 
         /// <summary>
