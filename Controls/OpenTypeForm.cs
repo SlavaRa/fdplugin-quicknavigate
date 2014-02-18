@@ -19,7 +19,6 @@ namespace QuickNavigatePlugin
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
         private readonly Settings settings;
-        private IASContext context;
 
         public OpenTypeForm(Settings settings)
         {
@@ -31,16 +30,8 @@ namespace QuickNavigatePlugin
 
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
             
-            DetectContext();
             CreateItemsList();
             RefreshListBox();
-        }
-
-        private void DetectContext()
-        {
-            context = ASContext.Context;
-            if (PluginBase.CurrentProject != null)
-                context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
         }
 
         private void RefreshListBox()
@@ -82,9 +73,8 @@ namespace QuickNavigatePlugin
             openedTypes.Clear();
             dictionary.Clear();
 
-            if (context == null || context.Classpath == null || context.Classpath.Count == 0)
-                return;
-
+            IASContext context = ASContext.Context;
+            if (context == null) return;
             foreach (PathModel path in context.Classpath)
             {
                 path.ForeachFile(FileModelDelegate);
@@ -95,12 +85,8 @@ namespace QuickNavigatePlugin
         {
             foreach (ClassModel classModel in model.Classes)
             {
-                if (dictionary.ContainsKey(classModel.QualifiedName))
-                    continue;
-
-                bool isFileOpened = SearchUtil.IsFileOpened(classModel.InFile.FileName);
-
-                if (isFileOpened) openedTypes.Add(classModel.QualifiedName);
+                if (dictionary.ContainsKey(classModel.QualifiedName)) continue;
+                if (SearchUtil.IsFileOpened(classModel.InFile.FileName)) openedTypes.Add(classModel.QualifiedName);
                 else projectTypes.Add(classModel.QualifiedName);
 
                 dictionary.Add(classModel.QualifiedName, classModel);
