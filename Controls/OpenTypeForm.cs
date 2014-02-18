@@ -2,6 +2,7 @@
 using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
+using PluginCore.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,14 +18,13 @@ namespace QuickNavigatePlugin
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
-        private readonly Font nameFont = PluginBase.Settings.DefaultFont;
-        private readonly Font pathFont = PluginBase.Settings.DefaultFont;
         private readonly Settings settings;
         private IASContext context;
 
         public OpenTypeForm(Settings settings)
         {
             this.settings = settings;
+            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
 
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
@@ -180,18 +180,14 @@ namespace QuickNavigatePlugin
 
             if (e.Index >= 0)
             {
-                var fullName = (string)listBox.Items[e.Index];
-
+                string fullName = (string)listBox.Items[e.Index];
                 int slashIndex = fullName.LastIndexOf('.');
-                string path = " " + fullName.Substring(0, slashIndex + 1);
+                string path = fullName.Substring(0, slashIndex + 1);
                 string name = fullName.Substring(slashIndex + 1);
-
-                int pathSize = (int)e.Graphics.MeasureString(path, pathFont).Width - 4;
-                var nameBounds = new Rectangle(e.Bounds.X + pathSize, e.Bounds.Y + 1, e.Bounds.Width - pathSize, e.Bounds.Height + 1);
-
-                e.Graphics.DrawString(path, pathFont, Brushes.Gray, e.Bounds);
-                e.Graphics.DrawString(name, nameFont, Brushes.Black, nameBounds);
-                e.DrawFocusRectangle();
+                int pathSize = DrawHelper.MeasureDisplayStringWidth(e.Graphics, path, e.Font) - 2;
+                if (pathSize < 0) pathSize = 0; // No negative padding...
+                e.Graphics.DrawString(path, e.Font, Brushes.Gray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                e.Graphics.DrawString(name, e.Font, Brushes.Black, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
             }
         }
 

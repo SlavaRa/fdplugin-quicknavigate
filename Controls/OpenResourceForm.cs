@@ -1,4 +1,5 @@
 ﻿using PluginCore;
+using PluginCore.Helpers;
 using ProjectManager.Projects;
 using System;
 using System.Collections.Generic;
@@ -16,13 +17,12 @@ namespace QuickNavigatePlugin
 
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
-        private readonly Font nameFont = PluginBase.Settings.DefaultFont;
-        private readonly Font pathFont = PluginBase.Settings.DefaultFont;
         private readonly Settings settings;
 
         public OpenResourceForm(Settings settings)
         {
             this.settings = settings;
+            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
 
             if (settings.ResourceFormSize.Width > MinimumSize.Width) Size = settings.ResourceFormSize;
@@ -82,7 +82,6 @@ namespace QuickNavigatePlugin
             foreach (string file in GetProjectFiles())
             {
                 if (IsFileHidden(file)) continue;
-
                 if (SearchUtil.IsFileOpened(file)) openedFiles.Add(project.GetRelativePath(file));
                 else projectFiles.Add(project.GetRelativePath(file));
             }
@@ -116,20 +115,14 @@ namespace QuickNavigatePlugin
         /// </summary>
         public List<string> GetProjectFiles()
         {
-            if (!settings.ResourcesCaching || projectFiles.Count == 0) reloadProjectFiles();
+            if (!settings.ResourcesCaching || projectFiles.Count == 0)
+            {
+                projectFiles.Clear();
+                foreach (string folder in GetProjectFolders())
+                    if (Directory.Exists(folder))
+                        projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
+            }
             return projectFiles;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void reloadProjectFiles()
-        {
-            projectFiles.Clear();
-
-            foreach (string folder in GetProjectFolders())
-                if (Directory.Exists(folder))
-                    projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
         }
 
         /// <summary>
@@ -211,18 +204,14 @@ namespace QuickNavigatePlugin
             
             if (e.Index >= 0)
             {
-                var fullName = (string)listBox.Items[e.Index];
-            
-                int slashIndex = fullName.LastIndexOf('\\');
-                string path = " " + fullName.Substring(0, slashIndex + 1);
+                string fullName = (string)listBox.Items[e.Index];
+                int slashIndex = fullName.LastIndexOf(Path.DirectorySeparatorChar);
+                string path = fullName.Substring(0, slashIndex + 1);
                 string name = fullName.Substring(slashIndex + 1);
-            
-                int pathSize = (int)e.Graphics.MeasureString(path, pathFont).Width - 2;
-                var nameBounds = new Rectangle(e.Bounds.X + pathSize, e.Bounds.Y, e.Bounds.Width - pathSize, e.Bounds.Height);
-            
-                e.Graphics.DrawString(path, pathFont, Brushes.Gray, e.Bounds);
-                e.Graphics.DrawString(name, nameFont, Brushes.Black, nameBounds);
-                e.DrawFocusRectangle();
+                int pathSize = DrawHelper.MeasureDisplayStringWidth(e.Graphics, path, e.Font) - 2;
+                if (pathSize < 0) pathSize = 0; // No negative padding...
+                e.Graphics.DrawString(path, e.Font, Brushes.Gray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                e.Graphics.DrawString(name, e.Font, Brushes.Black, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
             }
         }
 
