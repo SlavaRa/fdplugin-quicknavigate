@@ -1,4 +1,5 @@
 ﻿using PluginCore;
+using PluginCore.Helpers;
 using ProjectManager.Projects;
 using System;
 using System.Collections.Generic;
@@ -12,22 +13,21 @@ namespace QuickNavigatePlugin
     public partial class OpenResourceForm : Form
     {
         private const int MAX_ITEMS = 100;
+        private const string ITEM_SPACER = "-----------------";
 
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
         private readonly Settings settings;
-        private readonly Font nameFont;
-        private readonly Font pathFont;
 
         public OpenResourceForm(Settings settings)
         {
             this.settings = settings;
+            Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
 
             if (settings.ResourceFormSize.Width > MinimumSize.Width) Size = settings.ResourceFormSize;
 
-            pathFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
-            nameFont = new Font("Courier New", 10, FontStyle.Regular);
+            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
 
             refreshButton.Image = PluginBase.MainForm.FindImage("66");
             new ToolTip().SetToolTip(refreshButton, "Ctrl+R");
@@ -56,7 +56,7 @@ namespace QuickNavigatePlugin
             if (textBox.Text.Length > 0)
             {
                 matchedItems = SearchUtil.GetMatchedItems(openedFiles, textBox.Text, "\\", 0, wholeWord, matchCase);
-                if (matchedItems.Capacity > 0) matchedItems.Add("-----------------");
+                if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
 
                 matchedItems.AddRange(SearchUtil.GetMatchedItems(projectFiles, textBox.Text, "\\", MAX_ITEMS, wholeWord, matchCase));
             }
@@ -82,7 +82,6 @@ namespace QuickNavigatePlugin
             foreach (string file in GetProjectFiles())
             {
                 if (IsFileHidden(file)) continue;
-
                 if (SearchUtil.IsFileOpened(file)) openedFiles.Add(project.GetRelativePath(file));
                 else projectFiles.Add(project.GetRelativePath(file));
             }
@@ -116,20 +115,14 @@ namespace QuickNavigatePlugin
         /// </summary>
         public List<string> GetProjectFiles()
         {
-            if (!settings.ResourcesCaching || projectFiles.Count == 0) reloadProjectFiles();
+            if (!settings.ResourcesCaching || projectFiles.Count == 0)
+            {
+                projectFiles.Clear();
+                foreach (string folder in GetProjectFolders())
+                    if (Directory.Exists(folder))
+                        projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
+            }
             return projectFiles;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void reloadProjectFiles()
-        {
-            projectFiles.Clear();
-
-            foreach (string folder in GetProjectFolders())
-                if (Directory.Exists(folder))
-                    projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
         }
 
         /// <summary>
@@ -204,25 +197,29 @@ namespace QuickNavigatePlugin
 
         private void ListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-                e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds);
-            else 
-                e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
-
+            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            if (selected) e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
+            else e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
+            
             if (e.Index >= 0)
             {
-                var fullName = (string)listBox.Items[e.Index];
-
-                int slashIndex = fullName.LastIndexOf('\\');
-                string path = " " + fullName.Substring(0, slashIndex + 1);
+                string fullName = (string)listBox.Items[e.Index];
+                int slashIndex = fullName.LastIndexOf(Path.DirectorySeparatorChar);
+                string path = fullName.Substring(0, slashIndex + 1);
                 string name = fullName.Substring(slashIndex + 1);
-
-                int pathSize = (int)e.Graphics.MeasureString(path, pathFont).Width - 2;
-                var nameBounds = new Rectangle(e.Bounds.X + pathSize, e.Bounds.Y, e.Bounds.Width - pathSize, e.Bounds.Height);
-
-                e.Graphics.DrawString(path, pathFont, Brushes.Gray, e.Bounds);
-                e.Graphics.DrawString(name, nameFont, Brushes.Black, nameBounds);
-                e.DrawFocusRectangle();
+                int pathSize = DrawHelper.MeasureDisplayStringWidth(e.Graphics, path, e.Font) - 2;
+                if (pathSize < 0) pathSize = 0; // No negative padding...
+    
+                if(selected)
+                {
+                    e.Graphics.DrawString(path, e.Font, Brushes.LightGray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                    e.Graphics.DrawString(name, e.Font, Brushes.White, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
+                }
+                else
+                {
+                    e.Graphics.DrawString(path, e.Font, Brushes.Gray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                    e.Graphics.DrawString(name, e.Font, Brushes.Black, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
+                }
             }
         }
 
