@@ -151,8 +151,7 @@ namespace QuickNavigatePlugin
 
             if (project.Language.StartsWith("haxe"))
             {
-                foreach (string additiaonalPath in (project as Project).AdditionalPaths)
-                    folders.Add(additiaonalPath);
+                folders.AddRange((project as Project).AdditionalPaths);
 
                 string haxePath = Environment.ExpandEnvironmentVariables("%HAXEPATH%");
                 if (!string.IsNullOrEmpty(haxePath)) folders.Add(Path.Combine(haxePath, "std"));
