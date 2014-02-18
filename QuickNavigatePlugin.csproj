@@ -95,6 +95,10 @@
       <Project>{78101c01-e186-4954-b1dd-debb7905fad8}</Project>
       <Name>ProjectManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\FlashDevelop-fork-work\FlashDevelop\FlashDevelop.csproj">
+      <Project>{efd07485-9a64-4eec-94e7-acbd4da5ca93}</Project>
+      <Name>FlashDevelop</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\FlashDevelop-fork-work\PluginCore\PluginCore.csproj">
       <Project>{61885F70-B4DC-4B44-852D-5D6D03F2A734}</Project>
       <Name>PluginCore</Name>

@@ -26,6 +26,8 @@ namespace QuickNavigatePlugin
 
             if (settings.ResourceFormSize.Width > MinimumSize.Width) Size = settings.ResourceFormSize;
 
+            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+
             pathFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
             nameFont = new Font("Courier New", 10, FontStyle.Regular);
 
@@ -208,18 +210,18 @@ namespace QuickNavigatePlugin
                 e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds);
             else 
                 e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
-
+            
             if (e.Index >= 0)
             {
                 var fullName = (string)listBox.Items[e.Index];
-
+            
                 int slashIndex = fullName.LastIndexOf('\\');
                 string path = " " + fullName.Substring(0, slashIndex + 1);
                 string name = fullName.Substring(slashIndex + 1);
-
+            
                 int pathSize = (int)e.Graphics.MeasureString(path, pathFont).Width - 2;
                 var nameBounds = new Rectangle(e.Bounds.X + pathSize, e.Bounds.Y, e.Bounds.Width - pathSize, e.Bounds.Height);
-
+            
                 e.Graphics.DrawString(path, pathFont, Brushes.Gray, e.Bounds);
                 e.Graphics.DrawString(name, nameFont, Brushes.Black, nameBounds);
                 e.DrawFocusRectangle();

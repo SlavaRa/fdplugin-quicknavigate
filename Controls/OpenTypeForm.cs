@@ -28,6 +28,8 @@ namespace QuickNavigatePlugin
 
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
 
+            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+
             pathFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
             nameFont = new Font("Courier New", 10, FontStyle.Regular);
 

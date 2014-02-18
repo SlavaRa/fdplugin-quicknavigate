@@ -1,6 +1,7 @@
 ﻿using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
+using PluginCore;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -17,6 +18,8 @@ namespace QuickNavigatePlugin
             InitializeComponent();
 
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
+
+            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
 
             InitTree();
             RefreshTree();
@@ -182,10 +185,10 @@ namespace QuickNavigatePlugin
 
         private void Tree_DrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            if ((e.State & TreeNodeStates.Selected) != 0)
+            if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 int width = e.Bounds.Width + 10;
-                e.Graphics.FillRectangle(Brushes.SaddleBrown, e.Bounds.X, e.Bounds.Y, width, e.Bounds.Height);
+                e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds.X, e.Bounds.Y, width, e.Bounds.Height);
                 e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
                 using (Pen focusPen = new Pen(Color.Gray))
                 {
