@@ -12,13 +12,14 @@ namespace QuickNavigatePlugin
     public partial class OpenTypeForm : Form
     {
         private const int MAX_ITEMS = 100;
+        private const string ITEM_SPACER = "-----------------";
         
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
+        private readonly Font nameFont = PluginBase.Settings.DefaultFont;
+        private readonly Font pathFont = PluginBase.Settings.DefaultFont;
         private readonly Settings settings;
-        private readonly Font nameFont;
-        private readonly Font pathFont;
         private IASContext context;
 
         public OpenTypeForm(Settings settings)
@@ -29,10 +30,7 @@ namespace QuickNavigatePlugin
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
 
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
-
-            pathFont = new Font(listBox.Font.Name, listBox.Font.Size, FontStyle.Regular);
-            nameFont = new Font("Courier New", 10, FontStyle.Regular);
-
+            
             DetectContext();
             CreateItemsList();
             RefreshListBox();
@@ -66,7 +64,7 @@ namespace QuickNavigatePlugin
             if (textBox.Text.Length > 0)
             {
                 matchedItems = SearchUtil.GetMatchedItems(openedTypes, textBox.Text, ".", 0, wholeWord, matchCase);
-                if (matchedItems.Capacity > 0) matchedItems.Add("-----------------");
+                if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
 
                 matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS, wholeWord, matchCase));
             }
