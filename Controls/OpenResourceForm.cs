@@ -22,7 +22,7 @@ namespace QuickNavigatePlugin
         public OpenResourceForm(Settings settings)
         {
             this.settings = settings;
-            Font = PluginBase.Settings.DefaultFont;
+            Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
 
             if (settings.ResourceFormSize.Width > MinimumSize.Width) Size = settings.ResourceFormSize;
@@ -197,10 +197,9 @@ namespace QuickNavigatePlugin
 
         private void ListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-                e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds);
-            else 
-                e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
+            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            if (selected) e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
+            else e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
             
             if (e.Index >= 0)
             {
@@ -210,8 +209,17 @@ namespace QuickNavigatePlugin
                 string name = fullName.Substring(slashIndex + 1);
                 int pathSize = DrawHelper.MeasureDisplayStringWidth(e.Graphics, path, e.Font) - 2;
                 if (pathSize < 0) pathSize = 0; // No negative padding...
-                e.Graphics.DrawString(path, e.Font, Brushes.Gray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-                e.Graphics.DrawString(name, e.Font, Brushes.Black, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
+    
+                if(selected)
+                {
+                    e.Graphics.DrawString(path, e.Font, Brushes.LightGray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                    e.Graphics.DrawString(name, e.Font, Brushes.White, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
+                }
+                else
+                {
+                    e.Graphics.DrawString(path, e.Font, Brushes.Gray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                    e.Graphics.DrawString(name, e.Font, Brushes.Black, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
+                }
             }
         }
 

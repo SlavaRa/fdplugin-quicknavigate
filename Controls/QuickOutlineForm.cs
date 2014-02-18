@@ -188,7 +188,7 @@ namespace QuickNavigatePlugin
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 int width = e.Bounds.Width + 10;
-                e.Graphics.FillRectangle(Brushes.LightSkyBlue, e.Bounds.X, e.Bounds.Y, width, e.Bounds.Height);
+                e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds.X, e.Bounds.Y, width, e.Bounds.Height);
                 e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
                 using (Pen focusPen = new Pen(Color.Gray))
                 {
