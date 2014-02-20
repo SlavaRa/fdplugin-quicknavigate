@@ -73,7 +73,7 @@ namespace QuickNavigatePlugin
             openedTypes.Clear();
             dictionary.Clear();
 
-            IASContext context = ASContext.Context;
+            IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
             foreach (PathModel path in context.Classpath)
             {
