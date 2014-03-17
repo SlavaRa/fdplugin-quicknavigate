@@ -98,7 +98,8 @@ namespace QuickNavigatePlugin
         private void Navigate()
         {
             if (listBox.SelectedItem == null) return;
-
+            string selectedItem = listBox.SelectedItem.ToString();
+            if (selectedItem == ITEM_SPACER) return;
             ClassModel classModel = dictionary[listBox.SelectedItem.ToString()];
             FileModel model = ModelsExplorer.Instance.OpenFile(classModel.InFile.FileName);
             if (model != null)
