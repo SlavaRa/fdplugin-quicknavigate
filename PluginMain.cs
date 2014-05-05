@@ -177,7 +177,12 @@ namespace QuickNavigatePlugin
         {
             settingObject = new Settings();
             if (!File.Exists(settingFilename)) SaveSettings();
-            else settingObject = (Settings)ObjectSerializer.Deserialize(settingFilename, settingObject);
+            else
+            {
+                settingObject = (Settings)ObjectSerializer.Deserialize(settingFilename, settingObject);
+                settingObject.HighlightReferences = QuickNavigatePlugin.Settings.HIGHLIGHT_REFERENCES;
+                settingObject.HighlightUpdateInterval = QuickNavigatePlugin.Settings.HIGHLIGHT_UPDATE_INTERVAL;
+            }
         }
 
         /// <summary>
@@ -217,6 +222,7 @@ namespace QuickNavigatePlugin
         /// </summary>
         private void ApplyHighlightSettings()
         {
+            if (settingObject.HighlightUpdateInterval != highlightManager.Interval) highlightManager.Interval = settingObject.HighlightUpdateInterval;
             if (settingObject.HighlightReferences) highlightManager.Start();
             else highlightManager.Stop();
         }
