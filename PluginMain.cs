@@ -222,6 +222,8 @@ namespace QuickNavigatePlugin
         /// </summary>
         private void ApplyHighlightSettings()
         {
+            if (settingObject.HighlightUpdateInterval < QuickNavigatePlugin.Settings.HIGHLIGHT_UPDATE_INTERVAL)
+                settingObject.HighlightUpdateInterval = QuickNavigatePlugin.Settings.HIGHLIGHT_UPDATE_INTERVAL;
             if (settingObject.HighlightUpdateInterval != highlightManager.Interval) highlightManager.Interval = settingObject.HighlightUpdateInterval;
             if (settingObject.HighlightReferences) highlightManager.Start();
             else highlightManager.Stop();
