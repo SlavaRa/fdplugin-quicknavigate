@@ -29,24 +29,6 @@ namespace QuickNavigatePlugin
 
         #endregion
 
-        public const bool HIGHLIGHT_REFERENCES = false;
-
-        [Category("Highlight")]
-        [DisplayName("Highlight references to symbol under cursor")]
-        [DefaultValue(HIGHLIGHT_REFERENCES)]
-        public bool HighlightReferences { get; set; }
-
-        public const int HIGHLIGHT_UPDATE_INTERVAL = 500;
-
-        [Category("Highlight")]
-        [DisplayName("Update interval")]
-        [DefaultValue(HIGHLIGHT_UPDATE_INTERVAL)]
-        public int HighlightUpdateInterval { get; set; }
-
-        #region Highlight
-
-        #endregion
-
         #region Resource Form
 
         [Browsable(false)]
