@@ -22,9 +22,14 @@ namespace QuickNavigatePlugin
             timer.Tick += TimerTick;
         }
 
+        public int Interval { 
+            get { return timer.Interval; }
+            set { timer.Interval = value; }
+        }
+
         internal void Start()
         {
-            if(!timer.Enabled) timer.Start();
+            if (!timer.Enabled) timer.Start();
         }
 
         internal void Stop()
