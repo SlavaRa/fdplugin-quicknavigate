@@ -1,0 +1,6 @@
+﻿namespace QuickNavigatePlugin
+{
+    class HighlightManager
+    {
+    }
+}
