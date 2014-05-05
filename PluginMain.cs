@@ -22,6 +22,7 @@ namespace QuickNavigatePlugin
         private string settingFilename;
         private Settings settingObject;
 	    private ControlClickManager controlClickManager;
+        private HighlightManager highlightManager;
 
 	    #region Required Properties
 
@@ -92,8 +93,10 @@ namespace QuickNavigatePlugin
             LoadSettings();
             AddEventHandlers();
             CreateMenuItems();
-
             if (settingObject.CtrlClickEnabled) controlClickManager = new ControlClickManager();
+            
+            highlightManager = new HighlightManager();
+            ApplyHighlightSettings();
         }
 		
 		/// <summary>
@@ -114,10 +117,13 @@ namespace QuickNavigatePlugin
                 case EventType.FileSwitch:
                     if (controlClickManager != null) controlClickManager.SciControl = PluginBase.MainForm.CurrentDocument.SciControl;
                     break;
+                case EventType.SettingChanged:
+                    ApplyHighlightSettings();
+                    break;
             }
 		}
-		
-		#endregion
+
+        #endregion
         
         #region Custom Methods
        
@@ -136,7 +142,7 @@ namespace QuickNavigatePlugin
         /// </summary>
         public void AddEventHandlers()
         {
-            EventManager.AddEventHandler(this, EventType.FileSwitch | EventType.Command);
+            EventManager.AddEventHandler(this, EventType.FileSwitch | EventType.Command | EventType.SettingChanged);
         }
 
         /// <summary>
@@ -204,6 +210,15 @@ namespace QuickNavigatePlugin
         private void ShowOutlineForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject != null) new QuickOutlineForm(settingObject).ShowDialog();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void ApplyHighlightSettings()
+        {
+            if (settingObject.HighlightReferences) highlightManager.Start();
+            else highlightManager.Stop();
         }
 
 		#endregion
