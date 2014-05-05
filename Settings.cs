@@ -13,24 +13,24 @@ namespace QuickNavigatePlugin
         [DisplayName("Enable navigation by Ctrl+Click")]
         [Description("Go to declaration by Ctrl+Click on the word")]
         [DefaultValue(true)]
-        public Boolean CtrlClickEnabled { get;set; }
+        public bool CtrlClickEnabled { get;set; }
 
         [Category("General")]
         [DisplayName("Search in external classpath")]
         [Description("Enable searching files in external classpath")]
         [DefaultValue(true)]
-        public Boolean SearchExternalClassPath { get;set; }
+        public bool SearchExternalClassPath { get;set; }
 
         [Category("General")]
         [DisplayName("Cache resources")]
         [Description("Do not read resources each time dialog is opening")]
         [DefaultValue(false)]
-        public Boolean ResourcesCaching { get;set; }
+        public bool ResourcesCaching { get;set; }
 
         [Category("General")]
         [DisplayName("Highlight references to symbol under cursor")]
         [DefaultValue(true)]
-        public Boolean HighlightReferences { get; set; }
+        public bool HighlightReferences { get; set; }
 
         #endregion
 
