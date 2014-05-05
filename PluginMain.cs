@@ -154,7 +154,7 @@ namespace QuickNavigatePlugin
             menu.DropDownItems.Add(menuItem);
 
             image = PluginBase.MainForm.FindImage("99|16|0|0");
-            menuItem = new ToolStripMenuItem("Open Type", image, ShowTypeForm, Keys.Control | Keys.Y);
+            menuItem = new ToolStripMenuItem("Open Type", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.OpenType", menuItem);
             menu.DropDownItems.Add(menuItem);
 
