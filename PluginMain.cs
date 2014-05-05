@@ -22,7 +22,6 @@ namespace QuickNavigatePlugin
         private string settingFilename;
         private Settings settings;
 	    private ControlClickManager controlClickManager;
-        private HighlightManager highlightManager;
 
 	    #region Required Properties
 
@@ -94,9 +93,6 @@ namespace QuickNavigatePlugin
             AddEventHandlers();
             CreateMenuItems();
             if (settings.CtrlClickEnabled) controlClickManager = new ControlClickManager();
-            
-            highlightManager = new HighlightManager();
-            ApplyHighlightSettings();
         }
 		
 		/// <summary>
@@ -116,9 +112,6 @@ namespace QuickNavigatePlugin
             {
                 case EventType.FileSwitch:
                     if (controlClickManager != null) controlClickManager.SciControl = PluginBase.MainForm.CurrentDocument.SciControl;
-                    break;
-                case EventType.SettingChanged:
-                    ApplyHighlightSettings();
                     break;
             }
 		}
@@ -176,12 +169,7 @@ namespace QuickNavigatePlugin
         public void LoadSettings()
         {
             settings = new Settings();
-            if (!File.Exists(settingFilename))
-            {
-                settings.HighlightReferences = QuickNavigatePlugin.Settings.HIGHLIGHT_REFERENCES;
-                settings.HighlightUpdateInterval = QuickNavigatePlugin.Settings.HIGHLIGHT_UPDATE_INTERVAL;
-                SaveSettings();
-            }
+            if (!File.Exists(settingFilename)) SaveSettings();
             else settings = (Settings)ObjectSerializer.Deserialize(settingFilename, settings);
         }
 
@@ -215,18 +203,6 @@ namespace QuickNavigatePlugin
         private void ShowOutlineForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject != null) new QuickOutlineForm(settings).ShowDialog();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void ApplyHighlightSettings()
-        {
-            if (settings.HighlightUpdateInterval < QuickNavigatePlugin.Settings.HIGHLIGHT_UPDATE_INTERVAL)
-                settings.HighlightUpdateInterval = QuickNavigatePlugin.Settings.HIGHLIGHT_UPDATE_INTERVAL;
-            if (settings.HighlightUpdateInterval != highlightManager.Interval) highlightManager.Interval = settings.HighlightUpdateInterval;
-            if (settings.HighlightReferences) highlightManager.Start();
-            else highlightManager.Stop();
         }
 
 		#endregion

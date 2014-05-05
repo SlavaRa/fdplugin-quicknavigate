@@ -79,7 +79,6 @@
     <Compile Include="Controls\OpenTypeForm.Designer.cs">
       <DependentUpon>OpenTypeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="HighlightManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PluginMain.cs" />
     <Compile Include="Controls\QuickOutlineForm.cs">
