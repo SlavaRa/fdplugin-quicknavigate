@@ -23,7 +23,7 @@ namespace QuickNavigatePlugin
 
         [Category("General")]
         [DisplayName("Cache resources")]
-        [Description("Do not read resources each time dialog is opening.")]
+        [Description("Do not read resources each time dialog is opening")]
         [DefaultValue(false)]
         public Boolean ResourcesCaching { get;set; }
 
