@@ -27,6 +27,11 @@ namespace QuickNavigatePlugin
         [DefaultValue(false)]
         public Boolean ResourcesCaching { get;set; }
 
+        [Category("General")]
+        [DisplayName("Highlight references to symbol under cursor")]
+        [DefaultValue(true)]
+        public Boolean HighlightReferences { get; set; }
+
         #endregion
 
         #region Resource Form
