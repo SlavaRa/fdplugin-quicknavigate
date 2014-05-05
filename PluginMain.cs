@@ -176,13 +176,13 @@ namespace QuickNavigatePlugin
         public void LoadSettings()
         {
             settings = new Settings();
-            if (!File.Exists(settingFilename)) SaveSettings();
-            else
+            if (!File.Exists(settingFilename))
             {
-                settings = (Settings)ObjectSerializer.Deserialize(settingFilename, settings);
                 settings.HighlightReferences = QuickNavigatePlugin.Settings.HIGHLIGHT_REFERENCES;
                 settings.HighlightUpdateInterval = QuickNavigatePlugin.Settings.HIGHLIGHT_UPDATE_INTERVAL;
+                SaveSettings();
             }
+            else settings = (Settings)ObjectSerializer.Deserialize(settingFilename, settings);
         }
 
         /// <summary>
