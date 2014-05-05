@@ -18,11 +18,10 @@ namespace QuickNavigatePlugin
         public HighlightManager()
         {
             timer = new Timer();
-            timer.Interval = 500;
             timer.Tick += TimerTick;
         }
 
-        public int Interval { 
+        public int Interval {
             get { return timer.Interval; }
             set { timer.Interval = value; }
         }
