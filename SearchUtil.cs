@@ -1,5 +1,4 @@
 ﻿using PluginCore;
-using System;
 using System.Collections.Generic;
 
 namespace QuickNavigatePlugin
@@ -11,7 +10,6 @@ namespace QuickNavigatePlugin
             foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
                 if (doc.FileName == file)
                     return true;
-
             return false;
         }
 
@@ -29,20 +27,16 @@ namespace QuickNavigatePlugin
         {
             List<string> matchedItems = new List<string>();
             int i = 0;
-
             foreach (string item in source)
             {
                 string itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
-
                 if (itemName.Length < searchText.Length) continue;
-
                 if (SimpleSearchMatch(itemName, searchText, wholeWord, matchCase) || AdvancedSearchMatch(itemName, searchText, matchCase))
                 {
                     matchedItems.Add(item);
                     if (limit > 0 && i++ > limit) break;
                 }
             }
-
             return matchedItems;
         }
 
@@ -58,7 +52,6 @@ namespace QuickNavigatePlugin
                 item = item.ToLower();
                 search = search.ToLower();
             }
-
             if (!wholeWord) return item.IndexOf(search) != -1;
             return item.StartsWith(search);
         }
@@ -71,33 +64,25 @@ namespace QuickNavigatePlugin
         private static bool AdvancedSearchMatch(string item, string searchText, bool matchCase)
         {
             List<string> parts = GetParts(item, matchCase);
-
             if (parts.Count == 0) return false;
-
             if (!matchCase) searchText = searchText.ToLower();
-
             int partNum = 0;
             char[] search = searchText.ToCharArray();
             int si = 0;
             int sl = searchText.Length;
-
             while (si < sl && partNum < parts.Count)
             {
                 char[] part = parts[partNum].ToCharArray();
                 int pi = 0;
                 int pl = part.Length;
-
                 while (si < sl && pi < pl && search[si] == part[pi])
                 {
                     si++;
                     pi++;
                 }
-
                 if (pi == 0) break;
-
                 partNum++;
             }
-
             return si == sl;
         }
 
@@ -109,21 +94,16 @@ namespace QuickNavigatePlugin
         private static List<string> GetParts(string item, bool matchCase)
         {
             List<string> parts = new List<string>();
-
             char[] chars = item.ToCharArray();
             int i = 0;
             int length = chars.Length;
-
             while (i < length)
             {
                 while (i < length && !char.IsLetter(chars[i]))
                     i++;
-
                 if (i == length) break;
-
                 string part = chars[i].ToString();
                 var j = i + 1;
-
                 if (j == length)
                 {
                 }
@@ -152,16 +132,11 @@ namespace QuickNavigatePlugin
                         }
                     }
                 }
-
                 if (!matchCase) part = part.ToLower();
-
                 parts.Add(part);
-
                 i = j;
             }
-
             return parts;
         }
-
     }
 }
