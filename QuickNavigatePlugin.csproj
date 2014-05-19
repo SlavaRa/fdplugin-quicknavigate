@@ -91,20 +91,20 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FlashDevelop-fork-work\External\Plugins\ProjectManager\ProjectManager.csproj">
+    <ProjectReference Include="..\..\projects\FlashDevelop-fork\External\Plugins\ProjectManager\ProjectManager.csproj">
       <Project>{78101c01-e186-4954-b1dd-debb7905fad8}</Project>
       <Name>ProjectManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FlashDevelop-fork-work\FlashDevelop\FlashDevelop.csproj">
+    <ProjectReference Include="..\..\projects\FlashDevelop-fork\FlashDevelop\FlashDevelop.csproj">
       <Project>{efd07485-9a64-4eec-94e7-acbd4da5ca93}</Project>
       <Name>FlashDevelop</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FlashDevelop-fork-work\PluginCore\PluginCore.csproj">
+    <ProjectReference Include="..\..\projects\FlashDevelop-fork\PluginCore\PluginCore.csproj">
       <Project>{61885F70-B4DC-4B44-852D-5D6D03F2A734}</Project>
       <Name>PluginCore</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\FlashDevelop-fork-work\External\Plugins\ASCompletion\ASCompletion.csproj">
+    <ProjectReference Include="..\..\projects\FlashDevelop-fork\External\Plugins\ASCompletion\ASCompletion.csproj">
       <Project>{4EBF2653-9654-4E40-880E-0046B3D6210E}</Project>
       <Name>ASCompletion</Name>
     </ProjectReference>
