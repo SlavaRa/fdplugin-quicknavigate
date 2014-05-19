@@ -14,7 +14,6 @@ namespace QuickNavigatePlugin
     {
         private const int MAX_ITEMS = 100;
         private const string ITEM_SPACER = "-----------------";
-
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
         private readonly Settings settings;
@@ -24,14 +23,10 @@ namespace QuickNavigatePlugin
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
-
             if (settings.ResourceFormSize.Width > MinimumSize.Width) Size = settings.ResourceFormSize;
-
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
-
             refreshButton.Image = PluginBase.MainForm.FindImage("66");
             new ToolTip().SetToolTip(refreshButton, "Ctrl+R");
-
             LoadFileList();
         }
 
@@ -40,9 +35,7 @@ namespace QuickNavigatePlugin
             listBox.BeginUpdate();
             listBox.Items.Clear();
             FillListBox();
-
             if (listBox.Items.Count > 0) listBox.SelectedIndex = 0;
-
             listBox.EndUpdate();
         }
 
@@ -50,22 +43,15 @@ namespace QuickNavigatePlugin
         {
             bool wholeWord = settings.ResourceFormWholeWord;
             bool matchCase = settings.ResourceFormMatchCase;
-
             List<string> matchedItems;
-
             if (textBox.Text.Length > 0)
             {
                 matchedItems = SearchUtil.GetMatchedItems(openedFiles, textBox.Text, "\\", 0, wholeWord, matchCase);
                 if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
-
                 matchedItems.AddRange(SearchUtil.GetMatchedItems(projectFiles, textBox.Text, "\\", MAX_ITEMS, wholeWord, matchCase));
             }
             else matchedItems = openedFiles;
-
-            foreach (string item in matchedItems)
-            {
-                listBox.Items.Add(item);
-            }
+            listBox.Items.AddRange(matchedItems.ToArray());
         }
 
         private void LoadFileList()
@@ -133,12 +119,9 @@ namespace QuickNavigatePlugin
             List<string> folders = new List<string>();
             IProject project = PluginBase.CurrentProject;
             if (project == null) return folders;
-
             string projectFolder = Path.GetDirectoryName(project.ProjectPath);
             folders.Add(projectFolder);
-
             if (!settings.SearchExternalClassPath) return folders;
-
             foreach (string path in project.SourcePaths)
             {
                 if (Path.IsPathRooted(path)) folders.Add(path);
@@ -148,7 +131,6 @@ namespace QuickNavigatePlugin
                     if (!folder.StartsWith(projectFolder)) folders.Add(folder);
                 }
             }
-
             if (project.Language.StartsWith("haxe"))
             {
                 folders.AddRange((project as Project).AdditionalPaths);
@@ -156,7 +138,6 @@ namespace QuickNavigatePlugin
                 string haxePath = Environment.ExpandEnvironmentVariables("%HAXEPATH%");
                 if (!string.IsNullOrEmpty(haxePath)) folders.Add(Path.Combine(haxePath, "std"));
             }
-
             return folders;
         }
 
@@ -199,7 +180,6 @@ namespace QuickNavigatePlugin
             bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
             if (selected) e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
             else e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
-            
             if (e.Index >= 0)
             {
                 string fullName = (string)listBox.Items[e.Index];
@@ -208,8 +188,7 @@ namespace QuickNavigatePlugin
                 string name = fullName.Substring(slashIndex + 1);
                 int pathSize = DrawHelper.MeasureDisplayStringWidth(e.Graphics, path, e.Font) - 2;
                 if (pathSize < 0) pathSize = 0; // No negative padding...
-    
-                if(selected)
+                if (selected)
                 {
                     e.Graphics.DrawString(path, e.Font, Brushes.LightGray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
                     e.Graphics.DrawString(name, e.Font, Brushes.White, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
