@@ -1,4 +1,6 @@
-﻿using PluginCore;
+﻿using ASCompletion.Context;
+using ASCompletion.Model;
+using PluginCore;
 using PluginCore.Helpers;
 using ProjectManager.Projects;
 using System;
@@ -68,8 +70,8 @@ namespace QuickNavigatePlugin
             foreach (string file in GetProjectFiles())
             {
                 if (IsFileHidden(file)) continue;
-                if (SearchUtil.IsFileOpened(file)) openedFiles.Add(project.GetRelativePath(file));
-                else projectFiles.Add(project.GetRelativePath(file));
+                if (SearchUtil.IsFileOpened(file)) openedFiles.Add(project.GetAbsolutePath(file));
+                else projectFiles.Add(project.GetAbsolutePath(file));
             }
         }
 
@@ -105,8 +107,7 @@ namespace QuickNavigatePlugin
             {
                 projectFiles.Clear();
                 foreach (string folder in GetProjectFolders())
-                    if (Directory.Exists(folder))
-                        projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
+                    projectFiles.AddRange(Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories));
             }
             return projectFiles;
         }
@@ -122,21 +123,12 @@ namespace QuickNavigatePlugin
             string projectFolder = Path.GetDirectoryName(project.ProjectPath);
             folders.Add(projectFolder);
             if (!settings.SearchExternalClassPath) return folders;
-            foreach (string path in project.SourcePaths)
+            IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
+            if (context == null) return folders;
+            foreach (PathModel pathModel in context.Classpath)
             {
-                if (Path.IsPathRooted(path)) folders.Add(path);
-                else
-                {
-                    string folder = Path.GetFullPath(Path.Combine(projectFolder, path));
-                    if (!folder.StartsWith(projectFolder)) folders.Add(folder);
-                }
-            }
-            if (project.Language.StartsWith("haxe"))
-            {
-                folders.AddRange((project as Project).AdditionalPaths);
-
-                string haxePath = Environment.ExpandEnvironmentVariables("%HAXEPATH%");
-                if (!string.IsNullOrEmpty(haxePath)) folders.Add(Path.Combine(haxePath, "std"));
+                string absolute = project.GetAbsolutePath(pathModel.Path);
+                if (Directory.Exists(absolute)) folders.Add(absolute);
             }
             return folders;
         }
