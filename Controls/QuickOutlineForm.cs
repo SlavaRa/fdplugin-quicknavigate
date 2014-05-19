@@ -16,11 +16,8 @@ namespace QuickNavigatePlugin
         {
             this.settings = settings;
             InitializeComponent();
-
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
-
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
-
             InitTree();
             RefreshTree();
         }
@@ -66,7 +63,6 @@ namespace QuickNavigatePlugin
                 new Bitmap(ASCompletion.PluginUI.GetStream("Template.png")),
                 new Bitmap(ASCompletion.PluginUI.GetStream("Declaration.png"))
             });
-        
             tree.ImageList = treeIcons;
         }
 
@@ -90,12 +86,8 @@ namespace QuickNavigatePlugin
         private void FillTree()
         {
             FileModel model = ASContext.Context.CurrentModel;
-            if (model == FileModel.Ignore)
-                return;
-
-            if (model.Members.Count > 0)
-                AddMembers(tree.Nodes, model.Members);
-            
+            if (model == FileModel.Ignore) return;
+            if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members);
             foreach (ClassModel classModel in model.Classes)
             {
                 int imageNum = ASCompletion.PluginUI.GetIcon(classModel.Flags, classModel.Access);
@@ -113,21 +105,17 @@ namespace QuickNavigatePlugin
             bool matchCase = settings.OutlineFormMatchCase;
             string searchedText = matchCase ? textBox.Text.Trim() : textBox.Text.ToLower().Trim();
             bool searchedTextIsNotEmpty = !string.IsNullOrEmpty(searchedText);
-
             foreach (MemberModel member in members)
             {
                 string memberText = matchCase ? member.ToString() : member.ToString().ToLower();
-
                 if (searchedTextIsNotEmpty && (!wholeWord && memberText.IndexOf(searchedText) == -1 || wholeWord && !memberText.StartsWith(searchedText)))
                     continue;
-                
                 MemberTreeNode node = null;
                 if ((member.Flags & (FlagType.Constant | FlagType.Variable | FlagType.Function | FlagType.Getter | FlagType.Setter)) > 0)
                 {
                     node = new MemberTreeNode(member, PluginUI.GetIcon(member.Flags, member.Access));
                     nodes.Add(node);
                 }
-
                 if (tree.SelectedNode == null) tree.SelectedNode = node;
             }
         }
@@ -162,7 +150,6 @@ namespace QuickNavigatePlugin
         private void TextBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (tree.SelectedNode == null) return;
-
             switch (e.KeyCode)
             {
                 case Keys.Down:
