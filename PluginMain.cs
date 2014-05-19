@@ -33,7 +33,7 @@ namespace QuickNavigatePlugin
         /// <summary>
         /// Name of the plugin
         /// </summary> 
-        public String Name
+        public string Name
 		{
 			get { return PLUGIN_NAME; }
 		}
@@ -41,7 +41,7 @@ namespace QuickNavigatePlugin
         /// <summary>
         /// GUID of the plugin
         /// </summary>
-        public String Guid
+        public string Guid
 		{
 			get { return PLUGIN_GUID; }
 		}
@@ -49,7 +49,7 @@ namespace QuickNavigatePlugin
         /// <summary>
         /// Author of the plugin
         /// </summary> 
-        public String Author
+        public string Author
 		{
 			get { return PLUGIN_AUTH; }
 		}
@@ -57,7 +57,7 @@ namespace QuickNavigatePlugin
         /// <summary>
         /// Description of the plugin
         /// </summary> 
-        public String Description
+        public string Description
 		{
 			get { return PLUGIN_DESC; }
 		}
@@ -65,7 +65,7 @@ namespace QuickNavigatePlugin
         /// <summary>
         /// Web address for help
         /// </summary> 
-        public String Help
+        public string Help
 		{
 			get { return PLUGIN_HELP; }
 		}
@@ -74,7 +74,7 @@ namespace QuickNavigatePlugin
         /// Object that contains the settings
         /// </summary>
         [Browsable(false)]
-        public Object Settings
+        public object Settings
         {
             get { return settings; }
         }
@@ -106,7 +106,7 @@ namespace QuickNavigatePlugin
 		/// <summary>
 		/// Handles the incoming events
 		/// </summary>
-		public void HandleEvent(Object sender, NotifyEvent e, HandlingPriority prority)
+		public void HandleEvent(object sender, NotifyEvent e, HandlingPriority prority)
 		{
             switch (e.Type)
             {
