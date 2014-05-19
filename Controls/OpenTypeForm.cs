@@ -51,10 +51,7 @@ namespace QuickNavigatePlugin
                 matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS, wholeWord, matchCase));
             }
             else matchedItems = openedTypes;
-            foreach (string item in matchedItems)
-            {
-                listBox.Items.Add(item);
-            }
+            listBox.Items.AddRange(matchedItems.ToArray());
         }
 
         private void CreateItemsList()
@@ -87,7 +84,7 @@ namespace QuickNavigatePlugin
             if (listBox.SelectedItem == null) return;
             string selectedItem = listBox.SelectedItem.ToString();
             if (selectedItem == ITEM_SPACER) return;
-            ClassModel classModel = dictionary[listBox.SelectedItem.ToString()];
+            ClassModel classModel = dictionary[selectedItem];
             FileModel model = ModelsExplorer.Instance.OpenFile(classModel.InFile.FileName);
             if (model != null)
             {
@@ -96,7 +93,7 @@ namespace QuickNavigatePlugin
                 {
                     int line = theClass.LineFrom;
                     ScintillaNet.ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
-                    if (sci != null && !theClass.IsVoid() && line > 0 && line < sci.LineCount)
+                    if (sci != null && line > 0 && line < sci.LineCount)
                         sci.GotoLine(line);
                 }
             }
