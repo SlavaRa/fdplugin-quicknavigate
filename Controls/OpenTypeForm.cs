@@ -14,7 +14,6 @@ namespace QuickNavigatePlugin
     {
         private const int MAX_ITEMS = 100;
         private const string ITEM_SPACER = "-----------------";
-        
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
@@ -25,11 +24,8 @@ namespace QuickNavigatePlugin
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
-
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
-
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
-            
             CreateItemsList();
             RefreshListBox();
         }
@@ -39,9 +35,7 @@ namespace QuickNavigatePlugin
             listBox.BeginUpdate();
             listBox.Items.Clear();
             FillListBox();
-
             if (listBox.Items.Count > 0) listBox.SelectedIndex = 0;
-
             listBox.EndUpdate();
         }
 
@@ -49,18 +43,14 @@ namespace QuickNavigatePlugin
         {
             bool wholeWord = settings.TypeFormWholeWord;
             bool matchCase = settings.TypeFormMatchCase;
-
             List<string> matchedItems;
-
             if (textBox.Text.Length > 0)
             {
                 matchedItems = SearchUtil.GetMatchedItems(openedTypes, textBox.Text, ".", 0, wholeWord, matchCase);
                 if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
-
                 matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS, wholeWord, matchCase));
             }
             else matchedItems = openedTypes;
-
             foreach (string item in matchedItems)
             {
                 listBox.Items.Add(item);
@@ -72,7 +62,6 @@ namespace QuickNavigatePlugin
             projectTypes.Clear();
             openedTypes.Clear();
             dictionary.Clear();
-
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
             foreach (PathModel path in context.Classpath)
@@ -88,10 +77,8 @@ namespace QuickNavigatePlugin
                 if (dictionary.ContainsKey(classModel.QualifiedName)) continue;
                 if (SearchUtil.IsFileOpened(classModel.InFile.FileName)) openedTypes.Add(classModel.QualifiedName);
                 else projectTypes.Add(classModel.QualifiedName);
-
                 dictionary.Add(classModel.QualifiedName, classModel);
             }
-            
             return true;
         }
 
@@ -113,7 +100,6 @@ namespace QuickNavigatePlugin
                         sci.GotoLine(line);
                 }
             }
-
             Close();
         }
 
@@ -163,7 +149,6 @@ namespace QuickNavigatePlugin
             bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
             if (selected) e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
             else e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
-
             if (e.Index >= 0)
             {
                 string fullName = (string)listBox.Items[e.Index];
@@ -172,7 +157,6 @@ namespace QuickNavigatePlugin
                 string name = fullName.Substring(slashIndex + 1);
                 int pathSize = DrawHelper.MeasureDisplayStringWidth(e.Graphics, path, e.Font) - 2;
                 if (pathSize < 0) pathSize = 0; // No negative padding...
-
                 if (selected)
                 {
                     e.Graphics.DrawString(path, e.Font, Brushes.LightGray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
