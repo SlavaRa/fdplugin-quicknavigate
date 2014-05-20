@@ -135,7 +135,7 @@ namespace QuickNavigatePlugin
         /// </summary>
         public void AddEventHandlers()
         {
-            EventManager.AddEventHandler(this, EventType.FileSwitch | EventType.Command | EventType.SettingChanged);
+            EventManager.AddEventHandler(this, EventType.FileSwitch);
         }
 
         /// <summary>
