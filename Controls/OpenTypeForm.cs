@@ -30,6 +30,19 @@ namespace QuickNavigatePlugin
             RefreshListBox();
         }
 
+        private void CreateItemsList()
+        {
+            projectTypes.Clear();
+            openedTypes.Clear();
+            dictionary.Clear();
+            IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
+            if (context == null) return;
+            foreach (PathModel path in context.Classpath)
+            {
+                path.ForeachFile(FileModelDelegate);
+            }
+        }
+
         private void RefreshListBox()
         {
             listBox.BeginUpdate();
@@ -53,19 +66,6 @@ namespace QuickNavigatePlugin
             }
             else matchedItems = openedTypes;
             listBox.Items.AddRange(matchedItems.ToArray());
-        }
-
-        private void CreateItemsList()
-        {
-            projectTypes.Clear();
-            openedTypes.Clear();
-            dictionary.Clear();
-            IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
-            if (context == null) return;
-            foreach (PathModel path in context.Classpath)
-            {
-                path.ForeachFile(FileModelDelegate);
-            }
         }
 
         private bool FileModelDelegate(FileModel model)
