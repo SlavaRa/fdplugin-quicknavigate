@@ -91,10 +91,6 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\projects\FlashDevelop-fork\External\Plugins\ProjectManager\ProjectManager.csproj">
-      <Project>{78101c01-e186-4954-b1dd-debb7905fad8}</Project>
-      <Name>ProjectManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\projects\FlashDevelop-fork\FlashDevelop\FlashDevelop.csproj">
       <Project>{efd07485-9a64-4eec-94e7-acbd4da5ca93}</Project>
       <Name>FlashDevelop</Name>
