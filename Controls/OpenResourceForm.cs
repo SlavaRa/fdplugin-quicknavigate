@@ -2,7 +2,6 @@
 using ASCompletion.Model;
 using PluginCore;
 using PluginCore.Helpers;
-using ProjectManager.Projects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
