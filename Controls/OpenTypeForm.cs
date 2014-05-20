@@ -41,14 +41,15 @@ namespace QuickNavigatePlugin
 
         private void FillListBox()
         {
-            bool wholeWord = settings.TypeFormWholeWord;
-            bool matchCase = settings.TypeFormMatchCase;
             List<string> matchedItems;
             if (textBox.Text.Length > 0)
             {
-                matchedItems = SearchUtil.GetMatchedItems(openedTypes, textBox.Text, ".", 0, wholeWord, matchCase);
+                string searchText = textBox.Text;
+                bool wholeWord = settings.TypeFormWholeWord;
+                bool matchCase = settings.TypeFormMatchCase;
+                matchedItems = SearchUtil.GetMatchedItems(openedTypes, searchText, ".", 0, wholeWord, matchCase);
                 if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
-                matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, textBox.Text, ".", MAX_ITEMS, wholeWord, matchCase));
+                matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, searchText, ".", MAX_ITEMS, wholeWord, matchCase));
             }
             else matchedItems = openedTypes;
             listBox.Items.AddRange(matchedItems.ToArray());
