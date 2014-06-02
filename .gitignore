@@ -21,3 +21,6 @@ obj/Debug/QuickNavigatePlugin.OpenTypeForm.resources
 obj/Debug/QuickNavigatePlugin.QuickOutlineForm.resources
 obj/Debug/QuickNavigatePlugin.csproj.FileListAbsolute.txt
 QuickNavigatePlugin.csproj
+Controls/OpenResourceForm.resx
+Controls/OpenTypeForm.resx
+Controls/QuickOutlineForm.resx
