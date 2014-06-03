@@ -153,23 +153,45 @@ namespace QuickNavigatePlugin
         private void Input_KeyDown(object sender, KeyEventArgs e)
         {
             if (tree.SelectedNode == null) return;
+            TreeNode node;
+            int visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
             {
                 case Keys.Down:
-                    if (tree.SelectedNode.NextVisibleNode != null)
-                    {
-                        tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
-                        e.Handled = true;
-                    }
+                    if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
                     break;
                 case Keys.Up:
-                    if (tree.SelectedNode.PrevVisibleNode != null)
-                    {
-                        tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
-                        e.Handled = true;
-                    }
+                    if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
                     break;
+                case Keys.Home:
+                    tree.SelectedNode = tree.Nodes[0];
+                    break;
+                case Keys.End:
+                    node = tree.SelectedNode;
+                    while (node.NextVisibleNode != null) node = node.NextVisibleNode;
+                    tree.SelectedNode = node;
+                    break;
+                case Keys.PageUp:
+                    node = tree.SelectedNode;
+                    for (int i = 0; i < visibleCount; i++)
+                    {
+                        if (node.PrevVisibleNode == null) break;
+                        node = node.PrevVisibleNode;
+                    }
+                    tree.SelectedNode = node;
+                    break;
+                case Keys.PageDown:
+                    node = tree.SelectedNode;
+                    for (int i = 0; i < visibleCount; i++)
+                    {
+                        if (node.NextVisibleNode == null) break;
+                        node = node.NextVisibleNode;
+                    }
+                    tree.SelectedNode = node;
+                    break;
+                default: return;
             }
+            e.Handled = true;
         }
 
         private void Tree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)

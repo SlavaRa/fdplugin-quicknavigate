@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox = new System.Windows.Forms.TextBox();
+            this.input = new System.Windows.Forms.TextBox();
             this.listBox = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
@@ -42,18 +42,18 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Search string: (UPPERCASE for search by abbreviation)";
             // 
-            // textBox
+            // input
             // 
-            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox.BackColor = System.Drawing.SystemColors.Control;
-            this.textBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.textBox.Location = new System.Drawing.Point(12, 26);
-            this.textBox.Name = "textBox";
-            this.textBox.Size = new System.Drawing.Size(365, 20);
-            this.textBox.TabIndex = 1;
-            this.textBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
-            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_KeyDown);
+            this.input.BackColor = System.Drawing.SystemColors.Control;
+            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.input.Location = new System.Drawing.Point(12, 26);
+            this.input.Name = "input";
+            this.input.Size = new System.Drawing.Size(365, 20);
+            this.input.TabIndex = 1;
+            this.input.TextChanged += new System.EventHandler(this.Input_TextChanged);
+            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Input_KeyDown);
             // 
             // listBox
             // 
@@ -80,7 +80,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(389, 255);
             this.Controls.Add(this.listBox);
-            this.Controls.Add(this.textBox);
+            this.Controls.Add(this.input);
             this.Controls.Add(this.label1);
             this.KeyPreview = true;
             this.MaximizeBox = false;
@@ -101,7 +101,7 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox;
+        private System.Windows.Forms.TextBox input;
         private System.Windows.Forms.ListBox listBox;
     }
 }

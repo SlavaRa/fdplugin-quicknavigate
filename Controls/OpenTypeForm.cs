@@ -18,6 +18,8 @@ namespace QuickNavigatePlugin
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
         private readonly Settings settings;
+        private readonly Brush selectedNodeBrush;
+        private readonly Brush defaultNodeBrush;
 
         public OpenTypeForm(Settings settings)
         {
@@ -28,6 +30,8 @@ namespace QuickNavigatePlugin
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
             CreateItemsList();
             RefreshListBox();
+            selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
+            defaultNodeBrush = new SolidBrush(listBox.BackColor);
         }
 
         private void CreateItemsList()
@@ -55,16 +59,16 @@ namespace QuickNavigatePlugin
         private void FillListBox()
         {
             List<string> matchedItems;
-            if (textBox.Text.Length > 0)
+            string searchText = input.Text.Trim();
+            if (string.IsNullOrEmpty(searchText)) matchedItems = openedTypes;
+            else
             {
-                string searchText = textBox.Text;
                 bool wholeWord = settings.TypeFormWholeWord;
                 bool matchCase = settings.TypeFormMatchCase;
                 matchedItems = SearchUtil.GetMatchedItems(openedTypes, searchText, ".", 0, wholeWord, matchCase);
                 if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
                 matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, searchText, ".", MAX_ITEMS, wholeWord, matchCase));
             }
-            else matchedItems = openedTypes;
             listBox.Items.AddRange(matchedItems.ToArray());
         }
 
@@ -111,7 +115,6 @@ namespace QuickNavigatePlugin
                 case Keys.Escape:
                     Close();
                     break;
-
                 case Keys.Enter:
                     e.Handled = true;
                     Navigate();
@@ -119,21 +122,41 @@ namespace QuickNavigatePlugin
             }
         }
 
-        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        private void Input_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Down && listBox.SelectedIndex < listBox.Items.Count - 1)
+            int selectedIndex = listBox.SelectedIndex;
+            int count = listBox.Items.Count - 1;
+            int visibleCount = listBox.Height / listBox.ItemHeight - 1;
+            switch (e.KeyCode)
             {
-                listBox.SelectedIndex++;
-                e.Handled = true;
+                case Keys.Down:
+                    if (selectedIndex < count) listBox.SelectedIndex++;
+                    break;
+                case Keys.Up:
+                    if (selectedIndex > 0) listBox.SelectedIndex--;
+                    break;
+                case Keys.Home:
+                    listBox.SelectedIndex = 0;
+                    break;
+                case Keys.End:
+                    listBox.SelectedIndex = count;
+                    break;
+                case Keys.PageUp:
+                    selectedIndex = selectedIndex - visibleCount;
+                    if (selectedIndex < 0) selectedIndex = 0;
+                    listBox.SelectedIndex = selectedIndex;
+                    break;
+                case Keys.PageDown:
+                    selectedIndex = selectedIndex + visibleCount;
+                    if (selectedIndex > count) selectedIndex = count;
+                    listBox.SelectedIndex = selectedIndex;
+                    break;
+                default: return;
             }
-            else if (e.KeyCode == Keys.Up && listBox.SelectedIndex > 0)
-            {
-                listBox.SelectedIndex--;
-                e.Handled = true;
-            }
+            e.Handled = true;
         }
 
-        private void TextBox_TextChanged(object sender, EventArgs e)
+        private void Input_TextChanged(object sender, EventArgs e)
         {
             RefreshListBox();
         }
@@ -146,8 +169,8 @@ namespace QuickNavigatePlugin
         private void ListBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
-            if (selected) e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
-            else e.Graphics.FillRectangle(new SolidBrush(listBox.BackColor), e.Bounds);
+            if (selected) e.Graphics.FillRectangle(selectedNodeBrush, e.Bounds);
+            else e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
             if (e.Index >= 0)
             {
                 string fullName = (string)listBox.Items[e.Index];
@@ -180,6 +203,5 @@ namespace QuickNavigatePlugin
         }
 
         #endregion
-
     }
 }

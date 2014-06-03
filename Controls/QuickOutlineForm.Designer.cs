@@ -37,7 +37,7 @@
             this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.input.BackColor = System.Drawing.SystemColors.Control;
-            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.input.Location = new System.Drawing.Point(13, 14);
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(305, 20);
