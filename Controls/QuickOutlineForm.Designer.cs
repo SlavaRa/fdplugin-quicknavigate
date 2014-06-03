@@ -28,22 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox = new System.Windows.Forms.TextBox();
+            this.input = new System.Windows.Forms.TextBox();
             this.tree = new System.Windows.Forms.TreeView();
             this.SuspendLayout();
             // 
-            // textBox
+            // input
             // 
-            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox.BackColor = System.Drawing.SystemColors.Control;
-            this.textBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.textBox.Location = new System.Drawing.Point(13, 8);
-            this.textBox.Name = "textBox";
-            this.textBox.Size = new System.Drawing.Size(305, 22);
-            this.textBox.TabIndex = 0;
-            this.textBox.TextChanged += new System.EventHandler(this.TextBox1_TextChanged);
-            this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox1_KeyDown);
+            this.input.BackColor = System.Drawing.SystemColors.Control;
+            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.input.Location = new System.Drawing.Point(13, 14);
+            this.input.Name = "input";
+            this.input.Size = new System.Drawing.Size(305, 20);
+            this.input.TabIndex = 0;
+            this.input.TextChanged += new System.EventHandler(this.Input_TextChanged);
+            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Input_KeyDown);
             // 
             // tree
             // 
@@ -51,7 +51,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tree.BackColor = System.Drawing.SystemColors.Control;
-            this.tree.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.tree.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tree.HideSelection = false;
@@ -63,8 +63,8 @@
             this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(305, 173);
             this.tree.TabIndex = 1;
-            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.Tree_DrawNode);
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.Tree_NodeMouseDoubleClick);
+            this.tree.DrawNode += Tree_DrawNode;
             // 
             // QuickOutlineForm
             // 
@@ -73,7 +73,7 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(330, 225);
             this.Controls.Add(this.tree);
-            this.Controls.Add(this.textBox);
+            this.Controls.Add(this.input);
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -92,7 +92,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox;
+        private System.Windows.Forms.TextBox input;
         private System.Windows.Forms.TreeView tree;
     }
 }

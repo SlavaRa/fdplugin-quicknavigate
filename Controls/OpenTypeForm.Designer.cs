@@ -46,10 +46,11 @@
             // 
             this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox.BackColor = System.Drawing.SystemColors.Control;
+            this.textBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.textBox.Location = new System.Drawing.Point(12, 26);
             this.textBox.Name = "textBox";
-            this.textBox.Size = new System.Drawing.Size(355, 22);
+            this.textBox.Size = new System.Drawing.Size(365, 20);
             this.textBox.TabIndex = 1;
             this.textBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
             this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_KeyDown);
@@ -67,7 +68,7 @@
             this.listBox.ItemHeight = 16;
             this.listBox.Location = new System.Drawing.Point(12, 53);
             this.listBox.Name = "listBox";
-            this.listBox.Size = new System.Drawing.Size(355, 194);
+            this.listBox.Size = new System.Drawing.Size(365, 194);
             this.listBox.TabIndex = 2;
             this.listBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ListBox_DrawItem);
             this.listBox.DoubleClick += new System.EventHandler(this.ListBox_DoubleClick);
@@ -77,7 +78,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(379, 255);
+            this.ClientSize = new System.Drawing.Size(389, 255);
             this.Controls.Add(this.listBox);
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.label1);

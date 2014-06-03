@@ -39,10 +39,11 @@
             // 
             this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBox.BackColor = System.Drawing.SystemColors.Control;
+            this.textBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.textBox.Location = new System.Drawing.Point(12, 26);
             this.textBox.Name = "textBox";
-            this.textBox.Size = new System.Drawing.Size(338, 22);
+            this.textBox.Size = new System.Drawing.Size(338, 20);
             this.textBox.TabIndex = 1;
             this.textBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
             this.textBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_KeyDown);
