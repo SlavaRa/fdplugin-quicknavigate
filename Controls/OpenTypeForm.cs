@@ -16,7 +16,7 @@ namespace QuickNavigatePlugin
         private const string ITEM_SPACER = "-----------------";
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
-        private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string,ClassModel>();
+        private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string, ClassModel>();
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush;
         private readonly Brush defaultNodeBrush;
