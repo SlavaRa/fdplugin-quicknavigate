@@ -124,7 +124,7 @@ namespace QuickNavigatePlugin
 
         private void Input_KeyDown(object sender, KeyEventArgs e)
         {
-            if (listBox.Items.Count == 0) return;
+            if (e.Control || e.Shift || listBox.Items.Count == 0) return;
             int selectedIndex = listBox.SelectedIndex;
             int count = listBox.Items.Count - 1;
             int visibleCount = listBox.Height / listBox.ItemHeight - 1;

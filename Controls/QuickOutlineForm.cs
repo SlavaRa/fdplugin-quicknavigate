@@ -152,7 +152,7 @@ namespace QuickNavigatePlugin
 
         private void Input_KeyDown(object sender, KeyEventArgs e)
         {
-            if (tree.SelectedNode == null) return;
+            if (e.Control || e.Shift || tree.SelectedNode == null) return;
             TreeNode node;
             int visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
