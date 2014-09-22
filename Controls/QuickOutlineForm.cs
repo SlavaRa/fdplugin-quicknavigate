@@ -159,9 +159,16 @@ namespace QuickNavigatePlugin
             {
                 case Keys.Down:
                     if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                    else tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
                     if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                    else
+                    {
+                        node = tree.SelectedNode;
+                        while (node.NextVisibleNode != null) node = node.NextVisibleNode;
+                        tree.SelectedNode = node;
+                    }
                     break;
                 case Keys.Home:
                     tree.SelectedNode = tree.Nodes[0];
