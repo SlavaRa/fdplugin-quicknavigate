@@ -16,16 +16,16 @@ namespace QuickNavigatePlugin
 
         public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
-            bool noMatchCase = !matchCase;
-            if (noMatchCase) searchText = searchText.ToLower();
+            bool noCase = !matchCase;
+            if (noCase) searchText = searchText.ToLower();
             List<string> matchedItems = new List<string>();
             int i = 0;
             foreach (string item in source)
             {
                 string itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
-                if (noMatchCase) itemName = itemName.ToLower();
+                if (noCase) itemName = itemName.ToLower();
                 if (itemName.Length < searchText.Length) continue;
-                if (SimpleSearchMatch(itemName, searchText, wholeWord) || AdvancedSearchMatch(itemName, searchText, matchCase))
+                if (SimpleSearchMatch(itemName, searchText, wholeWord) || AdvancedSearchMatch(itemName, searchText, noCase))
                 {
                     matchedItems.Add(item);
                     if (limit > 0 && i++ > limit) break;
@@ -39,9 +39,9 @@ namespace QuickNavigatePlugin
             return wholeWord ? item.StartsWith(search) : item.Contains(search);
         }
 
-        private static bool AdvancedSearchMatch(string item, string searchText, bool matchCase)
+        private static bool AdvancedSearchMatch(string item, string searchText, bool noCase)
         {
-            List<string> parts = GetParts(item, matchCase);
+            List<string> parts = GetParts(item, noCase);
             if (parts.Count == 0) return false;
             int partNum = 0;
             char[] search = searchText.ToCharArray();
@@ -63,7 +63,7 @@ namespace QuickNavigatePlugin
             return si == sl;
         }
 
-        private static List<string> GetParts(string item, bool matchCase)
+        private static List<string> GetParts(string item, bool noCase)
         {
             List<string> parts = new List<string>();
             char[] chars = item.ToCharArray();
@@ -104,7 +104,7 @@ namespace QuickNavigatePlugin
                         }
                     }
                 }
-                if (!matchCase) part = part.ToLower();
+                if (noCase) part = part.ToLower();
                 parts.Add(part);
                 i = j;
             }
