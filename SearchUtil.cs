@@ -14,25 +14,18 @@ namespace QuickNavigatePlugin
             return false;
         }
 
-        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit) 
-        {
-            return GetMatchedItems(source, searchText, pathSeparator, limit, false);
-        }
-
-        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord)
-        {
-            return GetMatchedItems(source, searchText, pathSeparator, limit, false, false);
-        }
-
         public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
+            bool noMatchCase = !matchCase;
+            if (noMatchCase) searchText = searchText.ToLower();
             List<string> matchedItems = new List<string>();
             int i = 0;
             foreach (string item in source)
             {
                 string itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
+                if (noMatchCase) itemName = itemName.ToLower();
                 if (itemName.Length < searchText.Length) continue;
-                if (SimpleSearchMatch(itemName, searchText, wholeWord, matchCase) || AdvancedSearchMatch(itemName, searchText, matchCase))
+                if (SimpleSearchMatch(itemName, searchText, wholeWord) || AdvancedSearchMatch(itemName, searchText, matchCase))
                 {
                     matchedItems.Add(item);
                     if (limit > 0 && i++ > limit) break;
@@ -41,32 +34,15 @@ namespace QuickNavigatePlugin
             return matchedItems;
         }
 
-        private static bool SimpleSearchMatch(string item, string search)
+        private static bool SimpleSearchMatch(string item, string search, bool wholeWord)
         {
-            return SimpleSearchMatch(item, search, false, false);
-        }
-
-        private static bool SimpleSearchMatch(string item, string search, bool wholeWord, bool matchCase)
-        {
-            if (!matchCase)
-            {
-                item = item.ToLower();
-                search = search.ToLower();
-            }
-            if (!wholeWord) return item.IndexOf(search) != -1;
-            return item.StartsWith(search);
-        }
-
-        private static bool AdvancedSearchMatch(string item, string searchText)
-        {
-            return AdvancedSearchMatch(item, searchText, false);
+            return wholeWord ? item.StartsWith(search) : item.Contains(search);
         }
 
         private static bool AdvancedSearchMatch(string item, string searchText, bool matchCase)
         {
             List<string> parts = GetParts(item, matchCase);
             if (parts.Count == 0) return false;
-            if (!matchCase) searchText = searchText.ToLower();
             int partNum = 0;
             char[] search = searchText.ToCharArray();
             int si = 0;
@@ -85,11 +61,6 @@ namespace QuickNavigatePlugin
                 partNum++;
             }
             return si == sl;
-        }
-
-        private static List<string> GetParts(string item)
-        {
-            return GetParts(item, false);
         }
 
         private static List<string> GetParts(string item, bool matchCase)
