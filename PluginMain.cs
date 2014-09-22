@@ -1,11 +1,11 @@
+using PluginCore;
+using PluginCore.Helpers;
+using PluginCore.Managers;
+using PluginCore.Utilities;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
-using System.ComponentModel;
-using PluginCore.Utilities;
-using PluginCore.Managers;
-using PluginCore.Helpers;
-using PluginCore;
 
 namespace QuickNavigatePlugin
 {
@@ -18,7 +18,6 @@ namespace QuickNavigatePlugin
         private const string PLUGIN_AUTH = "Canab";
 	    private const string SETTINGS_FILE = "Settings.fdb";
         private const string PLUGIN_DESC = "QuickNavigate plugin";
-
         private string settingFilename;
         private Settings settings;
 	    private ControlClickManager controlClickManager;
