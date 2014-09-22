@@ -143,9 +143,11 @@ namespace QuickNavigatePlugin
             {
                 case Keys.Down:
                     if (selectedIndex < count) listBox.SelectedIndex++;
+                    else listBox.SelectedIndex = 0;
                     break;
                 case Keys.Up:
                     if (selectedIndex > 0) listBox.SelectedIndex--;
+                    else listBox.SelectedIndex = count;
                     break;
                 case Keys.Home:
                     listBox.SelectedIndex = 0;
