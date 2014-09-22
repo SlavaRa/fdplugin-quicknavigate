@@ -8,8 +8,9 @@ namespace QuickNavigatePlugin
         public static bool IsFileOpened(string file)
         {
             foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
-                if (doc.FileName == file)
-                    return true;
+            {
+                if (doc.FileName == file) return true;
+            }
             return false;
         }
 
