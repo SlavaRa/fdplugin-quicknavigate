@@ -5,22 +5,21 @@ namespace QuickNavigatePlugin
 {
     class SearchUtil
     {
-        public static bool IsFileOpened(string file)
+        public static bool IsFileOpened(string fileName)
         {
             foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
             {
-                if (doc.FileName == file) return true;
+                if (doc.FileName == fileName) return true;
             }
             return false;
         }
 
-        public static List<string> GetMatchedItems(List<string> source, string search, string pathSeparator, int limit, bool wholeWord, bool matchCase)
+        public static List<string> Matches(List<string> source, string search, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
             bool noCase = !matchCase;
             if (noCase) search = search.ToLower();
             bool searchHasPathSeparator = search.Contains(pathSeparator);
-            List<string> matchedItems = new List<string>();
-            int i = 0;
+            List<string> matches = new List<string>();
             foreach (string item in source)
             {
                 string itemName = searchHasPathSeparator || !item.Contains(pathSeparator) ? item : item.Substring(item.LastIndexOf(pathSeparator) + 1);
@@ -28,11 +27,11 @@ namespace QuickNavigatePlugin
                 if (noCase) itemName = itemName.ToLower();
                 if (SimpleSearchMatch(itemName, search, wholeWord) || AdvancedSearchMatch(itemName, search, noCase))
                 {
-                    matchedItems.Add(item);
-                    if (limit > 0 && i++ > limit) break;
+                    matches.Add(item);
+                    if (--limit == 0) break;
                 }
             }
-            return matchedItems;
+            return matches;
         }
 
         private static bool SimpleSearchMatch(string item, string search, bool wholeWord)

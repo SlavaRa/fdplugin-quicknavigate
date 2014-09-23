@@ -65,9 +65,9 @@ namespace QuickNavigatePlugin
             {
                 bool wholeWord = settings.TypeFormWholeWord;
                 bool matchCase = settings.TypeFormMatchCase;
-                matchedItems = SearchUtil.GetMatchedItems(openedTypes, searchText, ".", 0, wholeWord, matchCase);
+                matchedItems = SearchUtil.Matches(openedTypes, searchText, ".", 0, wholeWord, matchCase);
                 if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
-                matchedItems.AddRange(SearchUtil.GetMatchedItems(projectTypes, searchText, ".", MAX_ITEMS, wholeWord, matchCase));
+                matchedItems.AddRange(SearchUtil.Matches(projectTypes, searchText, ".", MAX_ITEMS, wholeWord, matchCase));
             }
             listBox.Items.AddRange(matchedItems.ToArray());
         }
