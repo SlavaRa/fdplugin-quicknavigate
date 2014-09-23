@@ -31,7 +31,23 @@ namespace QuickNavigatePlugin
                     if (--limit == 0) break;
                 }
             }
+            Sort(matches, search, pathSeparator, noCase);
             return matches;
+        }
+
+        public static void Sort(List<string> matches, string search, string pathSeparator, bool noCase)
+        {
+            if (matches == null || matches.Count <= 1 || string.IsNullOrEmpty(search)) return;
+            if (noCase) search = search.ToLower();
+            bool onlyType = !search.Contains(pathSeparator);
+            matches.Sort(delegate(string s1, string s2)
+            {
+                if (s1 == s2) return 0;
+                if (string.IsNullOrEmpty(s1) || string.IsNullOrEmpty(s2)) return 1;
+                if (noCase) s1 = s1.ToLower();
+                if (s1 == search || (onlyType && s1.Contains(pathSeparator) && s1.Substring(s1.LastIndexOf(pathSeparator) + 1) == search)) return -1;
+                return 0;
+            });
         }
 
         private static bool SimpleSearchMatch(string item, string search, bool wholeWord)
