@@ -7,7 +7,7 @@ using ASCompletion.Context;
 using ScintillaNet;
 using PluginCore;
 
-namespace QuickNavigatePlugin
+namespace QuickNavigate
 {
     class ControlClickManager
     {

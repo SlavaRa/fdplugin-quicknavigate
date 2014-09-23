@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 
-namespace QuickNavigatePlugin
+namespace QuickNavigate
 {
     [Serializable]
     public class Settings

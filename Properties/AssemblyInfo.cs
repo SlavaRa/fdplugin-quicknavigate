@@ -7,12 +7,12 @@ using System.Runtime.CompilerServices;
 // change them to the information which is associated with the assembly
 // you compile.
 
-[assembly: AssemblyTitle("QuickNavigatePlugin")]
+[assembly: AssemblyTitle("QuickNavigate")]
 [assembly: AssemblyDescription("QuickNavigate Plugin For FlashDevelop")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Canab")]
-[assembly: AssemblyProduct("QuickNavigatePlugin")]
-[assembly: AssemblyCopyright("FlashDevelop.org 2005-2013")]
+[assembly: AssemblyProduct("QuickNavigate")]
+[assembly: AssemblyCopyright("FlashDevelop.org 2005-2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -9,7 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-namespace QuickNavigatePlugin
+namespace QuickNavigate
 {
     public partial class OpenResourceForm : Form
     {

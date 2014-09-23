@@ -8,8 +8,8 @@
     <ProjectGuid>{36B91299-9080-4052-839D-74166B18DD24}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QuickNavigatePlugin</RootNamespace>
-    <AssemblyName>QuickNavigatePlugin</AssemblyName>
+    <RootNamespace>QuickNavigate</RootNamespace>
+    <AssemblyName>QuickNavigate</AssemblyName>
     <StartupObject>
     </StartupObject>
     <FileUpgradeFlags>
