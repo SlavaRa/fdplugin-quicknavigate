@@ -5,67 +5,60 @@ namespace QuickNavigatePlugin
 {
     class SearchUtil
     {
-        public static bool IsFileOpened(string file)
+        public static bool IsFileOpened(string fileName)
         {
             foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
-                if (doc.FileName == file)
-                    return true;
+            {
+                if (doc.FileName == fileName) return true;
+            }
             return false;
         }
 
-        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit) 
+        public static List<string> Matches(List<string> source, string search, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
-            return GetMatchedItems(source, searchText, pathSeparator, limit, false);
-        }
-
-        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord)
-        {
-            return GetMatchedItems(source, searchText, pathSeparator, limit, false, false);
-        }
-
-        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord, bool matchCase)
-        {
-            List<string> matchedItems = new List<string>();
-            int i = 0;
+            bool noCase = !matchCase;
+            if (noCase) search = search.ToLower();
+            bool searchHasPathSeparator = search.Contains(pathSeparator);
+            List<string> matches = new List<string>();
             foreach (string item in source)
             {
-                string itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
-                if (itemName.Length < searchText.Length) continue;
-                if (SimpleSearchMatch(itemName, searchText, wholeWord, matchCase) || AdvancedSearchMatch(itemName, searchText, matchCase))
+                string itemName = searchHasPathSeparator || !item.Contains(pathSeparator) ? item : item.Substring(item.LastIndexOf(pathSeparator) + 1);
+                if (itemName.Length < search.Length) continue;
+                if (noCase) itemName = itemName.ToLower();
+                if (SimpleSearchMatch(itemName, search, wholeWord) || AdvancedSearchMatch(itemName, search, noCase))
                 {
-                    matchedItems.Add(item);
-                    if (limit > 0 && i++ > limit) break;
+                    matches.Add(item);
+                    if (--limit == 0) break;
                 }
             }
-            return matchedItems;
+            Sort(matches, search, pathSeparator, noCase);
+            return matches;
         }
 
-        private static bool SimpleSearchMatch(string item, string search)
+        public static void Sort(List<string> matches, string search, string pathSeparator, bool noCase)
         {
-            return SimpleSearchMatch(item, search, false, false);
-        }
-
-        private static bool SimpleSearchMatch(string item, string search, bool wholeWord, bool matchCase)
-        {
-            if (!matchCase)
+            if (matches == null || matches.Count <= 1 || string.IsNullOrEmpty(search)) return;
+            if (noCase) search = search.ToLower();
+            bool onlyType = !search.Contains(pathSeparator);
+            matches.Sort(delegate(string s1, string s2)
             {
-                item = item.ToLower();
-                search = search.ToLower();
-            }
-            if (!wholeWord) return item.IndexOf(search) != -1;
-            return item.StartsWith(search);
+                if (s1 == s2) return 0;
+                if (string.IsNullOrEmpty(s1) || string.IsNullOrEmpty(s2)) return 1;
+                if (noCase) s1 = s1.ToLower();
+                if (s1 == search || (onlyType && s1.Contains(pathSeparator) && s1.Substring(s1.LastIndexOf(pathSeparator) + 1) == search)) return -1;
+                return 0;
+            });
         }
 
-        private static bool AdvancedSearchMatch(string item, string searchText)
+        private static bool SimpleSearchMatch(string item, string search, bool wholeWord)
         {
-            return AdvancedSearchMatch(item, searchText, false);
+            return wholeWord ? item.StartsWith(search) : item.Contains(search);
         }
 
-        private static bool AdvancedSearchMatch(string item, string searchText, bool matchCase)
+        private static bool AdvancedSearchMatch(string item, string searchText, bool noCase)
         {
-            List<string> parts = GetParts(item, matchCase);
+            List<string> parts = GetParts(item, noCase);
             if (parts.Count == 0) return false;
-            if (!matchCase) searchText = searchText.ToLower();
             int partNum = 0;
             char[] search = searchText.ToCharArray();
             int si = 0;
@@ -86,12 +79,7 @@ namespace QuickNavigatePlugin
             return si == sl;
         }
 
-        private static List<string> GetParts(string item)
-        {
-            return GetParts(item, false);
-        }
-
-        private static List<string> GetParts(string item, bool matchCase)
+        private static List<string> GetParts(string item, bool noCase)
         {
             List<string> parts = new List<string>();
             char[] chars = item.ToCharArray();
@@ -132,11 +120,12 @@ namespace QuickNavigatePlugin
                         }
                     }
                 }
-                if (!matchCase) part = part.ToLower();
+                if (noCase) part = part.ToLower();
                 parts.Add(part);
                 i = j;
             }
             return parts;
         }
+
     }
 }
