@@ -14,18 +14,19 @@ namespace QuickNavigatePlugin
             return false;
         }
 
-        public static List<string> GetMatchedItems(List<string> source, string searchText, string pathSeparator, int limit, bool wholeWord, bool matchCase)
+        public static List<string> GetMatchedItems(List<string> source, string search, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
             bool noCase = !matchCase;
-            if (noCase) searchText = searchText.ToLower();
+            if (noCase) search = search.ToLower();
+            bool searchHasPathSeparator = search.Contains(pathSeparator);
             List<string> matchedItems = new List<string>();
             int i = 0;
             foreach (string item in source)
             {
-                string itemName = item.Substring(item.LastIndexOf(pathSeparator) + 1);
+                string itemName = searchHasPathSeparator || !item.Contains(pathSeparator) ? item : item.Substring(item.LastIndexOf(pathSeparator) + 1);
+                if (itemName.Length < search.Length) continue;
                 if (noCase) itemName = itemName.ToLower();
-                if (itemName.Length < searchText.Length) continue;
-                if (SimpleSearchMatch(itemName, searchText, wholeWord) || AdvancedSearchMatch(itemName, searchText, noCase))
+                if (SimpleSearchMatch(itemName, search, wholeWord) || AdvancedSearchMatch(itemName, search, noCase))
                 {
                     matchedItems.Add(item);
                     if (limit > 0 && i++ > limit) break;
@@ -110,5 +111,6 @@ namespace QuickNavigatePlugin
             }
             return parts;
         }
+
     }
 }
