@@ -1,3 +1,0 @@
-[submodule "tests"]
-        path = tests
-        url = https://github.com/SlavaRa/fd-quick-navigate-plugin-tests.git
