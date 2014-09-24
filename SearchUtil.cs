@@ -1,9 +1,9 @@
 ﻿using PluginCore;
 using System.Collections.Generic;
 
-namespace QuickNavigatePlugin
+namespace QuickNavigate
 {
-    class SearchUtil
+    internal static class SearchUtil
     {
         public static bool IsFileOpened(string fileName)
         {
@@ -50,12 +50,12 @@ namespace QuickNavigatePlugin
             });
         }
 
-        private static bool SimpleSearchMatch(string item, string search, bool wholeWord)
+        internal static bool SimpleSearchMatch(string item, string search, bool wholeWord)
         {
             return wholeWord ? item.StartsWith(search) : item.Contains(search);
         }
 
-        private static bool AdvancedSearchMatch(string item, string searchText, bool noCase)
+        internal static bool AdvancedSearchMatch(string item, string searchText, bool noCase)
         {
             List<string> parts = GetParts(item, noCase);
             if (parts.Count == 0) return false;
@@ -79,7 +79,7 @@ namespace QuickNavigatePlugin
             return si == sl;
         }
 
-        private static List<string> GetParts(string item, bool noCase)
+        internal static List<string> GetParts(string item, bool noCase)
         {
             List<string> parts = new List<string>();
             char[] chars = item.ToCharArray();
@@ -126,6 +126,5 @@ namespace QuickNavigatePlugin
             }
             return parts;
         }
-
     }
 }

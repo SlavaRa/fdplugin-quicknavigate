@@ -1,4 +1,4 @@
-﻿namespace QuickNavigatePlugin
+﻿namespace QuickNavigate
 {
     partial class OpenTypeForm
     {

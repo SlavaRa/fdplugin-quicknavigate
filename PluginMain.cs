@@ -7,12 +7,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 
-namespace QuickNavigatePlugin
+namespace QuickNavigate
 {
 	public class PluginMain : IPlugin
 	{
         private const int PLUGIN_API = 1;
-        private const string PLUGIN_NAME = "QuickNavigatePlugin";
+        private const string PLUGIN_NAME = "QuickNavigate";
         private const string PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
         private const string PLUGIN_HELP = "www.flashdevelop.org/community/";
         private const string PLUGIN_AUTH = "Canab";

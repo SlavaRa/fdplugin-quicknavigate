@@ -6,7 +6,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace QuickNavigatePlugin
+namespace QuickNavigate
 {
     public partial class QuickOutlineForm : Form
     {
