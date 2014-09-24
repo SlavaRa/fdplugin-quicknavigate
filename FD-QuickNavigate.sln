@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickNavigate", "QuickNavigate\QuickNavigate.csproj", "{36B91299-9080-4052-839D-74166B18DD24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickNavigateTest", "QuickNavigate.Tests\QuickNavigateTest.csproj", "{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,12 @@ Global
 		{36B91299-9080-4052-839D-74166B18DD24}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36B91299-9080-4052-839D-74166B18DD24}.Release|x86.ActiveCfg = Release|x86
 		{36B91299-9080-4052-839D-74166B18DD24}.Release|x86.Build.0 = Release|x86
+		{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
