@@ -110,6 +110,12 @@ namespace QuickNavigate.Test
         }
 
         [TestMethod]
+        public void Search_Type_NoWholeWord_MatchCase()
+        {
+            Assert.IsNotNull(null);
+        }
+
+        [TestMethod]
         public void Search_Type_WholeWord_NoCase()
         {
             List<string> source = new List<string>()
