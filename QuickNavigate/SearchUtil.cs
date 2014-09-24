@@ -17,15 +17,13 @@ namespace QuickNavigate
         public static List<string> Matches(List<string> source, string search, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
             bool noCase = !matchCase;
-            if (noCase) search = search.ToLower();
             bool searchHasPathSeparator = search.Contains(pathSeparator);
             List<string> matches = new List<string>();
             foreach (string item in source)
             {
-                string itemName = searchHasPathSeparator || !item.Contains(pathSeparator) ? item : item.Substring(item.LastIndexOf(pathSeparator) + 1);
-                if (itemName.Length < search.Length) continue;
-                if (noCase) itemName = itemName.ToLower();
-                if (SimpleSearchMatch(itemName, search, wholeWord) || AdvancedSearchMatch(itemName, search, noCase))
+                string type = item.Contains(pathSeparator) ? item.Substring(item.LastIndexOf(pathSeparator) + 1) : item;
+                string itemName = searchHasPathSeparator ? item : type;
+                if (SimpleSearchMatch(itemName, search, wholeWord) || AdvancedSearchMatch(type, search, noCase))
                 {
                     matches.Add(item);
                     if (--limit == 0) break;
