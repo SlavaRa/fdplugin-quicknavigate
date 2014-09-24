@@ -50,13 +50,14 @@ namespace QuickNavigate.Test
         [TestMethod]
         public void AdvancedSearchMatch_MathCase()
         {
-            Assert.IsNotNull(null);
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DOC", false));
         }
 
         [TestMethod]
         public void AdvancedSearchMatch_noCase()
         {
-            Assert.IsNotNull(null);
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DOC", true));
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "doc", true));
         }
     }
 }
