@@ -39,7 +39,7 @@ namespace QuickNavigate.Test
         }
 
         [TestMethod]
-        public void GetParts_noCase()
+        public void GetParts_NoCase()
         {
             List<string> parts = SearchUtil.GetParts("DisplayObjectContainer", true);
             Assert.AreEqual(parts[0], "display");
@@ -57,7 +57,7 @@ namespace QuickNavigate.Test
         }
 
         [TestMethod]
-        public void AdvancedSearchMatch_noCase()
+        public void AdvancedSearchMatch_NoCase()
         {
             Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DOC", true));
             Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DisObjCont", true));
