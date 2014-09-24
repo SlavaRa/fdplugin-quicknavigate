@@ -50,13 +50,20 @@ namespace QuickNavigate.Test
         [TestMethod]
         public void AdvancedSearchMatch_MathCase()
         {
-            Assert.IsNotNull(null);
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DOC", false));
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DisplayOC", false));
+            Assert.IsFalse(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "doc", false));
+            Assert.IsFalse(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DISPLAYOC", false));
         }
 
         [TestMethod]
         public void AdvancedSearchMatch_noCase()
         {
-            Assert.IsNotNull(null);
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DOC", true));
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "DisObjCont", true));
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "doc", true));
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "displayoc", true));
+            Assert.IsTrue(SearchUtil.AdvancedSearchMatch("DisplayObjectContainer", "displayocontainer", true));
         }
     }
 }

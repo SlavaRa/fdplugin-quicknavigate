@@ -57,6 +57,7 @@ namespace QuickNavigate
 
         internal static bool AdvancedSearchMatch(string item, string searchText, bool noCase)
         {
+            if (noCase) searchText = searchText.ToLower();
             List<string> parts = GetParts(item, noCase);
             if (parts.Count == 0) return false;
             int partNum = 0;
