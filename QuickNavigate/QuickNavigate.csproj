@@ -101,16 +101,16 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\projects\FlashDevelop-fork\FlashDevelop\FlashDevelop.csproj">
+    <ProjectReference Include="..\..\flashdevelop-fork\FlashDevelop\FlashDevelop.csproj">
       <Project>{efd07485-9a64-4eec-94e7-acbd4da5ca93}</Project>
       <Name>FlashDevelop</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\projects\FlashDevelop-fork\PluginCore\PluginCore.csproj">
+    <ProjectReference Include="..\..\flashdevelop-fork\PluginCore\PluginCore.csproj">
       <Project>{61885F70-B4DC-4B44-852D-5D6D03F2A734}</Project>
       <Name>PluginCore</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\projects\FlashDevelop-fork\External\Plugins\ASCompletion\ASCompletion.csproj">
+    <ProjectReference Include="..\..\flashdevelop-fork\External\Plugins\ASCompletion\ASCompletion.csproj">
       <Project>{4EBF2653-9654-4E40-880E-0046B3D6210E}</Project>
       <Name>ASCompletion</Name>
     </ProjectReference>
