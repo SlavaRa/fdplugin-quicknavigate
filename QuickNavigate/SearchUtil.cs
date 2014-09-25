@@ -23,7 +23,7 @@ namespace QuickNavigate
             {
                 string type = item.Contains(pathSeparator) ? item.Substring(item.LastIndexOf(pathSeparator) + 1) : item;
                 string itemName = searchHasPathSeparator ? item : type;
-                if (SimpleSearchMatch(itemName, search, wholeWord) || AdvancedSearchMatch(type, search, noCase))
+                if (SimpleSearchMatch(itemName, search, wholeWord, noCase) || AdvancedSearchMatch(type, search, noCase))
                 {
                     matches.Add(item);
                     if (--limit == 0) break;
@@ -50,6 +50,16 @@ namespace QuickNavigate
 
         internal static bool SimpleSearchMatch(string item, string search, bool wholeWord)
         {
+            return SimpleSearchMatch(item, search, wholeWord, false);
+        }
+
+        internal static bool SimpleSearchMatch(string item, string search, bool wholeWord, bool noCase)
+        {
+            if (noCase)
+            {
+                item = item.ToLower();
+                search = search.ToLower();
+            }
             return wholeWord ? item.StartsWith(search) : item.Contains(search);
         }
 
