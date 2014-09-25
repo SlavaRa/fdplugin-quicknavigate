@@ -35,16 +35,22 @@ namespace QuickNavigate
 
         public static string[] Sort(List<string> matches, string search, string pathSeparator, bool noCase)
         {
-            if (noCase) search = search.ToLower();
-            matches.Sort(delegate(string a, string b)
+            if (matches.Count == 0) return new string[0];
+            if (matches.Count > 1)
             {
-                if (noCase) a = a.ToLower();
-                string t1 = a.Contains(pathSeparator) ? a.Substring(a.LastIndexOf(pathSeparator) + 1) : a;
-                if (a == search || t1 == search) return -1;
-                string t2 = b.Contains(pathSeparator) ? b.Substring(b.LastIndexOf(pathSeparator) + 1) : b;
-                if (b == search || t2 == search) return -1;
-                return a.Length > b.Length ? 1 : 0;
-            });
+                if (noCase) search = search.ToLower();
+                matches.Sort(delegate(string a, string b)
+                {
+                    if (a == b) return 0;
+                    if (a == null && b == null) return 0;
+                    if (noCase) a = a.ToLower();
+                    string t1 = a.Contains(pathSeparator) ? a.Substring(a.LastIndexOf(pathSeparator) + 1) : a;
+                    if (a == search || t1 == search) return -1;
+                    string t2 = b.Contains(pathSeparator) ? b.Substring(b.LastIndexOf(pathSeparator) + 1) : b;
+                    if (b == search || t2 == search) return -1;
+                    return 0;
+                });
+            }
             return matches.ToArray();
         }
 
