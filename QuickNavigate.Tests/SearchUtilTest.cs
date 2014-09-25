@@ -221,5 +221,34 @@ namespace QuickNavigate.Test
             matches = SearchUtil.Matches(source, "Object", ".", 100, true, false);
             Assert.AreEqual(matches.Count, 0);
         }
+
+        [TestMethod]
+        public void Sort_Type_NoCase()
+        {
+            List<string> matches = new List<string>()
+            {
+                "flash.display.DisplayObject",
+                "flash.display.DisplayObjectContainer",
+                "flash.display.Shape",
+                "flash.display.Sprite",
+                "flash.display.MovieClip"
+            };
+            string[] result = SearchUtil.Sort(matches, "display", ".", true);
+            Assert.AreEqual(result[0], "flash.display.DisplayObject");
+            Assert.AreEqual(result[1], "flash.display.DisplayObjectContainer");
+            Assert.AreEqual(result[2], "flash.display.Shape");
+            Assert.AreEqual(result[3], "flash.display.Sprite");
+            Assert.AreEqual(result[4], "flash.display.MovieClip");
+            matches = new List<string>()
+            {
+                "org.flashdevelop.tests.quicknavigate.display.DisplayObject",
+                "flash.display.DisplayObject",
+                "ru.crazypanda.display.DisplayObject",
+            };
+            result = SearchUtil.Sort(matches, "display", ".", true);
+            Assert.AreEqual(result[0], "flash.display.DisplayObject");
+            Assert.AreEqual(result[1], "ru.crazypanda.display.DisplayObject");
+            Assert.AreEqual(result[2], "org.flashdevelop.tests.quicknavigate.display.DisplayObject");
+        }
     }
 }
