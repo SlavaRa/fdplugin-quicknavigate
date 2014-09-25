@@ -7,7 +7,7 @@ namespace QuickNavigate.Test
     public class SearchUtilTest
     {
         [TestMethod]
-        public void SimpleSearchMatch_WholeWord()
+        public void SimpleSearchMatch_WholeWord_MatchCase()
         {
             Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash", true));
             Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display", true));
@@ -15,10 +15,11 @@ namespace QuickNavigate.Test
             Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display", true));
             Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.Sprite", true));
             Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "Sprite", true));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "Object", true));
         }
 
         [TestMethod]
-        public void SimpleSearchMatch_NoWholeWord()
+        public void SimpleSearchMatch_NoWholeWord_MatchCase()
         {
             Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash", false));
             Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display", false));
@@ -26,11 +27,25 @@ namespace QuickNavigate.Test
             Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display", false));
             Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.Sprite", false));
             Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "Sprite", false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "Object", false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.sprite", false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.sprite", false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "sprite", false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "object", false));
             Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.Sprite", false));
         }
 
         [TestMethod]
-        public void GetParts_MathCase()
+        public void SimpleSearchMatch_NoWholeWord_NoCase()
+        {
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.sprite", false, true));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.sprite", false, true));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "sprite", false, true));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "object", false, true));
+        }
+
+        [TestMethod]
+        public void GetParts_MatchCase()
         {
             List<string> parts = SearchUtil.GetParts("DisplayObjectContainer", false);
             Assert.AreEqual(parts[0], "Display");
@@ -67,6 +82,54 @@ namespace QuickNavigate.Test
         }
 
         [TestMethod]
+        public void Search_Type_NoWholeWord_MatchCase()
+        {
+            List<string> source = new List<string>()
+            {
+                "flash.display.DisplayObject",
+                "flash.display.DisplayObjectContainer",
+                "flash.display.Shape",
+                "flash.display.Sprite",
+                "flash.display.MovieClip"
+            };
+            List<string> matches = SearchUtil.Matches(source, "D", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 2);
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
+            matches = SearchUtil.Matches(source, "d", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 0);
+            matches = SearchUtil.Matches(source, "Display", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 2);
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
+            matches = SearchUtil.Matches(source, "display", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 0);
+            matches = SearchUtil.Matches(source, "DisplayObject", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 2);
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
+            matches = SearchUtil.Matches(source, "displayobject", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 0);
+            matches = SearchUtil.Matches(source, "Object", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 2);
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
+            matches = SearchUtil.Matches(source, "object", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 0);
+            matches = SearchUtil.Matches(source, "DO", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 2);
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
+            matches = SearchUtil.Matches(source, "do", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 0);
+            matches = SearchUtil.Matches(source, "DOC", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 1);
+            Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
+            matches = SearchUtil.Matches(source, "doc", ".", 100, false, true);
+            Assert.AreEqual(matches.Count, 0);
+        }
+
+        [TestMethod]
         public void Search_Type_NoWholeWord_NoCase()
         {
             List<string> source = new List<string>()
@@ -77,27 +140,27 @@ namespace QuickNavigate.Test
                 "flash.display.Sprite",
                 "flash.display.MovieClip"
             };
-            List<string> matches = SearchUtil.Matches(source, "d", ".", 2, false, false);
+            List<string> matches = SearchUtil.Matches(source, "d", ".", 100, false, false);
             Assert.AreEqual(matches.Count, 2);
             Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
             Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
-            matches = SearchUtil.Matches(source, "display", ".", 2, false, false);
+            matches = SearchUtil.Matches(source, "display", ".", 100, false, false);
             Assert.AreEqual(matches.Count, 2);
             Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
             Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
-            matches = SearchUtil.Matches(source, "displayobject", ".", 2, false, false);
+            matches = SearchUtil.Matches(source, "displayobject", ".", 100, false, false);
             Assert.AreEqual(matches.Count, 2);
             Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
             Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
-            matches = SearchUtil.Matches(source, "do", ".", 2, false, false);
+            matches = SearchUtil.Matches(source, "object", ".", 100, false, false);
             Assert.AreEqual(matches.Count, 2);
             Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
             Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
-            matches = SearchUtil.Matches(source, "Object", ".", 2, false, false);
+            matches = SearchUtil.Matches(source, "do", ".", 100, false, false);
             Assert.AreEqual(matches.Count, 2);
             Assert.IsTrue(matches.Contains("flash.display.DisplayObject"));
             Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
-            matches = SearchUtil.Matches(source, "doc", ".", 1, false, false);
+            matches = SearchUtil.Matches(source, "doc", ".", 100, false, false);
             Assert.AreEqual(matches.Count, 1);
             Assert.IsTrue(matches.Contains("flash.display.DisplayObjectContainer"));
             matches = SearchUtil.Matches(source, "flash.", ".", 100, false, false);
@@ -107,12 +170,6 @@ namespace QuickNavigate.Test
             matches = SearchUtil.Matches(source, "display.", ".", 100, false, false);
             Assert.AreEqual(matches.Count, source.Count);
             foreach (string m in matches) Assert.IsTrue(source.Contains(m));
-        }
-
-        [TestMethod]
-        public void Search_Type_NoWholeWord_MatchCase()
-        {
-            Assert.IsNotNull(null);
         }
 
         [TestMethod]
