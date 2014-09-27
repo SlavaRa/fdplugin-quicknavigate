@@ -13,7 +13,6 @@ namespace QuickNavigate
 {
     public partial class OpenResourceForm : Form
     {
-        private const int MAX_ITEMS = 100;
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
         private readonly Settings settings;
@@ -54,7 +53,7 @@ namespace QuickNavigate
                 bool matchCase = settings.ResourceFormMatchCase;
                 matches = SearchUtil.Matches(openedFiles, search, "\\", 0, wholeWord, matchCase);
                 if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
-                matches.AddRange(SearchUtil.Matches(projectFiles, search, "\\", MAX_ITEMS, wholeWord, matchCase));
+                matches.AddRange(SearchUtil.Matches(projectFiles, search, "\\", settings.MaxItems, wholeWord, matchCase));
             }
             tree.Items.AddRange(matches.ToArray());
         }
