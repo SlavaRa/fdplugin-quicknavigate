@@ -41,6 +41,11 @@ namespace QuickNavigate
         [DefaultValue("-----------------")]
         public string ItemSpacer { get; set; }
 
+        [Category("Forms")]
+        [DisplayName("Max items")]
+        [DefaultValue(100)]
+        public int MaxItems { get; set; }
+
         #endregion
 
         #region Resource Form

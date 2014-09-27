@@ -12,7 +12,6 @@ namespace QuickNavigate
 {
     public partial class OpenTypeForm : Form
     {
-        private const int MAX_ITEMS = 100;
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string, ClassModel>();
@@ -66,7 +65,7 @@ namespace QuickNavigate
                 bool matchCase = settings.TypeFormMatchCase;
                 matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
                 if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
-                matches.AddRange(SearchUtil.Matches(projectTypes, search, ".", MAX_ITEMS, wholeWord, matchCase));
+                matches.AddRange(SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase));
             }
             tree.Items.AddRange(matches.ToArray());
         }
