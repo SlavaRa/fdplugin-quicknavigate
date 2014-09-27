@@ -30,33 +30,33 @@ namespace QuickNavigate
             refreshButton.Image = PluginBase.MainForm.FindImage("66");
             new ToolTip().SetToolTip(refreshButton, "Ctrl+R");
             selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
-            defaultNodeBrush = new SolidBrush(listBox.BackColor);
+            defaultNodeBrush = new SolidBrush(tree.BackColor);
             LoadFileList();
         }
 
         private void RefreshListBox()
         {
-            listBox.BeginUpdate();
-            listBox.Items.Clear();
+            tree.BeginUpdate();
+            tree.Items.Clear();
             FillListBox();
-            if (listBox.Items.Count > 0) listBox.SelectedIndex = 0;
-            listBox.EndUpdate();
+            if (tree.Items.Count > 0) tree.SelectedIndex = 0;
+            tree.EndUpdate();
         }
 
         private void FillListBox()
         {
-            List<string> matchedItems;
-            string searchText = input.Text.Trim();
-            if (string.IsNullOrEmpty(searchText)) matchedItems = openedFiles;
+            List<string> matches;
+            string search = input.Text.Trim();
+            if (string.IsNullOrEmpty(search)) matches = openedFiles;
             else 
             {
                 bool wholeWord = settings.ResourceFormWholeWord;
                 bool matchCase = settings.ResourceFormMatchCase;
-                matchedItems = SearchUtil.Matches(openedFiles, searchText, "\\", 0, wholeWord, matchCase);
-                if (settings.EnableItemSpacer && matchedItems.Capacity > 0) matchedItems.Add(settings.ItemSpacer);
-                matchedItems.AddRange(SearchUtil.Matches(projectFiles, searchText, "\\", MAX_ITEMS, wholeWord, matchCase));
+                matches = SearchUtil.Matches(openedFiles, search, "\\", 0, wholeWord, matchCase);
+                if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
+                matches.AddRange(SearchUtil.Matches(projectFiles, search, "\\", MAX_ITEMS, wholeWord, matchCase));
             }
-            listBox.Items.AddRange(matchedItems.ToArray());
+            tree.Items.AddRange(matches.ToArray());
         }
 
         private void LoadFileList()
@@ -87,17 +87,17 @@ namespace QuickNavigate
 
         private void Navigate()
         {
-            string item = (string)listBox.SelectedItem;
-            if (string.IsNullOrEmpty(item) || item == settings.ItemSpacer) return;
-            string file = PluginBase.CurrentProject.GetAbsolutePath(item);
+            string selectedItem = (string)tree.SelectedItem;
+            if (string.IsNullOrEmpty(selectedItem) || selectedItem == settings.ItemSpacer) return;
+            string file = PluginBase.CurrentProject.GetAbsolutePath(selectedItem);
             PluginBase.MainForm.OpenEditableDocument(file);
             Close();
         }
         
         private void ShowMessage(string text)
         {
-            listBox.Items.Clear();
-            listBox.Items.Add(text);
+            tree.Items.Clear();
+            tree.Items.Add(text);
         }
 
         public List<string> GetProjectFiles()
@@ -121,9 +121,9 @@ namespace QuickNavigate
             if (!settings.SearchExternalClassPath) return folders;
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return folders;
-            foreach (PathModel pathModel in context.Classpath)
+            foreach (PathModel aPath in context.Classpath)
             {
-                string absolute = project.GetAbsolutePath(pathModel.Path);
+                string absolute = project.GetAbsolutePath(aPath.Path);
                 if (Directory.Exists(absolute)) folders.Add(absolute);
             }
             return folders;
@@ -133,35 +133,35 @@ namespace QuickNavigate
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control || e.Shift || listBox.Items.Count == 0) return;
-            int selectedIndex = listBox.SelectedIndex;
-            int count = listBox.Items.Count - 1;
-            int visibleCount = listBox.Height / listBox.ItemHeight - 1;
+            if (e.Control || e.Shift || tree.Items.Count == 0) return;
+            int selectedIndex = tree.SelectedIndex;
+            int count = tree.Items.Count - 1;
+            int visibleCount = tree.Height / tree.ItemHeight - 1;
             switch (e.KeyCode)
             {
                 case Keys.Down:
-                    if (selectedIndex < count) listBox.SelectedIndex++;
-                    else listBox.SelectedIndex = 0;
+                    if (selectedIndex < count) tree.SelectedIndex++;
+                    else tree.SelectedIndex = 0;
                     break;
                 case Keys.Up:
-                    if (selectedIndex > 0) listBox.SelectedIndex--;
-                    else listBox.SelectedIndex = count;
+                    if (selectedIndex > 0) tree.SelectedIndex--;
+                    else tree.SelectedIndex = count;
                     break;
                 case Keys.Home:
-                    listBox.SelectedIndex = 0;
+                    tree.SelectedIndex = 0;
                     break;
                 case Keys.End:
-                    listBox.SelectedIndex = count;
+                    tree.SelectedIndex = count;
                     break;
                 case Keys.PageUp:
                     selectedIndex = selectedIndex - visibleCount;
                     if (selectedIndex < 0) selectedIndex = 0;
-                    listBox.SelectedIndex = selectedIndex;
+                    tree.SelectedIndex = selectedIndex;
                     break;
                 case Keys.PageDown:
                     selectedIndex = selectedIndex + visibleCount;
                     if (selectedIndex > count) selectedIndex = count;
-                    listBox.SelectedIndex = selectedIndex;
+                    tree.SelectedIndex = selectedIndex;
                     break;
                 default: return;
             }
@@ -185,7 +185,7 @@ namespace QuickNavigate
             else e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
             if (e.Index >= 0)
             {
-                string fullName = (string)listBox.Items[e.Index];
+                string fullName = (string)tree.Items[e.Index];
                 int slashIndex = fullName.LastIndexOf(Path.DirectorySeparatorChar);
                 string path = fullName.Substring(0, slashIndex + 1);
                 string name = fullName.Substring(slashIndex + 1);
@@ -206,7 +206,7 @@ namespace QuickNavigate
 
         private void ListBox_Resize(object sender, EventArgs e)
         {
-            listBox.Refresh();
+            tree.Refresh();
         }
 
         private void RefreshButton_Click(object sender, EventArgs e)
@@ -221,12 +221,10 @@ namespace QuickNavigate
                 case Keys.Escape:
                     Close();
                     break;
-
                 case Keys.Enter:
                     e.Handled = true;
                     Navigate();
                     break;
-
                 case Keys.R:
                     if (e.Control && !worker.IsBusy) LoadFileList();
                     break;

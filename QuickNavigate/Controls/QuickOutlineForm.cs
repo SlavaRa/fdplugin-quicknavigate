@@ -92,13 +92,13 @@ namespace QuickNavigate
             FileModel model = ASContext.Context.CurrentModel;
             if (model == FileModel.Ignore) return;
             if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members);
-            foreach (ClassModel classModel in model.Classes)
+            foreach (ClassModel aClass in model.Classes)
             {
-                int imageNum = PluginUI.GetIcon(classModel.Flags, classModel.Access);
-                TreeNode node = new TreeNode(classModel.Name, imageNum, imageNum);
+                int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                TreeNode node = new TreeNode(aClass.Name, icon, icon);
                 node.Tag = "class";
                 tree.Nodes.Add(node);
-                AddMembers(node.Nodes, classModel.Members);
+                AddMembers(node.Nodes, aClass.Members);
                 node.Expand();
             }
         }
@@ -107,13 +107,13 @@ namespace QuickNavigate
         {
             bool wholeWord = settings.OutlineFormWholeWord;
             bool matchCase = settings.OutlineFormMatchCase;
-            string searchedText = matchCase ? input.Text.Trim() : input.Text.ToLower().Trim();
-            bool searchedTextIsNotEmpty = !string.IsNullOrEmpty(searchedText);
+            string search = matchCase ? input.Text.Trim() : input.Text.ToLower().Trim();
+            bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
             foreach (MemberModel member in members)
             {
                 string memberToString = member.ToString().Trim();
                 string memberText = matchCase ? memberToString : memberToString.ToLower();
-                if (searchedTextIsNotEmpty && (!wholeWord && memberText.IndexOf(searchedText) == -1 || wholeWord && !memberText.StartsWith(searchedText)))
+                if (searchIsNotEmpty && (!wholeWord && memberText.IndexOf(search) == -1 || wholeWord && !memberText.StartsWith(search)))
                     continue;
                 int imageIndex = PluginUI.GetIcon(member.Flags, member.Access);
                 TreeNode node = new TreeNode(memberToString, imageIndex, imageIndex);
