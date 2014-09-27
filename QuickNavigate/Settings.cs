@@ -29,6 +29,20 @@ namespace QuickNavigate
 
         #endregion
 
+        #region Forms
+
+        [Category("Forms")]
+        [DisplayName("Enable item spacer")]
+        [DefaultValue(true)]
+        public bool EnableItemSpacer { get; set; }
+
+        [Category("Forms")]
+        [DisplayName("Item spacer")]
+        [DefaultValue("-----------------")]
+        public string ItemSpacer { get; set; }
+
+        #endregion
+
         #region Resource Form
 
         [Browsable(false)]

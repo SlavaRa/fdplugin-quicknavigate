@@ -13,7 +13,6 @@ namespace QuickNavigate
     public partial class OpenTypeForm : Form
     {
         private const int MAX_ITEMS = 100;
-        private const string ITEM_SPACER = "-----------------";
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string, ClassModel>();
@@ -66,7 +65,7 @@ namespace QuickNavigate
                 bool wholeWord = settings.TypeFormWholeWord;
                 bool matchCase = settings.TypeFormMatchCase;
                 matchedItems = SearchUtil.Matches(openedTypes, searchText, ".", 0, wholeWord, matchCase);
-                if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
+                if (settings.EnableItemSpacer && matchedItems.Capacity > 0) matchedItems.Add(settings.ItemSpacer);
                 matchedItems.AddRange(SearchUtil.Matches(projectTypes, searchText, ".", MAX_ITEMS, wholeWord, matchCase));
             }
             listBox.Items.AddRange(matchedItems.ToArray());
@@ -89,7 +88,7 @@ namespace QuickNavigate
         {
             if (listBox.SelectedItem == null) return;
             string selectedItem = listBox.SelectedItem.ToString();
-            if (selectedItem == ITEM_SPACER) return;
+            if (selectedItem == settings.ItemSpacer) return;
             ClassModel classModel = dictionary[selectedItem];
             FileModel model = ModelsExplorer.Instance.OpenFile(classModel.InFile.FileName);
             if (model != null)

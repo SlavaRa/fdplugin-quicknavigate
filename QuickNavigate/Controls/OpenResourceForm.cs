@@ -14,7 +14,6 @@ namespace QuickNavigate
     public partial class OpenResourceForm : Form
     {
         private const int MAX_ITEMS = 100;
-        private const string ITEM_SPACER = "-----------------";
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
         private readonly Settings settings;
@@ -54,7 +53,7 @@ namespace QuickNavigate
                 bool wholeWord = settings.ResourceFormWholeWord;
                 bool matchCase = settings.ResourceFormMatchCase;
                 matchedItems = SearchUtil.Matches(openedFiles, searchText, "\\", 0, wholeWord, matchCase);
-                if (matchedItems.Capacity > 0) matchedItems.Add(ITEM_SPACER);
+                if (settings.EnableItemSpacer && matchedItems.Capacity > 0) matchedItems.Add(settings.ItemSpacer);
                 matchedItems.AddRange(SearchUtil.Matches(projectFiles, searchText, "\\", MAX_ITEMS, wholeWord, matchCase));
             }
             listBox.Items.AddRange(matchedItems.ToArray());
@@ -88,12 +87,11 @@ namespace QuickNavigate
 
         private void Navigate()
         {
-            if (listBox.SelectedItem != null)
-            {
-                string file = PluginBase.CurrentProject.GetAbsolutePath((string)listBox.SelectedItem);
-                PluginBase.MainForm.OpenEditableDocument(file);
-                Close();
-            }
+            string item = (string)listBox.SelectedItem;
+            if (string.IsNullOrEmpty(item) || item == settings.ItemSpacer) return;
+            string file = PluginBase.CurrentProject.GetAbsolutePath(item);
+            PluginBase.MainForm.OpenEditableDocument(file);
+            Close();
         }
         
         private void ShowMessage(string text)
