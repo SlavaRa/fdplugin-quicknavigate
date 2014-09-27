@@ -30,7 +30,7 @@ namespace QuickNavigate
             CreateItemsList();
             RefreshListBox();
             selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
-            defaultNodeBrush = new SolidBrush(listBox.BackColor);
+            defaultNodeBrush = new SolidBrush(tree.BackColor);
         }
 
         private void CreateItemsList()
@@ -48,55 +48,55 @@ namespace QuickNavigate
 
         private void RefreshListBox()
         {
-            listBox.BeginUpdate();
-            listBox.Items.Clear();
+            tree.BeginUpdate();
+            tree.Items.Clear();
             FillListBox();
-            if (listBox.Items.Count > 0) listBox.SelectedIndex = 0;
-            listBox.EndUpdate();
+            if (tree.Items.Count > 0) tree.SelectedIndex = 0;
+            tree.EndUpdate();
         }
 
         private void FillListBox()
         {
-            List<string> matchedItems;
-            string searchText = input.Text.Trim();
-            if (string.IsNullOrEmpty(searchText)) matchedItems = openedTypes;
+            List<string> matches;
+            string search = input.Text.Trim();
+            if (string.IsNullOrEmpty(search)) matches = openedTypes;
             else
             {
                 bool wholeWord = settings.TypeFormWholeWord;
                 bool matchCase = settings.TypeFormMatchCase;
-                matchedItems = SearchUtil.Matches(openedTypes, searchText, ".", 0, wholeWord, matchCase);
-                if (settings.EnableItemSpacer && matchedItems.Capacity > 0) matchedItems.Add(settings.ItemSpacer);
-                matchedItems.AddRange(SearchUtil.Matches(projectTypes, searchText, ".", MAX_ITEMS, wholeWord, matchCase));
+                matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
+                if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
+                matches.AddRange(SearchUtil.Matches(projectTypes, search, ".", MAX_ITEMS, wholeWord, matchCase));
             }
-            listBox.Items.AddRange(matchedItems.ToArray());
+            tree.Items.AddRange(matches.ToArray());
         }
 
         private bool FileModelDelegate(FileModel model)
         {
-            foreach (ClassModel classModel in model.Classes)
+            foreach (ClassModel aClass in model.Classes)
             {
-                string qualifiedName = classModel.QualifiedName;
+                string qualifiedName = aClass.QualifiedName;
                 if (dictionary.ContainsKey(qualifiedName)) continue;
-                if (SearchUtil.IsFileOpened(classModel.InFile.FileName)) openedTypes.Add(qualifiedName);
+                if (SearchUtil.IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(qualifiedName);
                 else projectTypes.Add(qualifiedName);
-                dictionary.Add(qualifiedName, classModel);
+                dictionary.Add(qualifiedName, aClass);
             }
             return true;
         }
 
         private void Navigate()
         {
-            if (listBox.SelectedItem == null) return;
-            string selectedItem = listBox.SelectedItem.ToString();
+            if (tree.SelectedItem == null) return;
+            string selectedItem = tree.SelectedItem.ToString();
             if (selectedItem == settings.ItemSpacer) return;
-            ClassModel classModel = dictionary[selectedItem];
-            FileModel model = ModelsExplorer.Instance.OpenFile(classModel.InFile.FileName);
+            ClassModel aClass = dictionary[selectedItem];
+            FileModel model = ModelsExplorer.Instance.OpenFile(aClass.InFile.FileName);
             if (model != null)
             {
-                ClassModel theClass = model.GetClassByName(classModel.Name);
-                if (!theClass.IsVoid())
+                aClass = model.GetClassByName(aClass.Name);
+                if (!aClass.IsVoid())
                 {
-                    int line = theClass.LineFrom;
+                    int line = aClass.LineFrom;
                     ScintillaNet.ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
                     if (sci != null && line > 0 && line < sci.LineCount)
                         sci.GotoLine(line);
@@ -123,35 +123,35 @@ namespace QuickNavigate
 
         private void Input_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control || e.Shift || listBox.Items.Count == 0) return;
-            int selectedIndex = listBox.SelectedIndex;
-            int count = listBox.Items.Count - 1;
-            int visibleCount = listBox.Height / listBox.ItemHeight - 1;
+            if (e.Control || e.Shift || tree.Items.Count == 0) return;
+            int selectedIndex = tree.SelectedIndex;
+            int count = tree.Items.Count - 1;
+            int visibleCount = tree.Height / tree.ItemHeight - 1;
             switch (e.KeyCode)
             {
                 case Keys.Down:
-                    if (selectedIndex < count) listBox.SelectedIndex++;
-                    else listBox.SelectedIndex = 0;
+                    if (selectedIndex < count) tree.SelectedIndex++;
+                    else tree.SelectedIndex = 0;
                     break;
                 case Keys.Up:
-                    if (selectedIndex > 0) listBox.SelectedIndex--;
-                    else listBox.SelectedIndex = count;
+                    if (selectedIndex > 0) tree.SelectedIndex--;
+                    else tree.SelectedIndex = count;
                     break;
                 case Keys.Home:
-                    listBox.SelectedIndex = 0;
+                    tree.SelectedIndex = 0;
                     break;
                 case Keys.End:
-                    listBox.SelectedIndex = count;
+                    tree.SelectedIndex = count;
                     break;
                 case Keys.PageUp:
                     selectedIndex = selectedIndex - visibleCount;
                     if (selectedIndex < 0) selectedIndex = 0;
-                    listBox.SelectedIndex = selectedIndex;
+                    tree.SelectedIndex = selectedIndex;
                     break;
                 case Keys.PageDown:
                     selectedIndex = selectedIndex + visibleCount;
                     if (selectedIndex > count) selectedIndex = count;
-                    listBox.SelectedIndex = selectedIndex;
+                    tree.SelectedIndex = selectedIndex;
                     break;
                 default: return;
             }
@@ -175,7 +175,7 @@ namespace QuickNavigate
             else e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
             if (e.Index >= 0)
             {
-                string fullName = (string)listBox.Items[e.Index];
+                string fullName = (string)tree.Items[e.Index];
                 int slashIndex = fullName.LastIndexOf('.');
                 string path = fullName.Substring(0, slashIndex + 1);
                 string name = fullName.Substring(slashIndex + 1);
@@ -196,7 +196,7 @@ namespace QuickNavigate
 
         private void ListBox_Resize(object sender, EventArgs e)
         {
-            listBox.Refresh();
+            tree.Refresh();
         }
 
         private void OpenTypeForm_FormClosing(object sender, FormClosingEventArgs e)
