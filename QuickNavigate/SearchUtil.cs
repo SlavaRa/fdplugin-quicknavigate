@@ -41,7 +41,7 @@ namespace QuickNavigate
                 if (noCase) search = search.ToLower();
                 matches.Sort(delegate(string a, string b)
                 {
-                    if (a == b) return 0;
+                    if (a == b || a == null || b == null) return 0;
                     if (noCase) a = a.ToLower();
                     string t1 = a.Contains(pathSeparator) ? a.Substring(a.LastIndexOf(pathSeparator) + 1) : a;
                     if (a == search || t1 == search) return -1;
