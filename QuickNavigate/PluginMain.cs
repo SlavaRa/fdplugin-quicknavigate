@@ -24,6 +24,7 @@ namespace QuickNavigate
         private Settings settings;
 	    private ControlClickManager controlClickManager;
         private ToolStripMenuItem classHierarchyItem;
+        private ToolStripMenuItem editorClassHierarchyItem;
 
 	    #region Required Properties
 
@@ -168,9 +169,10 @@ namespace QuickNavigate
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", menuItem);
             menu.DropDownItems.Add(menuItem);
 
-            image = PluginBase.MainForm.FindImage("99|16|0|0");
-            classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
+            classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
             menu.DropDownItems.Add(classHierarchyItem);
+            editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
+            PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
         }
 
         /// <summary>
@@ -180,7 +182,9 @@ namespace QuickNavigate
         {
             ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
-            classHierarchyItem.Enabled = context != null && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
+            bool classHierarchyEnabled = context != null && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
+            classHierarchyItem.Enabled = classHierarchyEnabled;
+            editorClassHierarchyItem.Enabled = classHierarchyEnabled;
         }
 
         /// <summary>
