@@ -78,11 +78,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlClickManager.cs" />
-    <Compile Include="Controls\HierarchyExplorer.cs">
+    <Compile Include="Controls\ClassHierarchy.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\HierarchyExplorer.Designer.cs">
-      <DependentUpon>HierarchyExplorer.cs</DependentUpon>
+    <Compile Include="Controls\ClassHierarchy.Designer.cs">
+      <DependentUpon>ClassHierarchy.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\OpenResourceForm.cs">
       <SubType>Form</SubType>
@@ -123,8 +123,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\HierarchyExplorer.resx">
-      <DependentUpon>HierarchyExplorer.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ClassHierarchy.resx">
+      <DependentUpon>ClassHierarchy.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

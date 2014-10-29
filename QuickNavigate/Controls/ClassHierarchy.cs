@@ -65,9 +65,17 @@ namespace QuickNavigate.Controls
             ClassModel theClass = ASContext.Context.CurrentClass;
             if (theClass.IsVoid()) theClass = ASContext.Context.CurrentModel.GetPublicClass();
             if (theClass.IsVoid()) return;
-            foreach (ClassModel aClass in GetExtends(theClass)) tree.Nodes.Add(new ClassNode(aClass));
+            TreeNode parent = null;
+            foreach (ClassModel aClass in GetExtends(theClass))
+            {
+                TreeNode child = new ClassNode(aClass);
+                if (parent == null) tree.Nodes.Add(child);
+                else parent.Nodes.Add(child);
+                parent = child;
+            }
             TreeNode node = new ClassNode(theClass);
-            tree.Nodes.Add(node);
+            if (parent == null) tree.Nodes.Add(node);
+            else parent.Nodes.Add(node);
             tree.SelectedNode = node;
             FillNode(node);
         }
