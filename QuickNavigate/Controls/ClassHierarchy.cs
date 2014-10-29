@@ -150,7 +150,6 @@ namespace QuickNavigate.Controls
         private void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
-            tree.BeginUpdate();
             TreeNode node;
             int visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
@@ -197,7 +196,6 @@ namespace QuickNavigate.Controls
                 default: return;
             }
             e.Handled = true;
-            tree.EndUpdate();
         }
 
         private void OnInputTextChanged(object sender, EventArgs e)
