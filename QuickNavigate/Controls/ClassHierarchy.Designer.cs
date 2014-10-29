@@ -46,6 +46,7 @@
             this.tree.Location = new System.Drawing.Point(12, 40);
             this.tree.Margin = new System.Windows.Forms.Padding(4);
             this.tree.Name = "tree";
+            this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(365, 202);
             this.tree.TabIndex = 1;
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
