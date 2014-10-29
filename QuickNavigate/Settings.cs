@@ -108,5 +108,12 @@ namespace QuickNavigate
 
         #endregion
 
+        #region Hierarchy Explorer
+
+        [Browsable(false)]
+        [Category("Hierarchy Explorer")]
+        public Size HierarchyExplorer;
+
+        #endregion
     }
 }
