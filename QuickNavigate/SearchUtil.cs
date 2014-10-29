@@ -16,9 +16,10 @@ namespace QuickNavigate
 
         public static List<string> Matches(List<string> source, string search, string pathSeparator, int limit, bool wholeWord, bool matchCase)
         {
+            List<string> matches = new List<string>();
+            if (string.IsNullOrEmpty(search)) return matches;
             bool noCase = !matchCase;
             bool searchHasPathSeparator = search.Contains(pathSeparator);
-            List<string> matches = new List<string>();
             foreach (string item in source)
             {
                 string type = item.Contains(pathSeparator) ? item.Substring(item.LastIndexOf(pathSeparator) + 1) : item;
