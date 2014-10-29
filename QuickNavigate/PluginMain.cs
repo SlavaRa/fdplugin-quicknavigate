@@ -17,7 +17,7 @@ namespace QuickNavigate
         private const string PLUGIN_NAME = "QuickNavigate";
         private const string PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
         private const string PLUGIN_HELP = "www.flashdevelop.org/community/";
-        private const string PLUGIN_AUTH = "Canab";
+        private const string PLUGIN_AUTH = "Canab, SlavaRa";
 	    private const string SETTINGS_FILE = "Settings.fdb";
         private const string PLUGIN_DESC = "QuickNavigate plugin";
         private string settingFilename;
@@ -151,24 +151,18 @@ namespace QuickNavigate
         private void CreateMenuItems()
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
-            ToolStripMenuItem menuItem;
-            System.Drawing.Image image;
-
-            image = PluginBase.MainForm.FindImage("209");
-            menuItem = new ToolStripMenuItem("Open Resource", image, ShowResourceForm, Keys.Control | Keys.R);
+            System.Drawing.Image image = PluginBase.MainForm.FindImage("209");
+            ToolStripMenuItem menuItem = new ToolStripMenuItem("Open Resource", image, ShowResourceForm, Keys.Control | Keys.R);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.OpenResource", menuItem);
             menu.DropDownItems.Add(menuItem);
-
             image = PluginBase.MainForm.FindImage("99|16|0|0");
             menuItem = new ToolStripMenuItem("Open Type", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.OpenType", menuItem);
             menu.DropDownItems.Add(menuItem);
-
             image = PluginBase.MainForm.FindImage("315|16|0|0");
             menuItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", menuItem);
             menu.DropDownItems.Add(menuItem);
-
             classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
             menu.DropDownItems.Add(classHierarchyItem);
             editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
@@ -182,9 +176,9 @@ namespace QuickNavigate
         {
             ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
-            bool classHierarchyEnabled = context != null && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
-            classHierarchyItem.Enabled = classHierarchyEnabled;
-            editorClassHierarchyItem.Enabled = classHierarchyEnabled;
+            bool canShowClassHierarchy = GetCanShowClassHierarchy();
+            classHierarchyItem.Enabled = canShowClassHierarchy;
+            editorClassHierarchyItem.Enabled = canShowClassHierarchy;
         }
 
         /// <summary>
@@ -205,40 +199,34 @@ namespace QuickNavigate
             ObjectSerializer.Serialize(settingFilename, settings);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void ShowResourceForm(object sender, EventArgs e)
 	    {
             if (PluginBase.CurrentProject != null) new OpenResourceForm(settings).ShowDialog();
 	    }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void ShowTypeForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject != null) new OpenTypeForm(settings).ShowDialog();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void ShowOutlineForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject != null) new QuickOutlineForm(settings).ShowDialog();
         }
 
+        private bool GetCanShowClassHierarchy()
+        {
+            if (PluginBase.CurrentProject == null) return false;
+            ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
+            if (document == null || !document.IsEditable) return false;
+            ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
+            return context != null && context.Features.hasExtends
+                && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
+        }
+
         private void ShowClassHierarchy(object sender, EventArgs e)
         {
-            if (PluginBase.CurrentProject == null) return;
-            ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
-            if (document == null || !document.IsEditable) return;
-            string lang = document.SciControl.ConfigurationLanguage;
-            if (lang != "as2" && lang != "as3" && lang != "haxe" && lang != "loom") return;
-            ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
-            if (context == null || (context.CurrentClass.IsVoid() && context.CurrentModel.GetPublicClass().IsVoid())) return;
-            new ClassHierarchy(settings).ShowDialog();
+            if (GetCanShowClassHierarchy()) new ClassHierarchy(settings).ShowDialog();
         }
 
 		#endregion

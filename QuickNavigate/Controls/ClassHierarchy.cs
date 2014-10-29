@@ -77,6 +77,7 @@ namespace QuickNavigate.Controls
                 parent = child;
             }
             TreeNode node = new ClassNode(theClass);
+            node.NodeFont = new Font(tree.Font, FontStyle.Underline);
             if (parent == null) tree.Nodes.Add(node);
             else parent.Nodes.Add(node);
             tree.SelectedNode = node;
@@ -293,23 +294,19 @@ namespace QuickNavigate.Controls
         private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
         {
             string tag = e.Node.Tag as string;
+            Brush fillBrush = defaultNodeBrush;
+            Brush drawBrush = Brushes.Black;
             if (string.IsNullOrEmpty(tag) || tag == "enabled")
             {
-                Brush fillBrush = defaultNodeBrush;
-                Brush drawBrush = Brushes.Black;
                 if ((e.State & TreeNodeStates.Selected) > 0)
                 {
                     fillBrush = selectedNodeBrush;
                     drawBrush = Brushes.White;
                 }
-                e.Graphics.FillRectangle(fillBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
             }
-            else if (tag == "disabled")
-            {
-                e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.DimGray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            }
+            else if (tag == "disabled") drawBrush = Brushes.DimGray;
+            e.Graphics.FillRectangle(fillBrush, e.Bounds);
+            e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
         }
 
         #endregion
