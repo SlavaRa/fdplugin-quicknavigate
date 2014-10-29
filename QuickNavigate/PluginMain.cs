@@ -1,3 +1,4 @@
+using ASCompletion.Completion;
 using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
@@ -22,6 +23,7 @@ namespace QuickNavigate
         private string settingFilename;
         private Settings settings;
 	    private ControlClickManager controlClickManager;
+        private ToolStripMenuItem hierarchyExplorerItem;
 
 	    #region Required Properties
 
@@ -110,6 +112,10 @@ namespace QuickNavigate
 		{
             switch (e.Type)
             {
+                case EventType.UIStarted:
+                    ASComplete.OnResolvedContextChanged += OnResolvedContextChanged;
+                    UpdateMenuItems();
+                    break;
                 case EventType.FileSwitch:
                     if (controlClickManager != null) controlClickManager.SciControl = PluginBase.MainForm.CurrentDocument.SciControl;
                     break;
@@ -135,13 +141,13 @@ namespace QuickNavigate
         /// </summary>
         public void AddEventHandlers()
         {
-            EventManager.AddEventHandler(this, EventType.FileSwitch);
+            EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch);
         }
 
         /// <summary>
         /// Creates the required menu items
         /// </summary>
-        public void CreateMenuItems()
+        private void CreateMenuItems()
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             ToolStripMenuItem menuItem;
@@ -163,8 +169,18 @@ namespace QuickNavigate
             menu.DropDownItems.Add(menuItem);
 
             image = PluginBase.MainForm.FindImage("99|16|0|0");
-            menuItem = new ToolStripMenuItem("Hierarchy Explorer", image, ShowHierarchyExplorer);
-            menu.DropDownItems.Add(menuItem);
+            hierarchyExplorerItem = new ToolStripMenuItem("Hierarchy Explorer", image, ShowHierarchyExplorer);
+            menu.DropDownItems.Add(hierarchyExplorerItem);
+        }
+
+        /// <summary>
+        /// Updates the state of the menu items
+        /// </summary>
+        private void UpdateMenuItems()
+        {
+            ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
+            ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
+            hierarchyExplorerItem.Enabled = context != null && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
         /// <summary>
@@ -215,10 +231,24 @@ namespace QuickNavigate
             ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
             if (document == null || !document.IsEditable) return;
             string lang = document.SciControl.ConfigurationLanguage;
-            if (lang == "as2" || lang == "as3" || lang == "haxe" || lang == "loom") new HierarchyExplorer(settings).ShowDialog();
+            if (lang != "as2" && lang != "as3" && lang != "haxe" && lang != "loom") return;
+            ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
+            if (context == null || (context.CurrentClass.IsVoid() && context.CurrentModel.GetPublicClass().IsVoid())) return;
+            new HierarchyExplorer(settings).ShowDialog();
         }
 
 		#endregion
 
-	}
+        #region Event Handlers
+
+        /// <summary>
+        /// Cursor position changed and word at this position was resolved
+        /// </summary>
+        private void OnResolvedContextChanged(ResolvedContext resolved)
+        {
+            this.UpdateMenuItems();
+        }
+
+        #endregion
+    }
 }

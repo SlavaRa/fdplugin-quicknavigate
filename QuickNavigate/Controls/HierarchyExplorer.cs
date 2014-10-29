@@ -63,7 +63,8 @@ namespace QuickNavigate.Controls
         private void FillTree()
         {
             ClassModel theClass = ASContext.Context.CurrentClass;
-            if (theClass == null) return;
+            if (theClass.IsVoid()) theClass = ASContext.Context.CurrentModel.GetPublicClass();
+            if (theClass.IsVoid()) return;
             foreach (ClassModel aClass in GetExtends(theClass)) tree.Nodes.Add(new ClassNode(aClass));
             TreeNode node = new ClassNode(theClass);
             tree.Nodes.Add(node);
