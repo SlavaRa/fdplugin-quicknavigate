@@ -246,7 +246,7 @@ namespace QuickNavigate
         /// </summary>
         private void OnResolvedContextChanged(ResolvedContext resolved)
         {
-            this.UpdateMenuItems();
+            UpdateMenuItems();
         }
 
         #endregion
