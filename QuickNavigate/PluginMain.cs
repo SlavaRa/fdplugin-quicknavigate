@@ -2,6 +2,7 @@ using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
 using PluginCore.Utilities;
+using QuickNavigate.Controls;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -160,6 +161,10 @@ namespace QuickNavigate
             menuItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", menuItem);
             menu.DropDownItems.Add(menuItem);
+
+            image = PluginBase.MainForm.FindImage("99|16|0|0");
+            menuItem = new ToolStripMenuItem("Hierarchy Explorer", image, ShowHierarchyExplorer);
+            menu.DropDownItems.Add(menuItem);
         }
 
         /// <summary>
@@ -202,6 +207,15 @@ namespace QuickNavigate
         private void ShowOutlineForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject != null) new QuickOutlineForm(settings).ShowDialog();
+        }
+
+        private void ShowHierarchyExplorer(object sender, EventArgs e)
+        {
+            if (PluginBase.CurrentProject == null) return;
+            ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
+            if (document == null || !document.IsEditable) return;
+            string lang = document.SciControl.ConfigurationLanguage;
+            if (lang == "as2" || lang == "as3" || lang == "haxe" || lang == "loom") new HierarchyExplorer(settings).ShowDialog();
         }
 
 		#endregion

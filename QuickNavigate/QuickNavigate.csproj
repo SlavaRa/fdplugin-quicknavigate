@@ -74,9 +74,16 @@
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlClickManager.cs" />
+    <Compile Include="Controls\HierarchyExplorer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\HierarchyExplorer.Designer.cs">
+      <DependentUpon>HierarchyExplorer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\OpenResourceForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,5 +121,10 @@
       <Project>{4EBF2653-9654-4E40-880E-0046B3D6210E}</Project>
       <Name>ASCompletion</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\HierarchyExplorer.resx">
+      <DependentUpon>HierarchyExplorer.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
