@@ -9,14 +9,14 @@ using System.Windows.Forms;
 
 namespace QuickNavigate.Controls
 {
-    public partial class HierarchyExplorer : Form
+    public partial class ClassHierarchy : Form
     {
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush;
         private readonly Brush defaultNodeBrush;
         private readonly Dictionary<string, List<ClassModel>> extendsToClasses;
 
-        public HierarchyExplorer(Settings settings)
+        public ClassHierarchy(Settings settings)
         {
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;

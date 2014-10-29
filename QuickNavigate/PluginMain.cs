@@ -23,7 +23,7 @@ namespace QuickNavigate
         private string settingFilename;
         private Settings settings;
 	    private ControlClickManager controlClickManager;
-        private ToolStripMenuItem hierarchyExplorerItem;
+        private ToolStripMenuItem classHierarchyItem;
 
 	    #region Required Properties
 
@@ -169,8 +169,8 @@ namespace QuickNavigate
             menu.DropDownItems.Add(menuItem);
 
             image = PluginBase.MainForm.FindImage("99|16|0|0");
-            hierarchyExplorerItem = new ToolStripMenuItem("Hierarchy Explorer", image, ShowHierarchyExplorer);
-            menu.DropDownItems.Add(hierarchyExplorerItem);
+            classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
+            menu.DropDownItems.Add(classHierarchyItem);
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace QuickNavigate
         {
             ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
-            hierarchyExplorerItem.Enabled = context != null && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
+            classHierarchyItem.Enabled = context != null && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace QuickNavigate
             if (PluginBase.CurrentProject != null) new QuickOutlineForm(settings).ShowDialog();
         }
 
-        private void ShowHierarchyExplorer(object sender, EventArgs e)
+        private void ShowClassHierarchy(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
             ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
@@ -234,7 +234,7 @@ namespace QuickNavigate
             if (lang != "as2" && lang != "as3" && lang != "haxe" && lang != "loom") return;
             ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
             if (context == null || (context.CurrentClass.IsVoid() && context.CurrentModel.GetPublicClass().IsVoid())) return;
-            new HierarchyExplorer(settings).ShowDialog();
+            new ClassHierarchy(settings).ShowDialog();
         }
 
 		#endregion

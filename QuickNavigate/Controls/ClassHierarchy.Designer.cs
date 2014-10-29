@@ -1,6 +1,6 @@
 ﻿namespace QuickNavigate.Controls
 {
-    partial class HierarchyExplorer
+    partial class ClassHierarchy
     {
         /// <summary>
         /// Required designer variable.
@@ -32,19 +32,6 @@
             this.input = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // input
-            // 
-            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.input.BackColor = System.Drawing.SystemColors.Control;
-            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.input.Location = new System.Drawing.Point(12, 12);
-            this.input.Name = "input";
-            this.input.Size = new System.Drawing.Size(365, 21);
-            this.input.TabIndex = 0;
-            this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
-            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
-            // 
             // tree
             // 
             this.tree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -61,10 +48,23 @@
             this.tree.Name = "tree";
             this.tree.Size = new System.Drawing.Size(365, 202);
             this.tree.TabIndex = 1;
-            this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
+            this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
             // 
-            // HierarchyExplorer
+            // input
+            // 
+            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.input.BackColor = System.Drawing.SystemColors.Control;
+            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.input.Location = new System.Drawing.Point(12, 12);
+            this.input.Name = "input";
+            this.input.Size = new System.Drawing.Size(365, 21);
+            this.input.TabIndex = 0;
+            this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
+            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
+            // 
+            // ClassHierarchy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -75,11 +75,11 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(320, 200);
-            this.Name = "HierarchyExplorer";
+            this.Name = "ClassHierarchy";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Hierarchy Explorer";
+            this.Text = "Class Hierarchy";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnKeyDown);
             this.ResumeLayout(false);
