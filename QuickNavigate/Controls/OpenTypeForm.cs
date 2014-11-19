@@ -14,7 +14,7 @@ namespace QuickNavigate
     {
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
-        private readonly Dictionary<string, ClassModel> dictionary = new Dictionary<string, ClassModel>();
+        private readonly Dictionary<string, ClassModel> typeToClassModel = new Dictionary<string, ClassModel>();
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush;
         private readonly Brush defaultNodeBrush;
@@ -27,7 +27,8 @@ namespace QuickNavigate
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
             CreateItemsList();
-            RefreshListBox();
+            InitTree();
+            RefreshTree();
             selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
         }
@@ -36,7 +37,7 @@ namespace QuickNavigate
         {
             projectTypes.Clear();
             openedTypes.Clear();
-            dictionary.Clear();
+            typeToClassModel.Clear();
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
             foreach (PathModel path in context.Classpath)
@@ -45,16 +46,60 @@ namespace QuickNavigate
             }
         }
 
-        private void RefreshListBox()
+        private void InitTree()
         {
-            tree.BeginUpdate();
-            tree.Items.Clear();
-            FillListBox();
-            if (tree.Items.Count > 0) tree.SelectedIndex = 0;
-            tree.EndUpdate();
+            ImageList treeIcons = new ImageList();
+            treeIcons.TransparentColor = Color.Transparent;
+            treeIcons.Images.AddRange(new Bitmap[] {
+                new Bitmap(PluginUI.GetStream("FilePlain.png")),
+                new Bitmap(PluginUI.GetStream("FolderClosed.png")),
+                new Bitmap(PluginUI.GetStream("FolderOpen.png")),
+                new Bitmap(PluginUI.GetStream("CheckAS.png")),
+                new Bitmap(PluginUI.GetStream("QuickBuild.png")),
+                new Bitmap(PluginUI.GetStream("Package.png")),
+                new Bitmap(PluginUI.GetStream("Interface.png")),
+                new Bitmap(PluginUI.GetStream("Intrinsic.png")),
+                new Bitmap(PluginUI.GetStream("Class.png")),
+                new Bitmap(PluginUI.GetStream("Variable.png")),
+                new Bitmap(PluginUI.GetStream("VariableProtected.png")),
+                new Bitmap(PluginUI.GetStream("VariablePrivate.png")),
+                new Bitmap(PluginUI.GetStream("VariableStatic.png")),
+                new Bitmap(PluginUI.GetStream("VariableStaticProtected.png")),
+                new Bitmap(PluginUI.GetStream("VariableStaticPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Const.png")),
+                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
+                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Const.png")),
+                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
+                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Method.png")),
+                new Bitmap(PluginUI.GetStream("MethodProtected.png")),
+                new Bitmap(PluginUI.GetStream("MethodPrivate.png")),
+                new Bitmap(PluginUI.GetStream("MethodStatic.png")),
+                new Bitmap(PluginUI.GetStream("MethodStaticProtected.png")),
+                new Bitmap(PluginUI.GetStream("MethodStaticPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Property.png")),
+                new Bitmap(PluginUI.GetStream("PropertyProtected.png")),
+                new Bitmap(PluginUI.GetStream("PropertyPrivate.png")),
+                new Bitmap(PluginUI.GetStream("PropertyStatic.png")),
+                new Bitmap(PluginUI.GetStream("PropertyStaticProtected.png")),
+                new Bitmap(PluginUI.GetStream("PropertyStaticPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Template.png")),
+                new Bitmap(PluginUI.GetStream("Declaration.png"))
+            });
+            tree.ImageList = treeIcons;
         }
 
-        private void FillListBox()
+        private void RefreshTree()
+        {
+            tree.BeginUpdate();
+            tree.Nodes.Clear();
+            FillTree();
+            tree.EndUpdate();
+            tree.ExpandAll();
+        }
+
+        private void FillTree()
         {
             List<string> matches;
             string search = input.Text.Trim();
@@ -67,28 +112,35 @@ namespace QuickNavigate
                 if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
                 matches.AddRange(SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase));
             }
-            tree.Items.AddRange(matches.ToArray());
+            if (matches.Count == 0) return;
+            foreach(string m in matches) 
+            {
+                ClassModel aClass = typeToClassModel[m];
+                int imageIndex = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                tree.Nodes.Add(new TreeNode(){Text = m, ImageIndex = imageIndex, SelectedImageIndex = imageIndex});
+            }
+            tree.SelectedNode = tree.Nodes[0];
         }
 
         private bool FileModelDelegate(FileModel model)
         {
             foreach (ClassModel aClass in model.Classes)
             {
-                string qualifiedName = aClass.QualifiedName;
-                if (dictionary.ContainsKey(qualifiedName)) continue;
-                if (SearchUtil.IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(qualifiedName);
-                else projectTypes.Add(qualifiedName);
-                dictionary.Add(qualifiedName, aClass);
+                string type = aClass.Type;
+                if (typeToClassModel.ContainsKey(type)) continue;
+                if (SearchUtil.IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
+                else projectTypes.Add(type);
+                typeToClassModel.Add(type, aClass);
             }
             return true;
         }
 
         private void Navigate()
         {
-            if (tree.SelectedItem == null) return;
-            string selectedItem = tree.SelectedItem.ToString();
+            if (tree.SelectedNode == null) return;
+            string selectedItem = tree.SelectedNode.Text;
             if (selectedItem == settings.ItemSpacer) return;
-            ClassModel aClass = dictionary[selectedItem];
+            ClassModel aClass = typeToClassModel[selectedItem];
             FileModel model = ModelsExplorer.Instance.OpenFile(aClass.InFile.FileName);
             if (model != null)
             {
@@ -106,7 +158,7 @@ namespace QuickNavigate
 
         #region Event Handlers
 
-        private void OpenTypeForm_KeyDown(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -120,87 +172,89 @@ namespace QuickNavigate
             }
         }
 
-        private void Input_KeyDown(object sender, KeyEventArgs e)
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.Control || e.Shift || tree.Items.Count == 0) return;
-            int selectedIndex = tree.SelectedIndex;
-            int count = tree.Items.Count - 1;
-            int visibleCount = tree.Height / tree.ItemHeight - 1;
+            settings.TypeFormSize = Size;
+        }
+
+        private void OnInputKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control || e.Shift || tree.SelectedNode == null) return;
+            TreeNode node;
+            int visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
             {
                 case Keys.Down:
-                    if (selectedIndex < count) tree.SelectedIndex++;
-                    else tree.SelectedIndex = 0;
+                    if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                    else tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
-                    if (selectedIndex > 0) tree.SelectedIndex--;
-                    else tree.SelectedIndex = count;
+                    if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                    else
+                    {
+                        node = tree.SelectedNode;
+                        while (node.NextVisibleNode != null) node = node.NextVisibleNode;
+                        tree.SelectedNode = node;
+                    }
                     break;
                 case Keys.Home:
-                    tree.SelectedIndex = 0;
+                    tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.End:
-                    tree.SelectedIndex = count;
+                    node = tree.SelectedNode;
+                    while (node.NextVisibleNode != null) node = node.NextVisibleNode;
+                    tree.SelectedNode = node;
                     break;
                 case Keys.PageUp:
-                    selectedIndex = selectedIndex - visibleCount;
-                    if (selectedIndex < 0) selectedIndex = 0;
-                    tree.SelectedIndex = selectedIndex;
+                    node = tree.SelectedNode;
+                    for (int i = 0; i < visibleCount; i++)
+                    {
+                        if (node.PrevVisibleNode == null) break;
+                        node = node.PrevVisibleNode;
+                    }
+                    tree.SelectedNode = node;
                     break;
                 case Keys.PageDown:
-                    selectedIndex = selectedIndex + visibleCount;
-                    if (selectedIndex > count) selectedIndex = count;
-                    tree.SelectedIndex = selectedIndex;
+                    node = tree.SelectedNode;
+                    for (int i = 0; i < visibleCount; i++)
+                    {
+                        if (node.NextVisibleNode == null) break;
+                        node = node.NextVisibleNode;
+                    }
+                    tree.SelectedNode = node;
                     break;
                 default: return;
             }
             e.Handled = true;
         }
 
-        private void Input_TextChanged(object sender, EventArgs e)
+        private void OnInputTextChanged(object sender, EventArgs e)
         {
-            RefreshListBox();
+            RefreshTree();
         }
 
-        private void ListBox_DoubleClick(object sender, EventArgs e)
+        private void OnTreeDoubleClick(object sender, EventArgs e)
         {
             Navigate();
         }
 
-        private void ListBox_DrawItem(object sender, DrawItemEventArgs e)
+        private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
         {
-            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
-            if (selected) e.Graphics.FillRectangle(selectedNodeBrush, e.Bounds);
-            else e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
-            if (e.Index >= 0)
+            if ((e.State & TreeNodeStates.Selected) > 0)
             {
-                string fullName = (string)tree.Items[e.Index];
-                int slashIndex = fullName.LastIndexOf('.');
-                string path = fullName.Substring(0, slashIndex + 1);
-                string name = fullName.Substring(slashIndex + 1);
-                int pathSize = DrawHelper.MeasureDisplayStringWidth(e.Graphics, path, e.Font) - 2;
-                if (pathSize < 0) pathSize = 0; // No negative padding...
-                if (selected)
-                {
-                    e.Graphics.DrawString(path, e.Font, Brushes.LightGray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-                    e.Graphics.DrawString(name, e.Font, Brushes.White, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
-                }
-                else
-                {
-                    e.Graphics.DrawString(path, e.Font, Brushes.Gray, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-                    e.Graphics.DrawString(name, e.Font, Brushes.Black, e.Bounds.Left + pathSize, e.Bounds.Top, StringFormat.GenericDefault);
-                }
+                e.Graphics.FillRectangle(selectedNodeBrush, e.Bounds);
+                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            }
+            else
+            {
+                e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
+                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
             }
         }
 
-        private void ListBox_Resize(object sender, EventArgs e)
+        private void OnTreeResize(object sender, EventArgs e)
         {
             tree.Refresh();
-        }
-
-        private void OpenTypeForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            settings.TypeFormSize = Size;
         }
 
         #endregion

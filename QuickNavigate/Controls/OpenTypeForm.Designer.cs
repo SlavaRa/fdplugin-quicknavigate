@@ -30,7 +30,7 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.input = new System.Windows.Forms.TextBox();
-            this.tree = new System.Windows.Forms.ListBox();
+            this.tree = new System.Windows.Forms.TreeView();
             this.SuspendLayout();
             // 
             // label1
@@ -52,8 +52,8 @@
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(365, 20);
             this.input.TabIndex = 1;
-            this.input.TextChanged += new System.EventHandler(this.Input_TextChanged);
-            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Input_KeyDown);
+            this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
+            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
             // 
             // listBox
             // 
@@ -62,17 +62,20 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tree.BackColor = System.Drawing.SystemColors.Control;
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tree.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.tree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.tree.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tree.FormattingEnabled = true;
+            this.tree.HideSelection = false;
             this.tree.ItemHeight = 16;
             this.tree.Location = new System.Drawing.Point(12, 53);
-            this.tree.Name = "listBox";
+            this.tree.Name = "tree";
+            this.tree.ShowLines = false;
+            this.tree.ShowPlusMinus = false;
+            this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(365, 194);
             this.tree.TabIndex = 2;
-            this.tree.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ListBox_DrawItem);
-            this.tree.DoubleClick += new System.EventHandler(this.ListBox_DoubleClick);
-            this.tree.Resize += new System.EventHandler(this.ListBox_Resize);
+            this.tree.DrawNode += OnTreeDrawNode;
+            this.tree.DoubleClick += new System.EventHandler(this.OnTreeDoubleClick);
+            this.tree.Resize += new System.EventHandler(this.OnTreeResize);
             // 
             // OpenTypeForm
             // 
@@ -91,8 +94,8 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Open Type";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OpenTypeForm_FormClosing);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OpenTypeForm_KeyDown);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnKeyDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -102,6 +105,6 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox input;
-        private System.Windows.Forms.ListBox tree;
+        private System.Windows.Forms.TreeView tree;
     }
 }

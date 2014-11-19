@@ -24,7 +24,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\flashdevelop-fork\FlashDevelop\Bin\Debug\Plugins\</OutputPath>
+    <OutputPath>..\..\..\..\FlashDevelop\Bin\Debug\Plugins\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -108,16 +108,16 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\flashdevelop-fork\FlashDevelop\FlashDevelop.csproj">
+    <ProjectReference Include="..\..\..\..\FlashDevelop\FlashDevelop.csproj">
       <Project>{efd07485-9a64-4eec-94e7-acbd4da5ca93}</Project>
       <Name>FlashDevelop</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\flashdevelop-fork\PluginCore\PluginCore.csproj">
+    <ProjectReference Include="..\..\..\..\PluginCore\PluginCore.csproj">
       <Project>{61885F70-B4DC-4B44-852D-5D6D03F2A734}</Project>
       <Name>PluginCore</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\flashdevelop-fork\External\Plugins\ASCompletion\ASCompletion.csproj">
+    <ProjectReference Include="..\..\ASCompletion\ASCompletion.csproj">
       <Project>{4EBF2653-9654-4E40-880E-0046B3D6210E}</Project>
       <Name>ASCompletion</Name>
     </ProjectReference>
