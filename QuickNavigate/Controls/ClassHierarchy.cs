@@ -28,6 +28,7 @@ namespace QuickNavigate.Controls
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
             typeToNode = new Dictionary<string, TreeNode>();
+            InitTree();
             RefreshTree();
         }
 
@@ -62,21 +63,68 @@ namespace QuickNavigate.Controls
             tree.ExpandAll();
         }
 
+        private void InitTree()
+        {
+            ImageList treeIcons = new ImageList();
+            treeIcons.TransparentColor = Color.Transparent;
+            treeIcons.Images.AddRange(new Bitmap[] {
+                new Bitmap(PluginUI.GetStream("FilePlain.png")),
+                new Bitmap(PluginUI.GetStream("FolderClosed.png")),
+                new Bitmap(PluginUI.GetStream("FolderOpen.png")),
+                new Bitmap(PluginUI.GetStream("CheckAS.png")),
+                new Bitmap(PluginUI.GetStream("QuickBuild.png")),
+                new Bitmap(PluginUI.GetStream("Package.png")),
+                new Bitmap(PluginUI.GetStream("Interface.png")),
+                new Bitmap(PluginUI.GetStream("Intrinsic.png")),
+                new Bitmap(PluginUI.GetStream("Class.png")),
+                new Bitmap(PluginUI.GetStream("Variable.png")),
+                new Bitmap(PluginUI.GetStream("VariableProtected.png")),
+                new Bitmap(PluginUI.GetStream("VariablePrivate.png")),
+                new Bitmap(PluginUI.GetStream("VariableStatic.png")),
+                new Bitmap(PluginUI.GetStream("VariableStaticProtected.png")),
+                new Bitmap(PluginUI.GetStream("VariableStaticPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Const.png")),
+                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
+                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Const.png")),
+                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
+                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Method.png")),
+                new Bitmap(PluginUI.GetStream("MethodProtected.png")),
+                new Bitmap(PluginUI.GetStream("MethodPrivate.png")),
+                new Bitmap(PluginUI.GetStream("MethodStatic.png")),
+                new Bitmap(PluginUI.GetStream("MethodStaticProtected.png")),
+                new Bitmap(PluginUI.GetStream("MethodStaticPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Property.png")),
+                new Bitmap(PluginUI.GetStream("PropertyProtected.png")),
+                new Bitmap(PluginUI.GetStream("PropertyPrivate.png")),
+                new Bitmap(PluginUI.GetStream("PropertyStatic.png")),
+                new Bitmap(PluginUI.GetStream("PropertyStaticProtected.png")),
+                new Bitmap(PluginUI.GetStream("PropertyStaticPrivate.png")),
+                new Bitmap(PluginUI.GetStream("Template.png")),
+                new Bitmap(PluginUI.GetStream("Declaration.png"))
+            });
+            tree.ImageList = treeIcons;
+        }
+
         private void FillTree()
         {
             typeToNode.Clear();
             ClassModel theClass = GetCurrentClass();
             if (theClass.IsVoid()) return;
             TreeNode parent = null;
+            int imageIndex;
             foreach (ClassModel aClass in GetExtends(theClass))
             {
-                TreeNode child = new ClassNode(aClass);
+                imageIndex = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                TreeNode child = new ClassNode(aClass, imageIndex, imageIndex);
                 if (parent == null) tree.Nodes.Add(child);
                 else parent.Nodes.Add(child);
                 typeToNode[aClass.Type] = child;
                 parent = child;
             }
-            TreeNode node = new ClassNode(theClass);
+            imageIndex = PluginUI.GetIcon(theClass.Flags, theClass.Access);
+            TreeNode node = new ClassNode(theClass, imageIndex, imageIndex);
             node.NodeFont = new Font(tree.Font, FontStyle.Underline);
             if (parent == null) tree.Nodes.Add(node);
             else parent.Nodes.Add(node);
@@ -106,7 +154,8 @@ namespace QuickNavigate.Controls
                 ClassModel extends = aClass.InFile.Context.ResolveType(aClass.ExtendsType, aClass.InFile);
                 if (extends.Type == node.Text)
                 {
-                    TreeNode child = new ClassNode(aClass);
+                    int imageIndex = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                    TreeNode child = new ClassNode(aClass, imageIndex, imageIndex);
                     node.Nodes.Add(child);
                     typeToNode[aClass.Type] = child;
                     FillNode(child);
@@ -316,7 +365,7 @@ namespace QuickNavigate.Controls
     {
         public readonly ClassModel Class;
 
-        public ClassNode(ClassModel theClass) : base(theClass.Type)
+        public ClassNode(ClassModel theClass, int imageIndex, int selectedImageIndex) : base(theClass.Type, imageIndex, selectedImageIndex)
         {
             Class = theClass;
             Name = theClass.Name;
