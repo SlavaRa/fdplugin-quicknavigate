@@ -16,7 +16,7 @@ namespace QuickNavigate
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> typeToClassModel = new Dictionary<string, ClassModel>();
         private readonly Settings settings;
-        private readonly Brush selectedNodeBrush;
+        private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
 
         public OpenTypeForm(Settings settings)
@@ -26,11 +26,10 @@ namespace QuickNavigate
             InitializeComponent();
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            defaultNodeBrush = new SolidBrush(tree.BackColor);
             CreateItemsList();
             InitTree();
             RefreshTree();
-            selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
-            defaultNodeBrush = new SolidBrush(tree.BackColor);
         }
 
         private void CreateItemsList()
@@ -48,9 +47,9 @@ namespace QuickNavigate
 
         private void InitTree()
         {
-            ImageList treeIcons = new ImageList();
-            treeIcons.TransparentColor = Color.Transparent;
-            treeIcons.Images.AddRange(new Bitmap[] {
+            ImageList icons = new ImageList();
+            icons.TransparentColor = Color.Transparent;
+            icons.Images.AddRange(new Bitmap[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -87,7 +86,7 @@ namespace QuickNavigate
                 new Bitmap(PluginUI.GetStream("Template.png")),
                 new Bitmap(PluginUI.GetStream("Declaration.png"))
             });
-            tree.ImageList = treeIcons;
+            tree.ImageList = icons;
         }
 
         private void RefreshTree()
@@ -116,8 +115,8 @@ namespace QuickNavigate
             foreach(string m in matches) 
             {
                 ClassModel aClass = typeToClassModel[m];
-                int imageIndex = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                tree.Nodes.Add(new TreeNode(){Text = m, ImageIndex = imageIndex, SelectedImageIndex = imageIndex});
+                int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                tree.Nodes.Add(new TreeNode(){Text = m, ImageIndex = icon, SelectedImageIndex = icon});
             }
             tree.SelectedNode = tree.Nodes[0];
         }
@@ -233,7 +232,7 @@ namespace QuickNavigate
             RefreshTree();
         }
 
-        private void OnTreeDoubleClick(object sender, EventArgs e)
+        private void OnTreeNodeMouseDoubleClick(object sender, System.Windows.Forms.TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
@@ -250,11 +249,6 @@ namespace QuickNavigate
                 e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
                 e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
             }
-        }
-
-        private void OnTreeResize(object sender, EventArgs e)
-        {
-            tree.Refresh();
         }
 
         #endregion

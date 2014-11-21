@@ -16,7 +16,7 @@ namespace QuickNavigate
         private readonly List<string> projectFiles = new List<string>();
         private readonly List<string> openedFiles = new List<string>();
         private readonly Settings settings;
-        private readonly Brush selectedNodeBrush;
+        private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
 
         public OpenResourceForm(Settings settings)
@@ -28,7 +28,6 @@ namespace QuickNavigate
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
             refreshButton.Image = PluginBase.MainForm.FindImage("66");
             new ToolTip().SetToolTip(refreshButton, "Ctrl+R");
-            selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             LoadFileList();
         }
