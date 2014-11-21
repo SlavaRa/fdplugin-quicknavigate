@@ -22,7 +22,7 @@ namespace QuickNavigate.Controls
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
-            if (settings.HierarchyExplorer.Width > MinimumSize.Width) Size = settings.HierarchyExplorer;
+            if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
             selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
@@ -252,7 +252,7 @@ namespace QuickNavigate.Controls
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            settings.OutlineFormSize = Size;
+            settings.HierarchyExplorerSize = Size;
         }
 
         private void OnInputKeyDown(object sender, KeyEventArgs e)

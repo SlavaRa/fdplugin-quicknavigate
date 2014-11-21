@@ -112,7 +112,7 @@ namespace QuickNavigate
 
         [Browsable(false)]
         [Category("Hierarchy Explorer")]
-        public Size HierarchyExplorer;
+        public Size HierarchyExplorerSize;
 
         #endregion
     }
