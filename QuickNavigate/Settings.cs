@@ -114,6 +114,18 @@ namespace QuickNavigate
         [Category("Hierarchy Explorer")]
         public Size HierarchyExplorerSize;
 
+        [Browsable(true)]
+        [Category("Hierarchy Explorer")]
+        [DisplayName("Whole word")]
+        [DefaultValue(false)]
+        public bool HierarchyExplorerWholeWord { get; set; }
+
+        [Browsable(true)]
+        [Category("Hierarchy Explorer")]
+        [DisplayName("Match case")]
+        [DefaultValue(false)]
+        public bool HierarchyExplorerMatchCase { get; set; }
+
         #endregion
     }
 }

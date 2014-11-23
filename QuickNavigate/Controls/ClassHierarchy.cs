@@ -315,7 +315,7 @@ namespace QuickNavigate.Controls
         private void OnInputTextChanged(object sender, EventArgs e)
         {
             if (tree.Nodes.Count == 0) return;
-            List<string> matches = SearchUtil.Matches(new List<string>(typeToNode.Keys), input.Text, ".", settings.MaxItems, false, false);
+            List<string> matches = SearchUtil.Matches(new List<string>(typeToNode.Keys), input.Text, ".", settings.MaxItems, settings.HierarchyExplorerWholeWord, settings.HierarchyExplorerMatchCase);
             bool mathesIsEmpty = matches.Count == 0;
             foreach (KeyValuePair<string, TreeNode> k in typeToNode)
             {
