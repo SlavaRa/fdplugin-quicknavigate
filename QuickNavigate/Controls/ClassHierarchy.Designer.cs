@@ -28,9 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tree = new System.Windows.Forms.TreeView();
             this.input = new System.Windows.Forms.TextBox();
+            this.tree = new System.Windows.Forms.TreeView();
             this.SuspendLayout();
+            // 
+            // input
+            // 
+            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.input.BackColor = System.Drawing.SystemColors.Control;
+            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.input.Location = new System.Drawing.Point(12, 12);
+            this.input.Name = "input";
+            this.input.Size = new System.Drawing.Size(365, 20);
+            this.input.TabIndex = 0;
+            this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
+            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
             // 
             // tree
             // 
@@ -47,29 +60,16 @@
             this.tree.Margin = new System.Windows.Forms.Padding(4);
             this.tree.Name = "tree";
             this.tree.ShowRootLines = false;
-            this.tree.Size = new System.Drawing.Size(365, 202);
+            this.tree.Size = new System.Drawing.Size(365, 200);
             this.tree.TabIndex = 1;
-            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
-            // 
-            // input
-            // 
-            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.input.BackColor = System.Drawing.SystemColors.Control;
-            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.input.Location = new System.Drawing.Point(12, 12);
-            this.input.Name = "input";
-            this.input.Size = new System.Drawing.Size(365, 21);
-            this.input.TabIndex = 0;
-            this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
-            this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
+            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
             // 
             // ClassHierarchy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(389, 255);
+            this.ClientSize = new System.Drawing.Size(390, 255);
             this.Controls.Add(this.tree);
             this.Controls.Add(this.input);
             this.KeyPreview = true;
@@ -90,7 +90,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TreeView tree;
         private System.Windows.Forms.TextBox input;
+        private System.Windows.Forms.TreeView tree;
     }
 }

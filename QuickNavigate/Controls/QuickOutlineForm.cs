@@ -11,7 +11,7 @@ namespace QuickNavigate
     public partial class QuickOutlineForm : Form
     {
         private readonly Settings settings;
-        private readonly Brush selectedNodeBrush;
+        private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
         
         public QuickOutlineForm(Settings settings)
@@ -20,17 +20,15 @@ namespace QuickNavigate
             InitializeComponent();
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            defaultNodeBrush = new SolidBrush(tree.BackColor);
             InitTree();
             RefreshTree();
-            selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
-            defaultNodeBrush = new SolidBrush(tree.BackColor);
         }
 
         private void InitTree()
         {
-            ImageList treeIcons = new ImageList();
-            treeIcons.TransparentColor = Color.Transparent;
-            treeIcons.Images.AddRange(new Bitmap[] {
+            ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
+            icons.Images.AddRange(new Bitmap[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -67,16 +65,7 @@ namespace QuickNavigate
                 new Bitmap(PluginUI.GetStream("Template.png")),
                 new Bitmap(PluginUI.GetStream("Declaration.png"))
             });
-            tree.ImageList = treeIcons;
-        }
-
-        private void Navigate()
-        {
-            if (tree.SelectedNode != null)
-            {
-                ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
-                Close();
-            }
+            tree.ImageList = icons;
         }
 
         private void RefreshTree()
@@ -85,6 +74,7 @@ namespace QuickNavigate
             tree.Nodes.Clear();
             FillTree();
             tree.EndUpdate();
+            tree.ExpandAll();
         }
 
         private void FillTree()
@@ -95,12 +85,18 @@ namespace QuickNavigate
             foreach (ClassModel aClass in model.Classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                TreeNode node = new TreeNode(aClass.Name, icon, icon);
-                node.Tag = "class";
+                TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, aClass.Members);
                 node.Expand();
             }
+        }
+
+        private void Navigate()
+        {
+            if (tree.SelectedNode == null) return;
+            ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
+            Close();
         }
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
@@ -115,8 +111,8 @@ namespace QuickNavigate
                 string memberText = matchCase ? memberToString : memberToString.ToLower();
                 if (searchIsNotEmpty && (!wholeWord && memberText.IndexOf(search) == -1 || wholeWord && !memberText.StartsWith(search)))
                     continue;
-                int imageIndex = PluginUI.GetIcon(member.Flags, member.Access);
-                TreeNode node = new TreeNode(memberToString, imageIndex, imageIndex);
+                int icon = PluginUI.GetIcon(member.Flags, member.Access);
+                TreeNode node = new TreeNode(memberToString, icon, icon);
                 node.Tag = member.Name + "@" + member.LineFrom;
                 node.BackColor = Color.Black;
                 nodes.Add(node);
@@ -126,7 +122,7 @@ namespace QuickNavigate
 
         #region Event Handlers
 
-        private void QuickOutlineForm_KeyDown(object sender, KeyEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -140,17 +136,12 @@ namespace QuickNavigate
             }
         }
 
-        private void QuickOutlineForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.OutlineFormSize = Size;
         }
 
-        private void Input_TextChanged(object sender, EventArgs e)
-        {
-            RefreshTree();
-        }
-
-        private void Input_KeyDown(object sender, KeyEventArgs e)
+        private void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
             TreeNode node;
@@ -201,12 +192,17 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void Tree_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void OnInputTextChanged(object sender, EventArgs e)
+        {
+            RefreshTree();
+        }
+
+        private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
-        private void Tree_DrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
+        private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
         {
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
