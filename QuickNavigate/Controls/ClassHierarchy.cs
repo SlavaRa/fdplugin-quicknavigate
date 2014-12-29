@@ -264,7 +264,7 @@ namespace QuickNavigate.Controls
                 case Keys.Down:
                     node = GetNextEnabledNode();
                     if (node != null) tree.SelectedNode = node;
-                    else
+                    else if (settings.WrapList)
                     {
                         node = GetUpEnabledNode();
                         if (node != null) tree.SelectedNode = node;
@@ -273,7 +273,7 @@ namespace QuickNavigate.Controls
                 case Keys.Up:
                     node = GetPrevEnabledNode();
                     if (node != null) tree.SelectedNode = node;
-                    else
+                    else if (settings.WrapList)
                     {
                         node = GetLastEnabledNode();
                         if (node != null) tree.SelectedNode = node;
