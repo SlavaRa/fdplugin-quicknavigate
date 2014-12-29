@@ -46,6 +46,11 @@ namespace QuickNavigate
         [DefaultValue(100)]
         public int MaxItems { get; set; }
 
+        [Category("Forms")]
+        [DisplayName("Wrap list")]
+        [DefaultValue(false)]
+        public bool WrapList { get; set; }
+
         #endregion
 
         #region Resource Form
@@ -112,7 +117,19 @@ namespace QuickNavigate
 
         [Browsable(false)]
         [Category("Hierarchy Explorer")]
-        public Size HierarchyExplorer;
+        public Size HierarchyExplorerSize;
+
+        [Browsable(true)]
+        [Category("Hierarchy Explorer")]
+        [DisplayName("Whole word")]
+        [DefaultValue(false)]
+        public bool HierarchyExplorerWholeWord { get; set; }
+
+        [Browsable(true)]
+        [Category("Hierarchy Explorer")]
+        [DisplayName("Match case")]
+        [DefaultValue(false)]
+        public bool HierarchyExplorerMatchCase { get; set; }
 
         #endregion
     }

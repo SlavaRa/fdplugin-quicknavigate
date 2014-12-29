@@ -39,7 +39,6 @@
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(271, 13);
-            this.label1.TabIndex = 0;
             this.label1.Text = "Search string: (UPPERCASE for search by abbreviation)";
             // 
             // input
@@ -51,11 +50,11 @@
             this.input.Location = new System.Drawing.Point(12, 26);
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(365, 20);
-            this.input.TabIndex = 1;
+            this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
             // 
-            // listBox
+            // tree
             // 
             this.tree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
@@ -71,17 +70,16 @@
             this.tree.ShowLines = false;
             this.tree.ShowPlusMinus = false;
             this.tree.ShowRootLines = false;
-            this.tree.Size = new System.Drawing.Size(365, 194);
-            this.tree.TabIndex = 2;
-            this.tree.DrawNode += OnTreeDrawNode;
-            this.tree.DoubleClick += new System.EventHandler(this.OnTreeDoubleClick);
-            this.tree.Resize += new System.EventHandler(this.OnTreeResize);
+            this.tree.Size = new System.Drawing.Size(365, 200);
+            this.tree.TabIndex = 1;
+            this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
+            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
             // 
             // OpenTypeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(389, 255);
+            this.ClientSize = new System.Drawing.Size(390, 255);
             this.Controls.Add(this.tree);
             this.Controls.Add(this.input);
             this.Controls.Add(this.label1);

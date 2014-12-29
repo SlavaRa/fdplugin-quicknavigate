@@ -12,7 +12,7 @@ namespace QuickNavigate.Controls
     public partial class ClassHierarchy : Form
     {
         private readonly Settings settings;
-        private readonly Brush selectedNodeBrush;
+        private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
         private readonly Dictionary<string, List<ClassModel>> extendsToClasses;
         private readonly Dictionary<string, TreeNode> typeToNode;
@@ -22,9 +22,8 @@ namespace QuickNavigate.Controls
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
-            if (settings.HierarchyExplorer.Width > MinimumSize.Width) Size = settings.HierarchyExplorer;
+            if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
-            selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
             typeToNode = new Dictionary<string, TreeNode>();
@@ -54,20 +53,10 @@ namespace QuickNavigate.Controls
             return result;
         }
 
-        private void RefreshTree()
-        {
-            tree.BeginUpdate();
-            tree.Nodes.Clear();
-            FillTree();
-            tree.EndUpdate();
-            tree.ExpandAll();
-        }
-
         private void InitTree()
         {
-            ImageList treeIcons = new ImageList();
-            treeIcons.TransparentColor = Color.Transparent;
-            treeIcons.Images.AddRange(new Bitmap[] {
+            ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
+            icons.Images.AddRange(new Bitmap[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -104,7 +93,16 @@ namespace QuickNavigate.Controls
                 new Bitmap(PluginUI.GetStream("Template.png")),
                 new Bitmap(PluginUI.GetStream("Declaration.png"))
             });
-            tree.ImageList = treeIcons;
+            tree.ImageList = icons;
+        }
+
+        private void RefreshTree()
+        {
+            tree.BeginUpdate();
+            tree.Nodes.Clear();
+            FillTree();
+            tree.EndUpdate();
+            tree.ExpandAll();
         }
 
         private void FillTree()
@@ -113,18 +111,18 @@ namespace QuickNavigate.Controls
             ClassModel theClass = GetCurrentClass();
             if (theClass.IsVoid()) return;
             TreeNode parent = null;
-            int imageIndex;
+            int icon;
             foreach (ClassModel aClass in GetExtends(theClass))
             {
-                imageIndex = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                TreeNode child = new ClassNode(aClass, imageIndex, imageIndex);
+                icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                TreeNode child = new ClassNode(aClass, icon, icon);
                 if (parent == null) tree.Nodes.Add(child);
                 else parent.Nodes.Add(child);
                 typeToNode[aClass.Type] = child;
                 parent = child;
             }
-            imageIndex = PluginUI.GetIcon(theClass.Flags, theClass.Access);
-            TreeNode node = new ClassNode(theClass, imageIndex, imageIndex);
+            icon = PluginUI.GetIcon(theClass.Flags, theClass.Access);
+            TreeNode node = new ClassNode(theClass, icon, icon);
             node.NodeFont = new Font(tree.Font, FontStyle.Underline);
             if (parent == null) tree.Nodes.Add(node);
             else parent.Nodes.Add(node);
@@ -154,8 +152,8 @@ namespace QuickNavigate.Controls
                 ClassModel extends = aClass.InFile.Context.ResolveType(aClass.ExtendsType, aClass.InFile);
                 if (extends.Type == node.Text)
                 {
-                    int imageIndex = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                    TreeNode child = new ClassNode(aClass, imageIndex, imageIndex);
+                    int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                    TreeNode child = new ClassNode(aClass, icon, icon);
                     node.Nodes.Add(child);
                     typeToNode[aClass.Type] = child;
                     FillNode(child);
@@ -184,9 +182,8 @@ namespace QuickNavigate.Controls
 
         private ClassModel GetCurrentClass()
         {
-            ClassModel result = ASContext.Context.CurrentClass;
-            if (result.IsVoid()) result = ASContext.Context.CurrentModel.GetPublicClass();
-            return result;
+            ClassModel curClass = ASContext.Context.CurrentClass;
+            return !curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass();
         }
 
         private TreeNode GetNextEnabledNode()
@@ -245,6 +242,7 @@ namespace QuickNavigate.Controls
                     Close();
                     break;
                 case Keys.Enter:
+                    e.Handled = true;
                     Navigate();
                     break;
             }
@@ -252,7 +250,7 @@ namespace QuickNavigate.Controls
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            settings.OutlineFormSize = Size;
+            settings.HierarchyExplorerSize = Size;
         }
 
         private void OnInputKeyDown(object sender, KeyEventArgs e)
@@ -266,7 +264,7 @@ namespace QuickNavigate.Controls
                 case Keys.Down:
                     node = GetNextEnabledNode();
                     if (node != null) tree.SelectedNode = node;
-                    else
+                    else if (settings.WrapList)
                     {
                         node = GetUpEnabledNode();
                         if (node != null) tree.SelectedNode = node;
@@ -275,7 +273,7 @@ namespace QuickNavigate.Controls
                 case Keys.Up:
                     node = GetPrevEnabledNode();
                     if (node != null) tree.SelectedNode = node;
-                    else
+                    else if (settings.WrapList)
                     {
                         node = GetLastEnabledNode();
                         if (node != null) tree.SelectedNode = node;
@@ -317,7 +315,7 @@ namespace QuickNavigate.Controls
         private void OnInputTextChanged(object sender, EventArgs e)
         {
             if (tree.Nodes.Count == 0) return;
-            List<string> matches = SearchUtil.Matches(new List<string>(typeToNode.Keys), input.Text, ".", settings.MaxItems, false, false);
+            List<string> matches = SearchUtil.Matches(new List<string>(typeToNode.Keys), input.Text, ".", settings.MaxItems, settings.HierarchyExplorerWholeWord, settings.HierarchyExplorerMatchCase);
             bool mathesIsEmpty = matches.Count == 0;
             foreach (KeyValuePair<string, TreeNode> k in typeToNode)
             {
