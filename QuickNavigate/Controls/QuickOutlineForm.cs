@@ -150,11 +150,11 @@ namespace QuickNavigate
             {
                 case Keys.Down:
                     if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
-                    else tree.SelectedNode = tree.Nodes[0];
+                    else if (settings.WrapList) tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
                     if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
-                    else
+                    else if (settings.WrapList)
                     {
                         node = tree.SelectedNode;
                         while (node.NextVisibleNode != null) node = node.NextVisibleNode;

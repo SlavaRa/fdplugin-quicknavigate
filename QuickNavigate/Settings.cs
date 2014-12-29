@@ -46,6 +46,11 @@ namespace QuickNavigate
         [DefaultValue(100)]
         public int MaxItems { get; set; }
 
+        [Category("Forms")]
+        [DisplayName("Wrap list")]
+        [DefaultValue(false)]
+        public bool WrapList { get; set; }
+
         #endregion
 
         #region Resource Form
