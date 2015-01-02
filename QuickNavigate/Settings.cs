@@ -53,26 +53,6 @@ namespace QuickNavigate
 
         #endregion
 
-        #region Resource Form
-
-        [Browsable(false)]
-        [Category("Resource Form")]
-        public Size ResourceFormSize { get;set; }
-
-        [Browsable(true)]
-        [Category("Resource Form")]
-        [DisplayName("Whole word")]
-        [DefaultValue(false)]
-        public bool ResourceFormWholeWord { get; set; }
-
-        [Browsable(true)]
-        [Category("Resource Form")]
-        [DisplayName("Match case")]
-        [DefaultValue(false)]
-        public bool ResourceFormMatchCase { get; set; }
-
-        #endregion
-
         #region Type Form
 
         [Browsable(false)]
