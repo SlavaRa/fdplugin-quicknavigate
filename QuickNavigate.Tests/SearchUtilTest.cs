@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
-namespace QuickNavigate.Test
+namespace QuickNavigate.Tests
 {
     [TestClass]
     public class SearchUtilTest
