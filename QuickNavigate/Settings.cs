@@ -53,20 +53,20 @@ namespace QuickNavigate
 
         #endregion
 
-        #region Type Form
+        #region Type Explorer
 
         [Browsable(false)]
-        [Category("Type Form")]
+        [Category("Type Explorer")]
         public Size TypeFormSize { get; set; }
 
         [Browsable(true)]
-        [Category("Type Form")]
+        [Category("Type Explorer")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
         public bool TypeFormWholeWord { get; set; }
 
         [Browsable(true)]
-        [Category("Type Form")]
+        [Category("Type Explorer")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
         public bool TypeFormMatchCase { get; set; }

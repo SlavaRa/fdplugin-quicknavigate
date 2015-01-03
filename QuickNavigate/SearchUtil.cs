@@ -14,49 +14,23 @@ namespace QuickNavigate
             return false;
         }
 
-        public static List<string> Matches(List<string> source, string search, string pathSeparator, int limit, bool wholeWord, bool matchCase)
+        public static List<string> Matches(List<string> source, string search, string separator, int limit, bool wholeWord, bool matchCase)
         {
-            List<string> matches = new List<string>();
-            if (string.IsNullOrEmpty(search)) return matches;
+            List<string> result = new List<string>();
+            if (string.IsNullOrEmpty(search)) return result;
             bool noCase = !matchCase;
-            bool searchHasPathSeparator = search.Contains(pathSeparator);
+            bool searchHasSeparator = search.Contains(separator);
             foreach (string item in source)
             {
-                string type = item.Contains(pathSeparator) ? item.Substring(item.LastIndexOf(pathSeparator) + 1) : item;
-                string itemName = searchHasPathSeparator ? item : type;
+                string type = item.Contains(separator) ? item.Substring(item.LastIndexOf(separator) + 1) : item;
+                string itemName = searchHasSeparator ? item : type;
                 if (SimpleSearchMatch(itemName, search, wholeWord, noCase) || AdvancedSearchMatch(type, search, noCase))
                 {
-                    matches.Add(item);
-                    if (--limit == 0) break;
+                    result.Add(item);
+                    if (limit > 0 && result.Count >= limit) break;
                 }
             }
-            Sort(matches, search, pathSeparator, noCase);
-            return matches;
-        }
-
-        public static string[] Sort(List<string> matches, string search, string pathSeparator, bool noCase)
-        {
-            if (matches.Count == 0) return new string[0];
-            if (matches.Count > 1)
-            {
-                if (noCase) search = search.ToLower();
-                matches.Sort(delegate(string a, string b)
-                {
-                    if (a == b || a == null || b == null) return 0;
-                    if (noCase) a = a.ToLower();
-                    string t1 = a.Contains(pathSeparator) ? a.Substring(a.LastIndexOf(pathSeparator) + 1) : a;
-                    if (a == search || t1 == search) return -1;
-                    string t2 = b.Contains(pathSeparator) ? b.Substring(b.LastIndexOf(pathSeparator) + 1) : b;
-                    if (b == search || t2 == search) return -1;
-                    return 0;
-                });
-            }
-            return matches.ToArray();
-        }
-
-        internal static bool SimpleSearchMatch(string item, string search, bool wholeWord)
-        {
-            return SimpleSearchMatch(item, search, wholeWord, false);
+            return result;
         }
 
         internal static bool SimpleSearchMatch(string item, string search, bool wholeWord, bool noCase)
@@ -96,7 +70,7 @@ namespace QuickNavigate
 
         internal static List<string> GetParts(string item, bool noCase)
         {
-            List<string> parts = new List<string>();
+            List<string> result = new List<string>();
             char[] chars = item.ToCharArray();
             int i = 0;
             int length = chars.Length;
@@ -136,10 +110,10 @@ namespace QuickNavigate
                     }
                 }
                 if (noCase) part = part.ToLower();
-                parts.Add(part);
+                result.Add(part);
                 i = j;
             }
-            return parts;
+            return result;
         }
     }
 }
