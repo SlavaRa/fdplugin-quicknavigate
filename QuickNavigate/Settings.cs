@@ -21,12 +21,6 @@ namespace QuickNavigate
         [DefaultValue(true)]
         public bool SearchExternalClassPath { get;set; }
 
-        [Category("General")]
-        [DisplayName("Cache resources")]
-        [Description("Do not read resources each time dialog is opening")]
-        [DefaultValue(false)]
-        public bool ResourcesCaching { get;set; }
-
         #endregion
 
         #region Forms
