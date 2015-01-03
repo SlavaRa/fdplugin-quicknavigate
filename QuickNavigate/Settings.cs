@@ -13,13 +13,13 @@ namespace QuickNavigate
         [DisplayName("Enable navigation by Ctrl+Click")]
         [Description("Go to declaration by Ctrl+Click on the word")]
         [DefaultValue(true)]
-        public bool CtrlClickEnabled { get;set; }
+        public bool CtrlClickEnabled { get; set; }
 
         [Category("General")]
         [DisplayName("Search in external classpath")]
         [Description("Enable searching files in external classpath")]
         [DefaultValue(true)]
-        public bool SearchExternalClassPath { get;set; }
+        public bool SearchExternalClassPath { get; set; }
 
         #endregion
 
@@ -71,19 +71,19 @@ namespace QuickNavigate
 
         [Browsable(false)]
         [Category("Outline Form")]
-        public Size OutlineFormSize { get;set; }
+        public Size OutlineFormSize { get; set; }
 
         [Browsable(true)]
         [Category("Outline Form")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
-        public bool OutlineFormWholeWord { get;set; }
+        public bool OutlineFormWholeWord { get; set; }
 
         [Browsable(true)]
         [Category("Outline Form")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
-        public bool OutlineFormMatchCase { get;set; }
+        public bool OutlineFormMatchCase { get; set; }
 
         #endregion
 

@@ -5,15 +5,6 @@ namespace QuickNavigate
 {
     internal static class SearchUtil
     {
-        public static bool IsFileOpened(string fileName)
-        {
-            foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
-            {
-                if (doc.FileName == fileName) return true;
-            }
-            return false;
-        }
-
         public static List<string> Matches(List<string> source, string search, string separator, int limit, bool wholeWord, bool matchCase)
         {
             List<string> result = new List<string>();

@@ -32,17 +32,51 @@ namespace QuickNavigate
             RefreshTree();
         }
 
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                selectedNodeBrush.Dispose();
+                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
+                if (components != null) components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         private void CreateItemsList()
         {
-            projectTypes.Clear();
-            openedTypes.Clear();
-            typeToClassModel.Clear();
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
             foreach (PathModel path in context.Classpath)
             {
                 path.ForeachFile(FileModelDelegate);
             }
+        }
+
+        private bool FileModelDelegate(FileModel model)
+        {
+            foreach (ClassModel aClass in model.Classes)
+            {
+                string type = aClass.Type;
+                if (typeToClassModel.ContainsKey(type)) continue;
+                if (IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
+                else projectTypes.Add(type);
+                typeToClassModel.Add(type, aClass);
+            }
+            return true;
+        }
+
+        private bool IsFileOpened(string fileName)
+        {
+            foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
+            {
+                if (doc.FileName == fileName) return true;
+            }
+            return false;
         }
 
         private void InitTree()
@@ -119,19 +153,6 @@ namespace QuickNavigate
                 tree.Nodes.Add(new TreeNode(){Text = m, ImageIndex = icon, SelectedImageIndex = icon});
             }
             tree.SelectedNode = tree.Nodes[0];
-        }
-
-        private bool FileModelDelegate(FileModel model)
-        {
-            foreach (ClassModel aClass in model.Classes)
-            {
-                string type = aClass.Type;
-                if (typeToClassModel.ContainsKey(type)) continue;
-                if (SearchUtil.IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
-                else projectTypes.Add(type);
-                typeToClassModel.Add(type, aClass);
-            }
-            return true;
         }
 
         private void Navigate()

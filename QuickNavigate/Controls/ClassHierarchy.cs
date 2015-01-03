@@ -31,6 +31,21 @@ namespace QuickNavigate.Controls
             RefreshTree();
         }
 
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                selectedNodeBrush.Dispose();
+                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
+                if (components != null) components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         private Dictionary<string, List<ClassModel>> GetAllProjectExtendsClasses()
         {
             Dictionary<string, List<ClassModel>> result = new Dictionary<string, List<ClassModel>>();

@@ -103,6 +103,21 @@ namespace QuickNavigate
 		/// </summary>
 		public void Dispose()
 		{
+            if (controlClickManager != null)
+            {
+                controlClickManager.Dispose();
+                controlClickManager = null;
+            }
+            if (classHierarchyItem != null)
+            {
+                classHierarchyItem.Dispose();
+                classHierarchyItem = null;
+            }
+            if (editorClassHierarchyItem != null)
+            {
+                editorClassHierarchyItem.Dispose();
+                editorClassHierarchyItem = null;
+            }
             SaveSettings();
 		}
 		

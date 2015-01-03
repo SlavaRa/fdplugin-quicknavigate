@@ -25,6 +25,21 @@ namespace QuickNavigate
             RefreshTree();
         }
 
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                selectedNodeBrush.Dispose();
+                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
+                if (components != null) components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         private void InitTree()
         {
             ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
