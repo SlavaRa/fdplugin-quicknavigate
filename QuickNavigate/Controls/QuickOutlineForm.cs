@@ -219,16 +219,19 @@ namespace QuickNavigate
 
         private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
         {
+            Brush fillBrush = defaultNodeBrush;
+            Brush drawBrush = Brushes.Black;
+            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
-                e.Graphics.FillRectangle(selectedNodeBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                fillBrush = selectedNodeBrush;
+                drawBrush = Brushes.White;
+                image = tree.ImageList.Images[e.Node.SelectedImageIndex];
             }
-            else
-            {
-                e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            }
+            Rectangle bounds = e.Bounds;
+            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
+            e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion

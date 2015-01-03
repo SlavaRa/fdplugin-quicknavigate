@@ -358,17 +358,21 @@ namespace QuickNavigate.Controls
             string tag = e.Node.Tag as string;
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
+            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if (string.IsNullOrEmpty(tag) || tag == "enabled")
             {
                 if ((e.State & TreeNodeStates.Selected) > 0)
                 {
                     fillBrush = selectedNodeBrush;
                     drawBrush = Brushes.White;
+                    image = tree.ImageList.Images[e.Node.SelectedImageIndex];
                 }
             }
             else if (tag == "disabled") drawBrush = Brushes.DimGray;
-            e.Graphics.FillRectangle(fillBrush, e.Bounds);
+            Rectangle bounds = e.Bounds;
+            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
             e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion
