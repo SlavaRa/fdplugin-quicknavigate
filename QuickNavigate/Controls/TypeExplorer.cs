@@ -2,7 +2,6 @@
 using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
-using PluginCore.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
