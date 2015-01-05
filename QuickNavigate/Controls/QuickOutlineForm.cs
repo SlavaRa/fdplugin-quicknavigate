@@ -98,18 +98,19 @@ namespace QuickNavigate
         private void FillTree()
         {
             FileModel model = ASContext.Context.CurrentModel;
+            bool isHaxe = model.haXe;
             if (model == FileModel.Ignore) return;
-            if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members);
+            if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members, isHaxe);
             foreach (ClassModel aClass in model.Classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
                 tree.Nodes.Add(node);
-                AddMembers(node.Nodes, aClass.Members);
+                AddMembers(node.Nodes, aClass.Members, isHaxe);
             }
         }
 
-        private void AddMembers(TreeNodeCollection nodes, MemberList members)
+        private void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
         {
             bool noCase = !settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
@@ -126,15 +127,18 @@ namespace QuickNavigate
             bool wholeWord = settings.OutlineFormWholeWord;
             foreach (MemberModel member in members)
             {
-                string name = member.FullName;
+                string fullName = member.FullName;
                 if (searchIsNotEmpty)
                 {
-                    if (noCase) name = name.ToLower();
+                    string name = noCase ? fullName.ToLower() : fullName;
                     if (wholeWord && !name.StartsWith(search) || !name.Contains(search))
                         continue;
                 }
-                int icon = PluginUI.GetIcon(member.Flags, member.Access);
-                nodes.Add(new TreeNode(member.ToString(), icon, icon){Tag = name + "@" + member.LineFrom});
+                FlagType flags = member.Flags;
+                int icon = PluginUI.GetIcon(flags, member.Access);
+                nodes.Add(new TreeNode(member.ToString(), icon, icon) {
+                    Tag = ((isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName) + "@" + member.LineFrom
+                });
             }
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
