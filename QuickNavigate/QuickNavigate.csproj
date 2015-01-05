@@ -120,5 +120,11 @@
     <EmbeddedResource Include="Controls\ClassHierarchy.resx">
       <DependentUpon>ClassHierarchy.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\OpenTypeForm.resx">
+      <DependentUpon>OpenTypeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\QuickOutlineForm.resx">
+      <DependentUpon>QuickOutlineForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

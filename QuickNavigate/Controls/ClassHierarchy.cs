@@ -15,7 +15,7 @@ namespace QuickNavigate.Controls
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
         private readonly Dictionary<string, List<ClassModel>> extendsToClasses;
-        private readonly Dictionary<string, TreeNode> typeToNode;
+        private readonly Dictionary<string, TreeNode> typeToNode = new Dictionary<string, TreeNode>();
 
         public ClassHierarchy(Settings settings)
         {
@@ -26,7 +26,6 @@ namespace QuickNavigate.Controls
             (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
-            typeToNode = new Dictionary<string, TreeNode>();
             InitTree();
             RefreshTree();
         }
@@ -116,8 +115,8 @@ namespace QuickNavigate.Controls
             tree.BeginUpdate();
             tree.Nodes.Clear();
             FillTree();
-            tree.EndUpdate();
             tree.ExpandAll();
+            tree.EndUpdate();
         }
 
         private void FillTree()
@@ -268,6 +267,27 @@ namespace QuickNavigate.Controls
             settings.HierarchyExplorerSize = Size;
         }
 
+        private void OnInputTextChanged(object sender, EventArgs e)
+        {
+            if (tree.Nodes.Count == 0) return;
+            List<string> matches = SearchUtil.Matches(new List<string>(typeToNode.Keys), input.Text, ".", settings.MaxItems, settings.HierarchyExplorerWholeWord, settings.HierarchyExplorerMatchCase);
+            bool mathesIsEmpty = matches.Count == 0;
+            foreach (KeyValuePair<string, TreeNode> k in typeToNode)
+            {
+                if (mathesIsEmpty) k.Value.Tag = "enabled";
+                else k.Value.Tag = matches.Contains(k.Key) ? "enabled" : "disabled";
+            }
+            tree.Refresh();
+            if (mathesIsEmpty)
+            {
+                ClassModel theClass = GetCurrentClass();
+                tree.SelectedNode = typeToNode[theClass.Type];
+                return;
+            }
+            matches.Sort();
+            tree.SelectedNode = typeToNode[matches[0]];
+        }
+
         private void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
@@ -327,25 +347,9 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
-        private void OnInputTextChanged(object sender, EventArgs e)
+        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            if (tree.Nodes.Count == 0) return;
-            List<string> matches = SearchUtil.Matches(new List<string>(typeToNode.Keys), input.Text, ".", settings.MaxItems, settings.HierarchyExplorerWholeWord, settings.HierarchyExplorerMatchCase);
-            bool mathesIsEmpty = matches.Count == 0;
-            foreach (KeyValuePair<string, TreeNode> k in typeToNode)
-            {
-                if (mathesIsEmpty) k.Value.Tag = "enabled";
-                else k.Value.Tag = matches.Contains(k.Key) ? "enabled" : "disabled";
-            }
-            tree.Refresh();
-            if (mathesIsEmpty)
-            {
-                ClassModel theClass = GetCurrentClass();
-                tree.SelectedNode = typeToNode[theClass.Type];
-                return;
-            }
-            matches.Sort();
-            tree.SelectedNode = typeToNode[matches[0]];
+            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
         private void OnTreeNodeMouseDoubleClick(object sender, System.Windows.Forms.TreeNodeMouseClickEventArgs e)

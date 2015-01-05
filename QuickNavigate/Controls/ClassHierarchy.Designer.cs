@@ -17,20 +17,22 @@
         {
             this.input = new System.Windows.Forms.TextBox();
             this.tree = new System.Windows.Forms.TreeView();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // input
             // 
-            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.input.BackColor = System.Drawing.SystemColors.Control;
             this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.input.Location = new System.Drawing.Point(12, 12);
+            this.input.Location = new System.Drawing.Point(12, 26);
             this.input.Name = "input";
-            this.input.Size = new System.Drawing.Size(365, 20);
+            this.input.Size = new System.Drawing.Size(365, 21);
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
+            this.input.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnInputKeyPress);
             // 
             // tree
             // 
@@ -43,20 +45,29 @@
             this.tree.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tree.HideSelection = false;
             this.tree.ItemHeight = 16;
-            this.tree.Location = new System.Drawing.Point(12, 40);
-            this.tree.Margin = new System.Windows.Forms.Padding(4);
+            this.tree.Location = new System.Drawing.Point(12, 52);
             this.tree.Name = "tree";
             this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(365, 200);
             this.tree.TabIndex = 1;
-            this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
+            this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(271, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Search string: (UPPERCASE for search by abbreviation)";
             // 
             // ClassHierarchy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(390, 255);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.tree);
             this.Controls.Add(this.input);
             this.KeyPreview = true;
@@ -79,5 +90,6 @@
 
         private System.Windows.Forms.TextBox input;
         private System.Windows.Forms.TreeView tree;
+        private System.Windows.Forms.Label label1;
     }
 }

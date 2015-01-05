@@ -88,8 +88,8 @@ namespace QuickNavigate
             tree.BeginUpdate();
             tree.Nodes.Clear();
             FillTree();
-            tree.EndUpdate();
             tree.ExpandAll();
+            tree.EndUpdate();
         }
 
         private void FillTree()
@@ -103,7 +103,6 @@ namespace QuickNavigate
                 TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, aClass.Members);
-                node.Expand();
             }
         }
 
@@ -116,23 +115,23 @@ namespace QuickNavigate
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
-            bool wholeWord = settings.OutlineFormWholeWord;
-            bool matchCase = settings.OutlineFormMatchCase;
-            string search = matchCase ? input.Text.Trim() : input.Text.ToLower().Trim();
+            string search = input.Text.Trim();
             bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
+            bool matchCase = settings.OutlineFormMatchCase;
+            if (!matchCase && searchIsNotEmpty) search = search.ToLower();
+            bool wholeWord = settings.OutlineFormWholeWord;
+            bool noWholeWord = !wholeWord;
             foreach (MemberModel member in members)
             {
-                string memberToString = member.ToString().Trim();
-                string memberText = matchCase ? memberToString : memberToString.ToLower();
-                if (searchIsNotEmpty && (!wholeWord && memberText.IndexOf(search) == -1 || wholeWord && !memberText.StartsWith(search)))
+                string name = matchCase ? member.FullName : member.FullName.ToLower();
+                if (searchIsNotEmpty && ((noWholeWord && !name.Contains(search)) || (wholeWord && !name.StartsWith(search))))
                     continue;
                 int icon = PluginUI.GetIcon(member.Flags, member.Access);
-                TreeNode node = new TreeNode(memberToString, icon, icon);
+                TreeNode node = new TreeNode(member.ToString(), icon, icon);
                 node.Tag = member.Name + "@" + member.LineFrom;
-                node.BackColor = Color.Black;
                 nodes.Add(node);
-                if (tree.SelectedNode == null) tree.SelectedNode = node;
             }
+            if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
 
         #region Event Handlers
@@ -154,6 +153,11 @@ namespace QuickNavigate
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.OutlineFormSize = Size;
+        }
+
+        private void OnInputTextChanged(object sender, EventArgs e)
+        {
+            RefreshTree();
         }
 
         private void OnInputKeyDown(object sender, KeyEventArgs e)
@@ -207,9 +211,9 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputTextChanged(object sender, EventArgs e)
+        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            RefreshTree();
+            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
         private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)

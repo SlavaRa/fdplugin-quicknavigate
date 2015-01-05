@@ -27,10 +27,11 @@
             this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.input.Location = new System.Drawing.Point(12, 12);
             this.input.Name = "input";
-            this.input.Size = new System.Drawing.Size(305, 20);
+            this.input.Size = new System.Drawing.Size(305, 21);
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
+            this.input.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnInputKeyPress);
             // 
             // tree
             // 
@@ -48,9 +49,9 @@
             this.tree.ShowLines = false;
             this.tree.ShowPlusMinus = false;
             this.tree.ShowRootLines = false;
-            this.tree.Size = new System.Drawing.Size(305, 200);
+            this.tree.Size = new System.Drawing.Size(305, 173);
             this.tree.TabIndex = 1;
-            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(OnTreeDrawNode);
+            this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
             // 
             // QuickOutlineForm

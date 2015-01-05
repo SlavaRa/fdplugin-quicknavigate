@@ -128,8 +128,8 @@ namespace QuickNavigate
             tree.BeginUpdate();
             tree.Nodes.Clear();
             FillTree();
-            tree.EndUpdate();
             tree.ExpandAll();
+            tree.EndUpdate();
         }
 
         private void FillTree()
@@ -197,6 +197,11 @@ namespace QuickNavigate
             settings.TypeFormSize = Size;
         }
 
+        private void OnInputTextChanged(object sender, EventArgs e)
+        {
+            RefreshTree();
+        }
+
         private void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
@@ -248,9 +253,9 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputTextChanged(object sender, EventArgs e)
+        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            RefreshTree();
+            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
         private void OnTreeNodeMouseDoubleClick(object sender, System.Windows.Forms.TreeNodeMouseClickEventArgs e)
