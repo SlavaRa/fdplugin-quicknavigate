@@ -6,6 +6,7 @@ using PluginCore.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace QuickNavigate
@@ -52,10 +53,17 @@ namespace QuickNavigate
         {
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
-            foreach (PathModel path in context.Classpath)
+            string projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
+            bool onlyProjectTypes = !settings.SearchExternalClassPath;
+            foreach (PathModel classpath in context.Classpath)
             {
-                //TODO slavara: implement settings.SearchExternalClassPath
-                path.ForeachFile(FileModelDelegate);
+                if (onlyProjectTypes)
+                {
+                    string path = classpath.Path;
+                    if (!Path.IsPathRooted(classpath.Path)) path = Path.GetFullPath(Path.Combine(projectFolder, classpath.Path));
+                    if (!path.StartsWith(projectFolder)) continue;
+                }
+                classpath.ForeachFile(FileModelDelegate);
             }
         }
 

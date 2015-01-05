@@ -16,31 +16,21 @@ namespace QuickNavigate
         public bool CtrlClickEnabled { get; set; }
 
         [Category("General")]
-        [DisplayName("Search in external classpath")]
-        [Description("Enable searching files in external classpath")]
-        [DefaultValue(true)]
-        public bool SearchExternalClassPath { get; set; }
-
-        #endregion
-
-        #region Forms
-
-        [Category("Forms")]
         [DisplayName("Enable item spacer")]
         [DefaultValue(true)]
         public bool EnableItemSpacer { get; set; }
 
-        [Category("Forms")]
+        [Category("General")]
         [DisplayName("Item spacer")]
         [DefaultValue("-----------------")]
         public string ItemSpacer { get; set; }
 
-        [Category("Forms")]
+        [Category("General")]
         [DisplayName("Max items")]
         [DefaultValue(100)]
         public int MaxItems { get; set; }
 
-        [Category("Forms")]
+        [Category("General")]
         [DisplayName("Wrap list")]
         [DefaultValue(false)]
         public bool WrapList { get; set; }
@@ -53,13 +43,17 @@ namespace QuickNavigate
         [Category("Type Explorer")]
         public Size TypeFormSize { get; set; }
 
-        [Browsable(true)]
+        [Category("Type Explorer")]
+        [DisplayName("Search in external classpath")]
+        [Description("Enable searching types in external classpath")]
+        [DefaultValue(true)]
+        public bool SearchExternalClassPath { get; set; }
+
         [Category("Type Explorer")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
         public bool TypeFormWholeWord { get; set; }
 
-        [Browsable(true)]
         [Category("Type Explorer")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
@@ -73,13 +67,11 @@ namespace QuickNavigate
         [Category("Outline Form")]
         public Size OutlineFormSize { get; set; }
 
-        [Browsable(true)]
         [Category("Outline Form")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
         public bool OutlineFormWholeWord { get; set; }
 
-        [Browsable(true)]
         [Category("Outline Form")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
@@ -93,13 +85,11 @@ namespace QuickNavigate
         [Category("Hierarchy Explorer")]
         public Size HierarchyExplorerSize;
 
-        [Browsable(true)]
         [Category("Hierarchy Explorer")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
         public bool HierarchyExplorerWholeWord { get; set; }
 
-        [Browsable(true)]
         [Category("Hierarchy Explorer")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
