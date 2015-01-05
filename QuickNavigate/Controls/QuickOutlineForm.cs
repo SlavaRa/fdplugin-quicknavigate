@@ -3,6 +3,7 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -13,6 +14,7 @@ namespace QuickNavigate
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
+        private readonly IComparer<MemberModel> memberComparer = new SmartMemberComparer();
         
         public QuickOutlineForm(Settings settings)
         {
@@ -115,12 +117,16 @@ namespace QuickNavigate
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
-            string search = input.Text.Trim();
-            bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
-            bool matchCase = settings.OutlineFormMatchCase;
-            if (!matchCase && searchIsNotEmpty) search = search.ToLower();
             bool wholeWord = settings.OutlineFormWholeWord;
             bool noWholeWord = !wholeWord;
+            bool matchCase = settings.OutlineFormMatchCase;
+            string search = input.Text.Trim();
+            bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
+            if (searchIsNotEmpty)
+            {
+                if (!matchCase) search = search.ToLower();
+                members.Sort(memberComparer);
+            }
             foreach (MemberModel member in members)
             {
                 string name = matchCase ? member.FullName : member.FullName.ToLower();
@@ -239,5 +245,13 @@ namespace QuickNavigate
         }
 
         #endregion
+    }
+
+    public class SmartMemberComparer : IComparer<MemberModel>
+    {
+        public int Compare(MemberModel a, MemberModel b)
+        {
+            return StringComparer.Ordinal.Compare(a.Name, b.Name);
+        }
     }
 }
