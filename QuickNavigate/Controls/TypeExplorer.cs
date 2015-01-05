@@ -18,7 +18,7 @@ namespace QuickNavigate
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
-        private readonly IComparer<string> comparer = new SmartComparer();
+        private readonly IComparer<string> comparer = new SmartTypeComparer();
 
         public TypeExplorer(Settings settings)
         {
@@ -54,6 +54,7 @@ namespace QuickNavigate
             if (context == null) return;
             foreach (PathModel path in context.Classpath)
             {
+                //TODO slavara: implement settings.SearchExternalClassPath
                 path.ForeachFile(FileModelDelegate);
             }
         }
@@ -142,7 +143,7 @@ namespace QuickNavigate
             {   
                 bool wholeWord = settings.TypeFormWholeWord;
                 bool matchCase = settings.TypeFormMatchCase;
-                ((SmartComparer)comparer).Setup(search, !matchCase);
+                ((SmartTypeComparer)comparer).Setup(search, !matchCase);
                 matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
                 matches.Sort(comparer);
                 if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
@@ -288,7 +289,7 @@ namespace QuickNavigate
         #endregion
     }
 
-    class SmartComparer : IComparer<string>
+    class SmartTypeComparer : IComparer<string>
     {
         private string search;
         private bool noCase;
