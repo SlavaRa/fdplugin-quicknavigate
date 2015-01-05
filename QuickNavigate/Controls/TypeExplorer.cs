@@ -18,6 +18,7 @@ namespace QuickNavigate
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
+        private readonly IComparer<string> comparer = new SmartComparer();
 
         public TypeExplorer(Settings settings)
         {
@@ -138,12 +139,16 @@ namespace QuickNavigate
             string search = input.Text.Trim();
             if (string.IsNullOrEmpty(search)) matches = openedTypes;
             else
-            {
+            {   
                 bool wholeWord = settings.TypeFormWholeWord;
                 bool matchCase = settings.TypeFormMatchCase;
+                ((SmartComparer)comparer).Setup(search, !matchCase);
                 matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
+                matches.Sort(comparer);
                 if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
-                matches.AddRange(SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase));
+                List<string> tmpMathes = SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase);
+                tmpMathes.Sort(comparer);
+                matches.AddRange(tmpMathes);
             }
             if (matches.Count == 0) return;
             foreach(string m in matches) 
@@ -281,5 +286,47 @@ namespace QuickNavigate
         }
 
         #endregion
+    }
+
+    class SmartComparer : IComparer<string>
+    {
+        private string search;
+        private bool noCase;
+
+        public void Setup(string search, bool noCase)
+        {
+            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
+            this.search = search;
+            this.noCase = noCase;
+        }
+
+        public int Compare(string x, string y)
+        {
+            int cmp = GetPkgLength(x).CompareTo(GetPkgLength(y)) * 100;
+            x = GetName(x);
+            y = GetName(y);
+            int priority = GetPriority(y).CompareTo(GetPriority(x));
+            if (priority != 0) return cmp + priority;
+            return cmp + StringComparer.Ordinal.Compare(x, y);
+        }
+
+        private int GetPkgLength(string type)
+        {
+            return type.LastIndexOf('.');
+        }
+
+        private string GetName(string type)
+        {
+            int i = type.LastIndexOf('.');
+            return i == -1 ? type : type.Substring(i + 1);
+        }
+
+        private int GetPriority(string name)
+        {
+            if (noCase) name = name.ToLower();
+            if (name == search) return 100;
+            if (name.StartsWith(search)) return 90;
+            return 0;
+        }
     }
 }
