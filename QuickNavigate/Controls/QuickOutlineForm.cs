@@ -14,7 +14,8 @@ namespace QuickNavigate
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
-        private readonly IComparer<MemberModel> memberComparer = new SmartMemberComparer();
+        private readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
+        private readonly MemberList tmpMembers = new MemberList();
         
         public QuickOutlineForm(Settings settings)
         {
@@ -108,13 +109,6 @@ namespace QuickNavigate
             }
         }
 
-        private void Navigate()
-        {
-            if (tree.SelectedNode == null) return;
-            ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
-            Close();
-        }
-
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
             bool wholeWord = settings.OutlineFormWholeWord;
@@ -125,7 +119,11 @@ namespace QuickNavigate
             if (searchIsNotEmpty)
             {
                 if (!matchCase) search = search.ToLower();
-                members.Sort(memberComparer);
+                tmpMembers.Clear();
+                tmpMembers.Add(members);
+                ((SmartMemberComparer)comparer).Setup(search, !matchCase);
+                tmpMembers.Sort(comparer);
+                members = tmpMembers;
             }
             foreach (MemberModel member in members)
             {
@@ -138,6 +136,13 @@ namespace QuickNavigate
                 nodes.Add(node);
             }
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
+        }
+
+        private void Navigate()
+        {
+            if (tree.SelectedNode == null) return;
+            ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
+            Close();
         }
 
         #region Event Handlers
@@ -247,11 +252,30 @@ namespace QuickNavigate
         #endregion
     }
 
-    public class SmartMemberComparer : IComparer<MemberModel>
+    class SmartMemberComparer : IComparer<MemberModel>
     {
+        private string search;
+        private bool noCase;
+
+        public void Setup(string search, bool noCase)
+        {
+            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
+            this.search = search;
+            this.noCase = noCase;
+        }
+
         public int Compare(MemberModel a, MemberModel b)
         {
-            return StringComparer.Ordinal.Compare(a.Name, b.Name);
+            int cmp = GetPriority(a.Name).CompareTo(GetPriority(b.Name));
+            return cmp != 0 ? cmp : StringComparer.Ordinal.Compare(a.Name, b.Name);
+        }
+
+        private int GetPriority(string name)
+        {
+            if (noCase) name = name.ToLower();
+            if (name == search) return -100;
+            if (name.StartsWith(search)) return -90;
+            return 0;
         }
     }
 }
