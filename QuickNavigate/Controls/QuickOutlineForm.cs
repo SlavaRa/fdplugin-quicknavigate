@@ -111,31 +111,30 @@ namespace QuickNavigate
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
-            bool matchCase = settings.OutlineFormMatchCase;
+            bool noCase = !settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
             bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
             if (searchIsNotEmpty)
             {
-                if (!matchCase) search = search.ToLower();
+                if (noCase) search = search.ToLower();
                 tmpMembers.Clear();
                 tmpMembers.Add(members);
-                ((SmartMemberComparer)comparer).Setup(search, !matchCase);
+                ((SmartMemberComparer)comparer).Setup(search, noCase);
                 tmpMembers.Sort(comparer);
                 members = tmpMembers;
             }
             bool wholeWord = settings.OutlineFormWholeWord;
             foreach (MemberModel member in members)
             {
+                string name = member.FullName;
                 if (searchIsNotEmpty)
                 {
-                    string name = matchCase ? member.FullName : member.FullName.ToLower();
+                    if (noCase) name = name.ToLower();
                     if (wholeWord && !name.StartsWith(search) || !name.Contains(search))
                         continue;
                 }
                 int icon = PluginUI.GetIcon(member.Flags, member.Access);
-                TreeNode node = new TreeNode(member.ToString(), icon, icon);
-                node.Tag = member.Name + "@" + member.LineFrom;
-                nodes.Add(node);
+                nodes.Add(new TreeNode(member.ToString(), icon, icon){Tag = name + "@" + member.LineFrom});
             }
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
