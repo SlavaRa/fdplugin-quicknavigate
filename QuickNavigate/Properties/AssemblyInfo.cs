@@ -11,15 +11,15 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("QuickNavigate")]
 [assembly: AssemblyDescription("QuickNavigate Plugin For FlashDevelop")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Canab")]
+[assembly: AssemblyCompany("Canab, Slavara")]
 [assembly: AssemblyProduct("QuickNavigate")]
-[assembly: AssemblyCopyright("FlashDevelop.org 2005-2014")]
+[assembly: AssemblyCopyright("FlashDevelop.org 2005-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
-[assembly: ComVisible(false)]
+[assembly: ComVisible(true)]
 
 // The assembly version has following format :
 //
@@ -29,4 +29,4 @@ using System.Runtime.InteropServices;
 // numbers with the '*' character (the default):
 [assembly: AssemblyVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("QuickNavigate.Test")]
+[assembly: InternalsVisibleTo("QuickNavigate.Tests")]

@@ -69,6 +69,18 @@
   </Target>
   -->
   <ItemGroup>
+    <Reference Include="ASCompletion, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\FlashDevelop\Bin\Debug\Plugins\ASCompletion.dll</HintPath>
+    </Reference>
+    <Reference Include="FlashDevelop, Version=4.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\FlashDevelop\Bin\Debug\FlashDevelop.exe</HintPath>
+    </Reference>
+    <Reference Include="PluginCore, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\FlashDevelop\Bin\Debug\PluginCore.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Design" />
@@ -100,21 +112,6 @@
     </Compile>
     <Compile Include="SearchUtil.cs" />
     <Compile Include="Settings.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\FlashDevelop\FlashDevelop.csproj">
-      <Project>{efd07485-9a64-4eec-94e7-acbd4da5ca93}</Project>
-      <Name>FlashDevelop</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\PluginCore\PluginCore.csproj">
-      <Project>{61885F70-B4DC-4B44-852D-5D6D03F2A734}</Project>
-      <Name>PluginCore</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ASCompletion\ASCompletion.csproj">
-      <Project>{4EBF2653-9654-4E40-880E-0046B3D6210E}</Project>
-      <Name>ASCompletion</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Controls\ClassHierarchy.resx">
