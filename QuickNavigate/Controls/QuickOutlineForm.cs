@@ -111,8 +111,6 @@ namespace QuickNavigate
 
         private void AddMembers(TreeNodeCollection nodes, MemberList members)
         {
-            bool wholeWord = settings.OutlineFormWholeWord;
-            bool noWholeWord = !wholeWord;
             bool matchCase = settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
             bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
@@ -125,11 +123,15 @@ namespace QuickNavigate
                 tmpMembers.Sort(comparer);
                 members = tmpMembers;
             }
+            bool wholeWord = settings.OutlineFormWholeWord;
             foreach (MemberModel member in members)
             {
-                string name = matchCase ? member.FullName : member.FullName.ToLower();
-                if (searchIsNotEmpty && ((noWholeWord && !name.Contains(search)) || (wholeWord && !name.StartsWith(search))))
-                    continue;
+                if (searchIsNotEmpty)
+                {
+                    string name = matchCase ? member.FullName : member.FullName.ToLower();
+                    if (wholeWord && !name.StartsWith(search) || !name.Contains(search))
+                        continue;
+                }
                 int icon = PluginUI.GetIcon(member.Flags, member.Access);
                 TreeNode node = new TreeNode(member.ToString(), icon, icon);
                 node.Tag = member.Name + "@" + member.LineFrom;
