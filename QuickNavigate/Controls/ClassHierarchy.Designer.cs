@@ -47,6 +47,8 @@
             this.tree.ItemHeight = 16;
             this.tree.Location = new System.Drawing.Point(12, 52);
             this.tree.Name = "tree";
+            this.tree.ShowLines = false;
+            this.tree.ShowPlusMinus = false;
             this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(365, 200);
             this.tree.TabIndex = 1;
