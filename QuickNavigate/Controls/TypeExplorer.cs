@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace QuickNavigate
 {
-    public partial class OpenTypeForm : Form
+    public partial class TypeExplorer : Form
     {
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
@@ -19,7 +19,7 @@ namespace QuickNavigate
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
 
-        public OpenTypeForm(Settings settings)
+        public TypeExplorer(Settings settings)
         {
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
