@@ -103,6 +103,21 @@ namespace QuickNavigate
 		/// </summary>
 		public void Dispose()
 		{
+            if (controlClickManager != null)
+            {
+                controlClickManager.Dispose();
+                controlClickManager = null;
+            }
+            if (classHierarchyItem != null)
+            {
+                classHierarchyItem.Dispose();
+                classHierarchyItem = null;
+            }
+            if (editorClassHierarchyItem != null)
+            {
+                editorClassHierarchyItem.Dispose();
+                editorClassHierarchyItem = null;
+            }
             SaveSettings();
 		}
 		
@@ -152,8 +167,8 @@ namespace QuickNavigate
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             System.Drawing.Image image = PluginBase.MainForm.FindImage("99|16|0|0");
-            ToolStripMenuItem menuItem = new ToolStripMenuItem("Open Type", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.OpenType", menuItem);
+            ToolStripMenuItem menuItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
+            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.TypeExplorer", menuItem);
             menu.DropDownItems.Add(menuItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
             menuItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
@@ -197,7 +212,7 @@ namespace QuickNavigate
         
         private void ShowTypeForm(object sender, EventArgs e)
         {
-            if (PluginBase.CurrentProject != null) new OpenTypeForm(settings).ShowDialog();
+            if (PluginBase.CurrentProject != null) new TypeExplorer(settings).ShowDialog();
         }
 
         private void ShowOutlineForm(object sender, EventArgs e)

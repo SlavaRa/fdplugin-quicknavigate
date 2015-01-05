@@ -2,15 +2,15 @@
 using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
-using PluginCore.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace QuickNavigate
 {
-    public partial class OpenTypeForm : Form
+    public partial class TypeExplorer : Form
     {
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
@@ -18,8 +18,9 @@ namespace QuickNavigate
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
+        private readonly IComparer<string> comparer = new SmartTypeComparer();
 
-        public OpenTypeForm(Settings settings)
+        public TypeExplorer(Settings settings)
         {
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
@@ -32,17 +33,59 @@ namespace QuickNavigate
             RefreshTree();
         }
 
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                selectedNodeBrush.Dispose();
+                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
+                if (components != null) components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         private void CreateItemsList()
         {
-            projectTypes.Clear();
-            openedTypes.Clear();
-            typeToClassModel.Clear();
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
-            foreach (PathModel path in context.Classpath)
+            string projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
+            bool onlyProjectTypes = !settings.SearchExternalClassPath;
+            foreach (PathModel classpath in context.Classpath)
             {
-                path.ForeachFile(FileModelDelegate);
+                if (onlyProjectTypes)
+                {
+                    string path = classpath.Path;
+                    if (!Path.IsPathRooted(classpath.Path)) path = Path.GetFullPath(Path.Combine(projectFolder, classpath.Path));
+                    if (!path.StartsWith(projectFolder)) continue;
+                }
+                classpath.ForeachFile(FileModelDelegate);
             }
+        }
+
+        private bool FileModelDelegate(FileModel model)
+        {
+            foreach (ClassModel aClass in model.Classes)
+            {
+                string type = aClass.Type;
+                if (typeToClassModel.ContainsKey(type)) continue;
+                if (IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
+                else projectTypes.Add(type);
+                typeToClassModel.Add(type, aClass);
+            }
+            return true;
+        }
+
+        private bool IsFileOpened(string fileName)
+        {
+            foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
+            {
+                if (doc.FileName == fileName) return true;
+            }
+            return false;
         }
 
         private void InitTree()
@@ -94,8 +137,8 @@ namespace QuickNavigate
             tree.BeginUpdate();
             tree.Nodes.Clear();
             FillTree();
-            tree.EndUpdate();
             tree.ExpandAll();
+            tree.EndUpdate();
         }
 
         private void FillTree()
@@ -104,12 +147,16 @@ namespace QuickNavigate
             string search = input.Text.Trim();
             if (string.IsNullOrEmpty(search)) matches = openedTypes;
             else
-            {
+            {   
                 bool wholeWord = settings.TypeFormWholeWord;
                 bool matchCase = settings.TypeFormMatchCase;
+                ((SmartTypeComparer)comparer).Setup(search, !matchCase);
                 matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
+                matches.Sort(comparer);
                 if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
-                matches.AddRange(SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase));
+                List<string> tmpMathes = SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase);
+                tmpMathes.Sort(comparer);
+                matches.AddRange(tmpMathes);
             }
             if (matches.Count == 0) return;
             foreach(string m in matches) 
@@ -119,19 +166,6 @@ namespace QuickNavigate
                 tree.Nodes.Add(new TreeNode(){Text = m, ImageIndex = icon, SelectedImageIndex = icon});
             }
             tree.SelectedNode = tree.Nodes[0];
-        }
-
-        private bool FileModelDelegate(FileModel model)
-        {
-            foreach (ClassModel aClass in model.Classes)
-            {
-                string type = aClass.Type;
-                if (typeToClassModel.ContainsKey(type)) continue;
-                if (SearchUtil.IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
-                else projectTypes.Add(type);
-                typeToClassModel.Add(type, aClass);
-            }
-            return true;
         }
 
         private void Navigate()
@@ -174,6 +208,11 @@ namespace QuickNavigate
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.TypeFormSize = Size;
+        }
+
+        private void OnInputTextChanged(object sender, EventArgs e)
+        {
+            RefreshTree();
         }
 
         private void OnInputKeyDown(object sender, KeyEventArgs e)
@@ -227,9 +266,9 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputTextChanged(object sender, EventArgs e)
+        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            RefreshTree();
+            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
         private void OnTreeNodeMouseDoubleClick(object sender, System.Windows.Forms.TreeNodeMouseClickEventArgs e)
@@ -239,18 +278,63 @@ namespace QuickNavigate
 
         private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
         {
+            Brush fillBrush = defaultNodeBrush;
+            Brush drawBrush = Brushes.Black;
+            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
-                e.Graphics.FillRectangle(selectedNodeBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                fillBrush = selectedNodeBrush;
+                drawBrush = Brushes.White;
+                image = tree.ImageList.Images[e.Node.SelectedImageIndex];
             }
-            else
-            {
-                e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            }
+            Rectangle bounds = e.Bounds;
+            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
+            e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion
+    }
+
+    class SmartTypeComparer : IComparer<string>
+    {
+        private string search;
+        private bool noCase;
+
+        public void Setup(string search, bool noCase)
+        {
+            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
+            this.search = search;
+            this.noCase = noCase;
+        }
+
+        public int Compare(string x, string y)
+        {
+            int cmp = GetPkgLength(x).CompareTo(GetPkgLength(y)) * 100;
+            x = GetName(x);
+            y = GetName(y);
+            int priority = GetPriority(y).CompareTo(GetPriority(x));
+            if (priority != 0) return cmp + priority;
+            return cmp + StringComparer.Ordinal.Compare(x, y);
+        }
+
+        private int GetPkgLength(string type)
+        {
+            return type.LastIndexOf('.');
+        }
+
+        private string GetName(string type)
+        {
+            int i = type.LastIndexOf('.');
+            return i == -1 ? type : type.Substring(i + 1);
+        }
+
+        private int GetPriority(string name)
+        {
+            if (noCase) name = name.ToLower();
+            if (name == search) return 100;
+            if (name.StartsWith(search)) return 90;
+            return 0;
+        }
     }
 }

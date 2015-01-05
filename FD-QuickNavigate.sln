@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.30915.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickNavigate", "QuickNavigate\QuickNavigate.csproj", "{36B91299-9080-4052-839D-74166B18DD24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickNavigateTest", "QuickNavigate.Tests\QuickNavigateTest.csproj", "{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickNavigate.Tests", "QuickNavigate.Tests\QuickNavigate.Tests.csproj", "{7C5E9EAE-6168-473D-8FDE-E1C7C84FE04B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

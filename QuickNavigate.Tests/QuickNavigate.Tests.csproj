@@ -47,7 +47,7 @@
   <ItemGroup>
     <Reference Include="QuickNavigate, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\flashdevelop-fork\FlashDevelop\Bin\Debug\Plugins\QuickNavigate.dll</HintPath>
+      <HintPath>..\..\..\..\FlashDevelop\Bin\Debug\Plugins\QuickNavigate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
