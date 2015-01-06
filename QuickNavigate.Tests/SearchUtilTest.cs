@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
-namespace QuickNavigate.Test
+namespace QuickNavigate.Tests
 {
     [TestClass]
     public class SearchUtilTest
@@ -9,30 +9,30 @@ namespace QuickNavigate.Test
         [TestMethod]
         public void SimpleSearchMatch_WholeWord_MatchCase()
         {
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash", true));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display", true));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.Sprite", true));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display", true));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.Sprite", true));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "Sprite", true));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "Object", true));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash", true, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display", true, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.Sprite", true, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display", true, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.Sprite", true, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "Sprite", true, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "Object", true, false));
         }
 
         [TestMethod]
         public void SimpleSearchMatch_NoWholeWord_MatchCase()
         {
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash", false));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display", false));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.Sprite", false));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display", false));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.Sprite", false));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "Sprite", false));
-            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "Object", false));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.sprite", false));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.sprite", false));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "sprite", false));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "object", false));
-            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.Sprite", false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash", false, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display", false, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.Sprite", false, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display", false, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.Sprite", false, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "Sprite", false, false));
+            Assert.IsTrue(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "Object", false, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.display.sprite", false, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "display.sprite", false, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "sprite", false, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.DisplayObject", "object", false, false));
+            Assert.IsFalse(SearchUtil.SimpleSearchMatch("flash.display.Sprite", "flash.Sprite", false, false));
         }
 
         [TestMethod]
@@ -220,35 +220,6 @@ namespace QuickNavigate.Test
             Assert.AreEqual(matches.Count, 2);
             matches = SearchUtil.Matches(source, "Object", ".", 100, true, false);
             Assert.AreEqual(matches.Count, 0);
-        }
-
-        [TestMethod]
-        public void Sort_Type_NoCase()
-        {
-            List<string> matches = new List<string>()
-            {
-                "flash.display.DisplayObject",
-                "flash.display.DisplayObjectContainer",
-                "flash.display.Shape",
-                "flash.display.Sprite",
-                "flash.display.MovieClip"
-            };
-            string[] result = SearchUtil.Sort(matches, "display", ".", true);
-            Assert.AreEqual(result[0], "flash.display.DisplayObject");
-            Assert.AreEqual(result[1], "flash.display.DisplayObjectContainer");
-            Assert.AreEqual(result[2], "flash.display.Shape");
-            Assert.AreEqual(result[3], "flash.display.Sprite");
-            Assert.AreEqual(result[4], "flash.display.MovieClip");
-            matches = new List<string>()
-            {
-                "org.flashdevelop.tests.quicknavigate.display.DisplayObject",
-                "flash.display.DisplayObject",
-                "ru.crazypanda.display.DisplayObject",
-            };
-            result = SearchUtil.Sort(matches, "display", ".", true);
-            Assert.AreEqual(result[0], "flash.display.DisplayObject");
-            Assert.AreEqual(result[1], "ru.crazypanda.display.DisplayObject");
-            Assert.AreEqual(result[2], "org.flashdevelop.tests.quicknavigate.display.DisplayObject");
         }
     }
 }

@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("QuickNavigate.Test")]
+[assembly: AssemblyTitle("QuickNavigate.Tests")]
 [assembly: AssemblyDescription("Tests of QuickNavigate Plugin For FlashDevelop")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("SlavaRa")]
-[assembly: AssemblyProduct("QuickNavigate.Test")]
-[assembly: AssemblyCopyright("FlashDevelop.org 2005-2014")]
+[assembly: AssemblyProduct("QuickNavigate.Tests")]
+[assembly: AssemblyCopyright("FlashDevelop.org 2005-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

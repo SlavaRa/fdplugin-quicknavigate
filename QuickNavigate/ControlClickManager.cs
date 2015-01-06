@@ -1,15 +1,15 @@
-﻿using System;
+﻿using ASCompletion.Completion;
+using ASCompletion.Context;
+using PluginCore;
+using ScintillaNet;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using ASCompletion.Completion;
-using ASCompletion.Context;
-using ScintillaNet;
-using PluginCore;
 
 namespace QuickNavigate
 {
-    class ControlClickManager
+    class ControlClickManager : IDisposable
     {
         private const int CLICK_AREA = 4; //pixels
         private ScintillaControl sciControl;
@@ -22,7 +22,7 @@ namespace QuickNavigate
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
         private int hHook = 0;
         private const int WH_MOUSE = 7;
-// ReSharper disable InconsistentNaming
+
         private HookProc SafeHookProc;
 
         [StructLayout(LayoutKind.Sequential)]
@@ -40,7 +40,6 @@ namespace QuickNavigate
             public int wHitTestCode;
             public int dwExtraInfo;
         }
-// ReSharper restore InconsistentNaming
         
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hInstance, int threadId);
@@ -58,6 +57,15 @@ namespace QuickNavigate
             timer = new Timer();
             timer.Interval = 10;
             timer.Tick += GoToDeclaration;
+        }
+
+        public void Dispose()
+        {
+            if (timer != null)
+            {
+                timer.Dispose();
+                timer = null;
+            }
         }
 
         private void GoToDeclaration(object sender, EventArgs e)

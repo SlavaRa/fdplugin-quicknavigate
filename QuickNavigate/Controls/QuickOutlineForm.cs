@@ -3,6 +3,7 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -13,6 +14,8 @@ namespace QuickNavigate
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
+        private readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
+        private readonly MemberList tmpMembers = new MemberList();
         
         public QuickOutlineForm(Settings settings)
         {
@@ -23,6 +26,21 @@ namespace QuickNavigate
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             InitTree();
             RefreshTree();
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                selectedNodeBrush.Dispose();
+                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
+                if (components != null) components.Dispose();
+            }
+            base.Dispose(disposing);
         }
 
         private void InitTree()
@@ -73,23 +91,56 @@ namespace QuickNavigate
             tree.BeginUpdate();
             tree.Nodes.Clear();
             FillTree();
-            tree.EndUpdate();
             tree.ExpandAll();
+            tree.EndUpdate();
         }
 
         private void FillTree()
         {
             FileModel model = ASContext.Context.CurrentModel;
+            bool isHaxe = model.haXe;
             if (model == FileModel.Ignore) return;
-            if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members);
+            if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members, isHaxe);
             foreach (ClassModel aClass in model.Classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
                 tree.Nodes.Add(node);
-                AddMembers(node.Nodes, aClass.Members);
-                node.Expand();
+                AddMembers(node.Nodes, aClass.Members, isHaxe);
             }
+        }
+
+        private void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
+        {
+            bool noCase = !settings.OutlineFormMatchCase;
+            string search = input.Text.Trim();
+            bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
+            if (searchIsNotEmpty)
+            {
+                if (noCase) search = search.ToLower();
+                tmpMembers.Clear();
+                tmpMembers.Add(members);
+                ((SmartMemberComparer)comparer).Setup(search, noCase);
+                tmpMembers.Sort(comparer);
+                members = tmpMembers;
+            }
+            bool wholeWord = settings.OutlineFormWholeWord;
+            foreach (MemberModel member in members)
+            {
+                string fullName = member.FullName;
+                if (searchIsNotEmpty)
+                {
+                    string name = noCase ? fullName.ToLower() : fullName;
+                    if (wholeWord && !name.StartsWith(search) || !name.Contains(search))
+                        continue;
+                }
+                FlagType flags = member.Flags;
+                int icon = PluginUI.GetIcon(flags, member.Access);
+                nodes.Add(new TreeNode(member.ToString(), icon, icon) {
+                    Tag = ((isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName) + "@" + member.LineFrom
+                });
+            }
+            if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
 
         private void Navigate()
@@ -97,27 +148,6 @@ namespace QuickNavigate
             if (tree.SelectedNode == null) return;
             ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
             Close();
-        }
-
-        private void AddMembers(TreeNodeCollection nodes, MemberList members)
-        {
-            bool wholeWord = settings.OutlineFormWholeWord;
-            bool matchCase = settings.OutlineFormMatchCase;
-            string search = matchCase ? input.Text.Trim() : input.Text.ToLower().Trim();
-            bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
-            foreach (MemberModel member in members)
-            {
-                string memberToString = member.ToString().Trim();
-                string memberText = matchCase ? memberToString : memberToString.ToLower();
-                if (searchIsNotEmpty && (!wholeWord && memberText.IndexOf(search) == -1 || wholeWord && !memberText.StartsWith(search)))
-                    continue;
-                int icon = PluginUI.GetIcon(member.Flags, member.Access);
-                TreeNode node = new TreeNode(memberToString, icon, icon);
-                node.Tag = member.Name + "@" + member.LineFrom;
-                node.BackColor = Color.Black;
-                nodes.Add(node);
-                if (tree.SelectedNode == null) tree.SelectedNode = node;
-            }
         }
 
         #region Event Handlers
@@ -139,6 +169,11 @@ namespace QuickNavigate
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.OutlineFormSize = Size;
+        }
+
+        private void OnInputTextChanged(object sender, EventArgs e)
+        {
+            RefreshTree();
         }
 
         private void OnInputKeyDown(object sender, KeyEventArgs e)
@@ -192,9 +227,9 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputTextChanged(object sender, EventArgs e)
+        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
-            RefreshTree();
+            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
         private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -204,18 +239,48 @@ namespace QuickNavigate
 
         private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
         {
+            Brush fillBrush = defaultNodeBrush;
+            Brush drawBrush = Brushes.Black;
+            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
-                e.Graphics.FillRectangle(selectedNodeBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.White, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+                fillBrush = selectedNodeBrush;
+                drawBrush = Brushes.White;
+                image = tree.ImageList.Images[e.Node.SelectedImageIndex];
             }
-            else
-            {
-                e.Graphics.FillRectangle(defaultNodeBrush, e.Bounds);
-                e.Graphics.DrawString(e.Node.Text, tree.Font, Brushes.Black, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            }
+            Rectangle bounds = e.Bounds;
+            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
+            e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion
+    }
+
+    class SmartMemberComparer : IComparer<MemberModel>
+    {
+        private string search;
+        private bool noCase;
+
+        public void Setup(string search, bool noCase)
+        {
+            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
+            this.search = search;
+            this.noCase = noCase;
+        }
+
+        public int Compare(MemberModel a, MemberModel b)
+        {
+            int cmp = GetPriority(a.Name).CompareTo(GetPriority(b.Name));
+            return cmp != 0 ? cmp : StringComparer.Ordinal.Compare(a.Name, b.Name);
+        }
+
+        private int GetPriority(string name)
+        {
+            if (noCase) name = name.ToLower();
+            if (name == search) return -100;
+            if (name.StartsWith(search)) return -90;
+            return 0;
+        }
     }
 }
