@@ -13,10 +13,9 @@ namespace QuickNavigate
 {
 	public class PluginMain : IPlugin
 	{
-        private const int PLUGIN_API = 1;
         private const string PLUGIN_NAME = "QuickNavigate";
         private const string PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
-        private const string PLUGIN_HELP = "www.flashdevelop.org/community/";
+        private const string PLUGIN_HELP = "http://www.flashdevelop.org/community/";
         private const string PLUGIN_AUTH = "Canab, SlavaRa";
 	    private const string SETTINGS_FILE = "Settings.fdb";
         private const string PLUGIN_DESC = "QuickNavigate plugin";
@@ -30,7 +29,7 @@ namespace QuickNavigate
 
         public int Api
         {
-            get { return PLUGIN_API; }
+            get { return 1; }
         }
         
         /// <summary>
