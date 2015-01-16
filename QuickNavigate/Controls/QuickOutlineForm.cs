@@ -241,17 +241,14 @@ namespace QuickNavigate
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
-            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 fillBrush = selectedNodeBrush;
                 drawBrush = Brushes.White;
-                image = tree.ImageList.Images[e.Node.SelectedImageIndex];
             }
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
+            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
             e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion

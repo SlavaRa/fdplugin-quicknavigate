@@ -362,21 +362,18 @@ namespace QuickNavigate.Controls
             string tag = e.Node.Tag as string;
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
-            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if (string.IsNullOrEmpty(tag) || tag == "enabled")
             {
                 if ((e.State & TreeNodeStates.Selected) > 0)
                 {
                     fillBrush = selectedNodeBrush;
                     drawBrush = Brushes.White;
-                    image = tree.ImageList.Images[e.Node.SelectedImageIndex];
                 }
             }
             else if (tag == "disabled") drawBrush = Brushes.DimGray;
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
+            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
             e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion
@@ -390,6 +387,7 @@ namespace QuickNavigate.Controls
         {
             Class = theClass;
             Name = theClass.Name;
+            Tag = "enabled";
         }
     }
 }
