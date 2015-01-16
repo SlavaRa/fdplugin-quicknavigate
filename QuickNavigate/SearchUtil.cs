@@ -11,13 +11,24 @@ namespace QuickNavigate
             if (string.IsNullOrEmpty(search)) return result;
             bool noCase = !matchCase;
             bool searchHasSeparator = search.Contains(separator);
+            bool firstCharIsUpper = char.IsUpper(search[0]);
             foreach (string item in source)
             {
                 string type = item.Contains(separator) ? item.Substring(item.LastIndexOf(separator) + 1) : item;
                 string itemName = searchHasSeparator ? item : type;
-                if (SimpleSearchMatch(itemName, search, wholeWord, noCase) || AdvancedSearchMatch(type, search, noCase))
+                string found = string.Empty;
+                if (GetIsAbbreviation(search))
                 {
-                    result.Add(item);
+                    if (AbbreviationSearchMatch(itemName, search)) found = item;
+                }
+                else if (!wholeWord && firstCharIsUpper && !searchHasSeparator)
+                {
+                    if (AdvancedSearchMatch(type, search, noCase)) found = item;
+                }
+                else if (SimpleSearchMatch(itemName, search, wholeWord, noCase)) found = item;
+                if (!string.IsNullOrEmpty(found))
+                {
+                    result.Add(found);
                     if (limit > 0 && result.Count >= limit) break;
                 }
             }
@@ -34,18 +45,65 @@ namespace QuickNavigate
             return wholeWord ? item.StartsWith(search) : item.Contains(search);
         }
 
-        internal static bool AdvancedSearchMatch(string item, string searchText, bool noCase)
+        internal static bool GetIsAbbreviation(string s)
         {
-            if (noCase) searchText = searchText.ToLower();
-            List<string> parts = GetParts(item, noCase);
+            int length = s.Length;
+            int i = 0;
+            while (i < length)
+            {
+                char c = s[i++];
+                if (!char.IsLetter(c) || char.IsLower(c)) return false;
+            }
+            return true;
+        }
+
+        internal static List<char> GetAbbreviation(string s)
+        {
+            List<char> result = new List<char>();
+            int length = s.Length;
+            int i = 0;
+            while (i < length)
+            {
+                char c = s[i++];
+                if(char.IsLetter(c) && char.IsUpper(c)) result.Add(c);
+            }
+            return result;
+        }
+
+        internal static bool AbbreviationSearchMatch(string item, string search)
+        {
+            List<char> abbreviation = GetAbbreviation(item);
+            int abbreviationCount = abbreviation.Count;
+            int searchLength = search.Length;
+            if (abbreviationCount < searchLength) return false;
+            int mathes = 0;
+            for (int i = 0; i < abbreviationCount && mathes < searchLength; i++)
+            {
+                char c = search[mathes];
+                if (abbreviation[i] == c) ++mathes;
+                else 
+                {
+                    i = abbreviation.IndexOf(c, i);
+                    if (i < 0) return false;
+                    --i;
+                    mathes = 0;
+                }
+            }
+            return mathes == searchLength;
+        }
+
+        internal static bool AdvancedSearchMatch(string item, string search, bool noCase)
+        {
+            List<string> parts = GetParts(item);
             if (parts.Count == 0) return false;
+            if (noCase) search = search.ToLower();
             int partNum = 0;
-            char[] search = searchText.ToCharArray();
             int si = 0;
-            int sl = searchText.Length;
+            int sl = search.Length;
             while (si < sl && partNum < parts.Count)
             {
-                char[] part = parts[partNum].ToCharArray();
+                string part = parts[partNum];
+                if (noCase) part = part.ToLower();
                 int pi = 0;
                 int pl = part.Length;
                 while (si < sl && pi < pl && search[si] == part[pi])
@@ -53,54 +111,50 @@ namespace QuickNavigate
                     si++;
                     pi++;
                 }
-                if (pi == 0) break;
                 partNum++;
             }
             return si == sl;
         }
 
-        internal static List<string> GetParts(string item, bool noCase)
+        internal static List<string> GetParts(string item)
         {
             List<string> result = new List<string>();
-            char[] chars = item.ToCharArray();
             int i = 0;
-            int length = chars.Length;
+            int length = item.Length;
             while (i < length)
             {
-                while (i < length && !char.IsLetter(chars[i]))
-                    i++;
+                while (i < length && !char.IsLetter(item[i])) i++;
                 if (i == length) break;
-                string part = chars[i].ToString();
+                string part = item[i].ToString();
                 var j = i + 1;
                 if (j == length)
                 {
                 }
-                else if (char.IsLower(chars[i + 1]))
+                else if (char.IsLower(item[j]))
                 {
-                    while (j < length && (char.IsLower(chars[j]) || char.IsDigit(chars[j])))
-                        part += chars[j++];
+                    while (j < length && (char.IsLower(item[j]) || char.IsDigit(item[j])))
+                        part += item[j++];
                 }
-                else if (char.IsUpper(chars[i + 1]))
+                else if (char.IsUpper(item[j]))
                 {
                     while (j < length)
                     {
                         if (j + 1 < length)
                         {
-                            var current = chars[j];
-                            var next = chars[j + 1];
+                            var current = item[j];
+                            var next = item[j + 1];
                             if ((char.IsUpper(current) || char.IsDigit(current)) && (char.IsUpper(next) || char.IsDigit(next)))
-                                part += chars[j++];
+                                part += item[j++];
                             else break;
                         }
                         else
                         {
-                            var current = chars[j];
-                            if (char.IsUpper(current) || char.IsDigit(current)) part += chars[j++];
+                            var current = item[j];
+                            if (char.IsUpper(current) || char.IsDigit(current)) part += item[j++];
                             else break;
                         }
                     }
                 }
-                if (noCase) part = part.ToLower();
                 result.Add(part);
                 i = j;
             }
