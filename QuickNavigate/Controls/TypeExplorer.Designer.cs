@@ -1,4 +1,4 @@
-﻿namespace QuickNavigate
+﻿namespace QuickNavigate.Controls
 {
     partial class TypeExplorer
     {

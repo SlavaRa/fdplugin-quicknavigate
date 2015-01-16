@@ -1,13 +1,13 @@
-﻿using ASCompletion;
-using ASCompletion.Context;
-using ASCompletion.Model;
-using PluginCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using ASCompletion;
+using ASCompletion.Context;
+using ASCompletion.Model;
+using PluginCore;
 
-namespace QuickNavigate
+namespace QuickNavigate.Controls
 {
     public partial class QuickOutlineForm : Form
     {
@@ -46,7 +46,7 @@ namespace QuickNavigate
         private void InitTree()
         {
             ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
-            icons.Images.AddRange(new Bitmap[] {
+            icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -227,7 +227,7 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+        private void OnInputKeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
@@ -237,7 +237,7 @@ namespace QuickNavigate
             Navigate();
         }
 
-        private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
+        private void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;

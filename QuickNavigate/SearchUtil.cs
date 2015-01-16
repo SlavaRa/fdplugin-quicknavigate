@@ -1,5 +1,4 @@
-﻿using PluginCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace QuickNavigate
 {
@@ -26,11 +25,9 @@ namespace QuickNavigate
                     if (AdvancedSearchMatch(type, search, noCase)) found = item;
                 }
                 else if (SimpleSearchMatch(itemName, search, wholeWord, noCase)) found = item;
-                if (!string.IsNullOrEmpty(found))
-                {
-                    result.Add(found);
-                    if (limit > 0 && result.Count >= limit) break;
-                }
+                if (string.IsNullOrEmpty(found)) continue;
+                result.Add(found);
+                if (limit > 0 && result.Count >= limit) break;
             }
             return result;
         }

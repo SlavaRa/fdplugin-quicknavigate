@@ -1,14 +1,15 @@
-﻿using ASCompletion;
-using ASCompletion.Context;
-using ASCompletion.Model;
-using PluginCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using ASCompletion;
+using ASCompletion.Context;
+using ASCompletion.Model;
+using PluginCore;
 
-namespace QuickNavigate
+namespace QuickNavigate.Controls
 {
     public partial class TypeExplorer : Form
     {
@@ -81,18 +82,13 @@ namespace QuickNavigate
 
         private bool IsFileOpened(string fileName)
         {
-            foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
-            {
-                if (doc.FileName == fileName) return true;
-            }
-            return false;
+            return PluginBase.MainForm.Documents.Any(doc => doc.FileName == fileName);
         }
 
         private void InitTree()
         {
-            ImageList icons = new ImageList();
-            icons.TransparentColor = Color.Transparent;
-            icons.Images.AddRange(new Bitmap[] {
+            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
+            icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -266,17 +262,17 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+        private void OnInputKeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
-        private void OnTreeNodeMouseDoubleClick(object sender, System.Windows.Forms.TreeNodeMouseClickEventArgs e)
+        private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
-        private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
+        private void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
@@ -315,12 +311,12 @@ namespace QuickNavigate
             return cmp + StringComparer.Ordinal.Compare(x, y);
         }
 
-        private int GetPkgLength(string type)
+        private static int GetPkgLength(string type)
         {
             return type.LastIndexOf('.');
         }
 
-        private string GetName(string type)
+        private static string GetName(string type)
         {
             int i = type.LastIndexOf('.');
             return i == -1 ? type : type.Substring(i + 1);

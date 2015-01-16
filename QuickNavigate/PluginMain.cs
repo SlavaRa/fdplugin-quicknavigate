@@ -184,8 +184,6 @@ namespace QuickNavigate
         /// </summary>
         private void UpdateMenuItems()
         {
-            ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
-            ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             bool canShowClassHierarchy = GetCanShowClassHierarchy();
             classHierarchyItem.Enabled = canShowClassHierarchy;
             editorClassHierarchyItem.Enabled = canShowClassHierarchy;
@@ -219,7 +217,7 @@ namespace QuickNavigate
             if (PluginBase.CurrentProject != null) new QuickOutlineForm(settings).ShowDialog();
         }
 
-        private bool GetCanShowClassHierarchy()
+        private static bool GetCanShowClassHierarchy()
         {
             if (PluginBase.CurrentProject == null) return false;
             ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
