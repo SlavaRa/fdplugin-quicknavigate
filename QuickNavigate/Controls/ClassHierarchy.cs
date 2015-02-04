@@ -66,7 +66,7 @@ namespace QuickNavigate.Controls
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
             if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
-            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            ((FlashDevelop.MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
             InitTree();

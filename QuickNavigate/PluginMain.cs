@@ -8,6 +8,8 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
+using ASCompletion.Context;
+using ProjectManager;
 
 namespace QuickNavigate
 {
@@ -22,6 +24,8 @@ namespace QuickNavigate
         private string settingFilename;
         private Settings settings;
 	    private ControlClickManager controlClickManager;
+	    private ToolStripMenuItem typeExploreItem;
+	    private ToolStripMenuItem quickOutlineItem;
         private ToolStripMenuItem classHierarchyItem;
         private ToolStripMenuItem editorClassHierarchyItem;
 
@@ -94,6 +98,7 @@ namespace QuickNavigate
             LoadSettings();
             AddEventHandlers();
             CreateMenuItems();
+            UpdateMenuItems();
             if (settings.CtrlClickEnabled) controlClickManager = new ControlClickManager();
         }
 		
@@ -134,6 +139,15 @@ namespace QuickNavigate
                 case EventType.FileSwitch:
                     if (controlClickManager != null) controlClickManager.SciControl = PluginBase.MainForm.CurrentDocument.SciControl;
                     break;
+                case EventType.Command:
+                    DataEvent da = (DataEvent)e;
+                    switch (da.Action)
+                    {
+                        case ProjectManagerEvents.Project:
+                            UpdateMenuItems();
+                            break;
+                    }
+                    break;
             }
 		}
 
@@ -156,7 +170,7 @@ namespace QuickNavigate
         /// </summary>
         public void AddEventHandlers()
         {
-            EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch);
+            EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command);
         }
 
         /// <summary>
@@ -166,13 +180,13 @@ namespace QuickNavigate
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             System.Drawing.Image image = PluginBase.MainForm.FindImage("99|16|0|0");
-            ToolStripMenuItem menuItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.TypeExplorer", menuItem);
-            menu.DropDownItems.Add(menuItem);
+            typeExploreItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
+            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.TypeExplorer", typeExploreItem);
+            menu.DropDownItems.Add(typeExploreItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
-            menuItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", menuItem);
-            menu.DropDownItems.Add(menuItem);
+            quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
+            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", quickOutlineItem);
+            menu.DropDownItems.Add(quickOutlineItem);
             classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
             menu.DropDownItems.Add(classHierarchyItem);
             editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
@@ -184,6 +198,8 @@ namespace QuickNavigate
         /// </summary>
         private void UpdateMenuItems()
         {
+            typeExploreItem.Enabled = PluginBase.CurrentProject != null;
+            quickOutlineItem.Enabled = ASContext.Context.CurrentModel != null;
             bool canShowClassHierarchy = GetCanShowClassHierarchy();
             classHierarchyItem.Enabled = canShowClassHierarchy;
             editorClassHierarchyItem.Enabled = canShowClassHierarchy;
@@ -214,7 +230,12 @@ namespace QuickNavigate
 
         private void ShowOutlineForm(object sender, EventArgs e)
         {
-            if (PluginBase.CurrentProject != null) new QuickOutlineForm(settings).ShowDialog();
+            if (ASContext.Context.CurrentModel != null) new QuickOutlineForm(settings).ShowDialog();
+        }
+
+        private void ShowClassHierarchy(object sender, EventArgs e)
+        {
+            if (GetCanShowClassHierarchy()) new ClassHierarchy(settings).ShowDialog();
         }
 
         private static bool GetCanShowClassHierarchy()
@@ -225,11 +246,6 @@ namespace QuickNavigate
             ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
             return context != null && context.Features.hasExtends
                 && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
-        }
-
-        private void ShowClassHierarchy(object sender, EventArgs e)
-        {
-            if (GetCanShowClassHierarchy()) new ClassHierarchy(settings).ShowDialog();
         }
 
 		#endregion

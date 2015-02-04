@@ -7,7 +7,9 @@ using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
+using FlashDevelop;
 using PluginCore;
+using ScintillaNet;
 
 namespace QuickNavigate.Controls
 {
@@ -31,7 +33,8 @@ namespace QuickNavigate.Controls
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
-            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            searchingInExternalClasspaths.Checked = settings.SearchExternalClassPath;
+            ((MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             CreateItemsList();
             InitTree();
@@ -55,10 +58,13 @@ namespace QuickNavigate.Controls
 
         private void CreateItemsList()
         {
+            projectTypes.Clear();
+            openedTypes.Clear();
+            typeToClassModel.Clear();
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
             string projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
-            bool onlyProjectTypes = !settings.SearchExternalClassPath;
+            bool onlyProjectTypes = !searchingInExternalClasspaths.Checked;
             foreach (PathModel classpath in context.Classpath)
             {
                 if (onlyProjectTypes)
@@ -84,7 +90,7 @@ namespace QuickNavigate.Controls
             return true;
         }
 
-        private bool IsFileOpened(string fileName)
+        private static bool IsFileOpened(string fileName)
         {
             return PluginBase.MainForm.Documents.Any(doc => doc.FileName == fileName);
         }
@@ -181,7 +187,7 @@ namespace QuickNavigate.Controls
                 if (!aClass.IsVoid())
                 {
                     int line = aClass.LineFrom;
-                    ScintillaNet.ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
+                    ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
                     if (sci != null && line > 0 && line < sci.LineCount)
                         sci.GotoLine(line);
                 }
@@ -191,7 +197,7 @@ namespace QuickNavigate.Controls
 
         #region Event Handlers
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
+        private void OnFormKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -202,12 +208,21 @@ namespace QuickNavigate.Controls
                     e.Handled = true;
                     Navigate();
                     break;
+                case Keys.E:
+                    if (e.Control) searchingInExternalClasspaths.Checked = !searchingInExternalClasspaths.Checked;
+                    break;
             }
+        }
+
+        private void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = e.KeyChar == (int) Keys.Space || e.KeyChar == 5;
         }
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.TypeFormSize = Size;
+            settings.SearchExternalClassPath = searchingInExternalClasspaths.Checked;
         }
 
         private void OnInputTextChanged(object sender, EventArgs e)
@@ -266,9 +281,10 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
-        private void OnInputKeyPress(object sender, KeyPressEventArgs e)
+        private void OnSearchingModeCheckStateChanged(object sender, EventArgs eventArgs)
         {
-            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
+            CreateItemsList();
+            RefreshTree();
         }
 
         private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)

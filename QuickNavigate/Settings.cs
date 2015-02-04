@@ -43,6 +43,7 @@ namespace QuickNavigate
         [Category("Type Explorer")]
         public Size TypeFormSize { get; set; }
 
+        [Browsable(false)]
         [Category("Type Explorer")]
         [DisplayName("Search in external classpath")]
         [Description("Enable searching types in external classpath")]

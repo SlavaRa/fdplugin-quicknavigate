@@ -26,7 +26,7 @@ namespace QuickNavigate.Controls
             this.settings = settings;
             InitializeComponent();
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
-            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            ((FlashDevelop.MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             InitTree();
             RefreshTree();
