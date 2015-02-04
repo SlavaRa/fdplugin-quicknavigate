@@ -21,6 +21,10 @@ namespace QuickNavigate.Controls
         private readonly Brush defaultNodeBrush;
         private readonly IComparer<string> comparer = new SmartTypeComparer();
 
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
+        /// </summary>
+        /// <param name="settings"></param>
         public TypeExplorer(Settings settings)
         {
             this.settings = settings;
@@ -326,8 +330,7 @@ namespace QuickNavigate.Controls
         {
             if (noCase) name = name.ToLower();
             if (name == search) return 100;
-            if (name.StartsWith(search)) return 90;
-            return 0;
+            return name.StartsWith(search) ? 90 : 0;
         }
     }
 }

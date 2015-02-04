@@ -16,7 +16,11 @@ namespace QuickNavigate.Controls
         private readonly Brush defaultNodeBrush;
         private readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
         private readonly MemberList tmpMembers = new MemberList();
-        
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
+        /// </summary>
+        /// <param name="settings"></param>
         public QuickOutlineForm(Settings settings)
         {
             this.settings = settings;

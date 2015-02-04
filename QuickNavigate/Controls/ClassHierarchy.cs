@@ -27,11 +27,9 @@ namespace QuickNavigate.Controls
                     foreach (ClassModel aClass in aFile.Classes)
                     {
                         string extendsType = aClass.ExtendsType;
-                        if (!string.IsNullOrEmpty(extendsType))
-                        {
-                            if (!result.ContainsKey(extendsType)) result[extendsType] = new List<ClassModel>();
-                            result[extendsType].Add(aClass);
-                        }
+                        if (string.IsNullOrEmpty(extendsType)) continue;
+                        if (!result.ContainsKey(extendsType)) result[extendsType] = new List<ClassModel>();
+                        result[extendsType].Add(aClass);
                     }
                     return true;
                 });
@@ -58,6 +56,10 @@ namespace QuickNavigate.Controls
             return !curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.ClassHierarchy
+        /// </summary>
+        /// <param name="settings"></param>
         public ClassHierarchy(Settings settings)
         {
             this.settings = settings;
