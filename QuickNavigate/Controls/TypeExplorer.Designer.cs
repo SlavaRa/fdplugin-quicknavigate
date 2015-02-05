@@ -55,7 +55,7 @@ namespace QuickNavigate.Controls
             this.searchingInExternalClasspaths.Name = "searchingInExternalClasspaths";
             this.searchingInExternalClasspaths.Size = new System.Drawing.Size(246, 17);
             this.searchingInExternalClasspaths.TabIndex = 1;
-            this.searchingInExternalClasspaths.Text = "Searching types in external classpaths(Ctrl + E)";
+            this.searchingInExternalClasspaths.Text = "Searching types in external classpaths(Ctrl+E)";
             this.searchingInExternalClasspaths.UseVisualStyleBackColor = true;
             this.searchingInExternalClasspaths.CheckStateChanged += new EventHandler(OnSearchingModeCheckStateChanged);
             // 

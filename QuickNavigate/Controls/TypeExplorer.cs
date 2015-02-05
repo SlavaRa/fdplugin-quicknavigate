@@ -211,12 +211,22 @@ namespace QuickNavigate.Controls
                 case Keys.E:
                     if (e.Control) searchingInExternalClasspaths.Checked = !searchingInExternalClasspaths.Checked;
                     break;
+                case Keys.L:
+                    if (e.Control)
+                    {
+                        input.Focus();
+                        input.SelectAll();
+                    }
+                    break;
             }
         }
 
         private void OnFormKeyPress(object sender, KeyPressEventArgs e)
         {
-            e.Handled = e.KeyChar == (int) Keys.Space || e.KeyChar == 5;
+            int keyCode = (int)e.KeyChar;
+            e.Handled = keyCode == (int)Keys.Space
+                     || keyCode == 5  //Ctrl+E
+                     || keyCode == 12;//Ctrl+L
         }
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
