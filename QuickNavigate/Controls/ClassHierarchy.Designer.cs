@@ -17,7 +17,7 @@
         {
             this.input = new System.Windows.Forms.TextBox();
             this.tree = new System.Windows.Forms.TreeView();
-            this.label1 = new System.Windows.Forms.Label();
+            this.infoLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // input
@@ -32,7 +32,6 @@
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
-            this.input.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnInputKeyPress);
             // 
             // tree
             // 
@@ -52,21 +51,21 @@
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
             // 
-            // label1
+            // infoLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(271, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Search string: (UPPERCASE for search by abbreviation)";
+            this.infoLabel.AutoSize = true;
+            this.infoLabel.Location = new System.Drawing.Point(12, 9);
+            this.infoLabel.Name = "infoLabel";
+            this.infoLabel.Size = new System.Drawing.Size(271, 13);
+            this.infoLabel.TabIndex = 2;
+            this.infoLabel.Text = "Search string: (UPPERCASE for search by abbreviation)";
             // 
             // ClassHierarchy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(390, 255);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.infoLabel);
             this.Controls.Add(this.tree);
             this.Controls.Add(this.input);
             this.KeyPreview = true;
@@ -80,6 +79,7 @@
             this.Text = "Class Hierarchy";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnKeyDown);
+            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnFormKeyPress);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -89,6 +89,6 @@
 
         private System.Windows.Forms.TextBox input;
         private System.Windows.Forms.TreeView tree;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label infoLabel;
     }
 }
