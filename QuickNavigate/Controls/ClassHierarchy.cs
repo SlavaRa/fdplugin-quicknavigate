@@ -261,7 +261,21 @@ namespace QuickNavigate.Controls
                     e.Handled = true;
                     Navigate();
                     break;
+                case Keys.L:
+                    if (e.Control)
+                    {
+                        input.Focus();
+                        input.SelectAll();
+                    }
+                    break;
             }
+        }
+
+        private void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        {
+            int keyCode = (int)e.KeyChar;
+            e.Handled = keyCode == (int)Keys.Space
+                     || keyCode == 12;//Ctrl+L
         }
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
@@ -347,11 +361,6 @@ namespace QuickNavigate.Controls
                 default: return;
             }
             e.Handled = true;
-        }
-
-        private void OnInputKeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
         private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
