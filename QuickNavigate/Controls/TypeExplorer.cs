@@ -151,6 +151,7 @@ namespace QuickNavigate.Controls
         {
             List<string> matches;
             string search = input.Text.Trim();
+            string itemSpacer = settings.ItemSpacer;
             if (string.IsNullOrEmpty(search)) matches = openedTypes;
             else
             {   
@@ -159,17 +160,21 @@ namespace QuickNavigate.Controls
                 ((SmartTypeComparer)comparer).Setup(search, !matchCase);
                 matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
                 matches.Sort(comparer);
-                if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
+                if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(itemSpacer);
                 List<string> tmpMathes = SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase);
                 tmpMathes.Sort(comparer);
                 matches.AddRange(tmpMathes);
             }
             if (matches.Count == 0) return;
-            foreach(string m in matches) 
+            foreach (string m in matches)
             {
-                ClassModel aClass = typeToClassModel[m];
-                int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                tree.Nodes.Add(new TreeNode(){Text = m, ImageIndex = icon, SelectedImageIndex = icon});
+                if (m == itemSpacer) tree.Nodes.Add(new TreeNode(itemSpacer));
+                else
+                {
+                    ClassModel aClass = typeToClassModel[m];
+                    int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                    tree.Nodes.Add(new TreeNode() { Text = m, ImageIndex = icon, SelectedImageIndex = icon });
+                }
             }
             tree.SelectedNode = tree.Nodes[0];
         }
@@ -312,8 +317,10 @@ namespace QuickNavigate.Controls
                 drawBrush = Brushes.White;
             }
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
-            e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            string text = e.Node.Text;
+            int x = text == settings.ItemSpacer ? 0 : bounds.X;
+            e.Graphics.FillRectangle(fillBrush, x, bounds.Y, tree.Width - x, tree.ItemHeight);
+            e.Graphics.DrawString(text, tree.Font, drawBrush, x, e.Bounds.Top, StringFormat.GenericDefault);
         }
 
         #endregion
