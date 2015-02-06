@@ -1,13 +1,13 @@
-﻿using ASCompletion;
-using ASCompletion.Context;
-using ASCompletion.Model;
-using PluginCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using ASCompletion;
+using ASCompletion.Context;
+using ASCompletion.Model;
+using PluginCore;
 
-namespace QuickNavigate
+namespace QuickNavigate.Controls
 {
     public partial class QuickOutlineForm : Form
     {
@@ -16,13 +16,17 @@ namespace QuickNavigate
         private readonly Brush defaultNodeBrush;
         private readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
         private readonly MemberList tmpMembers = new MemberList();
-        
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
+        /// </summary>
+        /// <param name="settings"></param>
         public QuickOutlineForm(Settings settings)
         {
             this.settings = settings;
             InitializeComponent();
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
-            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            ((FlashDevelop.MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             InitTree();
             RefreshTree();
@@ -46,7 +50,7 @@ namespace QuickNavigate
         private void InitTree()
         {
             ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
-            icons.Images.AddRange(new Bitmap[] {
+            icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -227,7 +231,7 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+        private void OnInputKeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
@@ -237,21 +241,18 @@ namespace QuickNavigate
             Navigate();
         }
 
-        private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
+        private void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
-            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 fillBrush = selectedNodeBrush;
                 drawBrush = Brushes.White;
-                image = tree.ImageList.Images[e.Node.SelectedImageIndex];
             }
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
+            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
             e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion

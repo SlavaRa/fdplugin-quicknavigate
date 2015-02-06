@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("QuickNavigate")]
 [assembly: AssemblyDescription("QuickNavigate Plugin For FlashDevelop")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Canab, Slavara")]
+[assembly: AssemblyCompany("Canab, SlavaRa")]
 [assembly: AssemblyProduct("QuickNavigate")]
 [assembly: AssemblyCopyright("FlashDevelop.org 2005-2015")]
 [assembly: AssemblyTrademark("")]
@@ -30,3 +30,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 
 [assembly: InternalsVisibleTo("QuickNavigate.Tests")]
+[assembly: GuidAttribute("5e256956-8f0d-4f2b-9548-08673c0adefd")]

@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("SlavaRa")]
 [assembly: AssemblyProduct("QuickNavigate.Tests")]
-[assembly: AssemblyCopyright("FlashDevelop.org 2005-2015")]
+[assembly: AssemblyCopyright("FlashDevelop.org 2014-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

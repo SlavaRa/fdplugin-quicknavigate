@@ -17,13 +17,56 @@ namespace QuickNavigate.Controls
         private readonly Dictionary<string, List<ClassModel>> extendsToClasses;
         private readonly Dictionary<string, TreeNode> typeToNode = new Dictionary<string, TreeNode>();
 
+        private static Dictionary<string, List<ClassModel>> GetAllProjectExtendsClasses()
+        {
+            Dictionary<string, List<ClassModel>> result = new Dictionary<string, List<ClassModel>>();
+            foreach (PathModel path in ASContext.Context.Classpath)
+            {
+                path.ForeachFile(aFile =>
+                {
+                    foreach (ClassModel aClass in aFile.Classes)
+                    {
+                        string extendsType = aClass.ExtendsType;
+                        if (string.IsNullOrEmpty(extendsType)) continue;
+                        if (!result.ContainsKey(extendsType)) result[extendsType] = new List<ClassModel>();
+                        result[extendsType].Add(aClass);
+                    }
+                    return true;
+                });
+            }
+            return result;
+        }
+
+        private static IEnumerable<ClassModel> GetExtends(ClassModel theClass)
+        {
+            List<ClassModel> result = new List<ClassModel>();
+            ClassModel aClass = theClass.Extends;
+            while (!aClass.IsVoid())
+            {
+                result.Add(aClass);
+                aClass = aClass.Extends;
+            }
+            result.Reverse();
+            return result;
+        }
+
+        private static ClassModel GetCurrentClass()
+        {
+            ClassModel curClass = ASContext.Context.CurrentClass;
+            return !curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.ClassHierarchy
+        /// </summary>
+        /// <param name="settings"></param>
         public ClassHierarchy(Settings settings)
         {
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
             if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
-            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            ((FlashDevelop.MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
             InitTree();
@@ -45,32 +88,10 @@ namespace QuickNavigate.Controls
             base.Dispose(disposing);
         }
 
-        private Dictionary<string, List<ClassModel>> GetAllProjectExtendsClasses()
-        {
-            Dictionary<string, List<ClassModel>> result = new Dictionary<string, List<ClassModel>>();
-            foreach (PathModel path in ASContext.Context.Classpath)
-            {
-                path.ForeachFile((aFile) =>
-                {
-                    foreach (ClassModel aClass in aFile.Classes)
-                    {
-                        string extendsType = aClass.ExtendsType;
-                        if (!string.IsNullOrEmpty(extendsType))
-                        {
-                            if (!result.ContainsKey(extendsType)) result[extendsType] = new List<ClassModel>();
-                            result[extendsType].Add(aClass);
-                        }
-                    }
-                    return true;
-                });
-            }
-            return result;
-        }
-
         private void InitTree()
         {
             ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
-            icons.Images.AddRange(new Bitmap[] {
+            icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -145,19 +166,6 @@ namespace QuickNavigate.Controls
             FillNode(node);
         }
 
-        private List<ClassModel> GetExtends(ClassModel theClass)
-        {
-            List<ClassModel> result = new List<ClassModel>();
-            ClassModel aClass = theClass.Extends;
-            while (!aClass.IsVoid())
-            {
-                result.Add(aClass);
-                aClass = aClass.Extends;
-            }
-            result.Reverse();
-            return result;
-        }
-
         private void FillNode(TreeNode node)
         {
             if (!extendsToClasses.ContainsKey(node.Name)) return;
@@ -192,12 +200,6 @@ namespace QuickNavigate.Controls
                 }
             }
             Close();
-        }
-
-        private ClassModel GetCurrentClass()
-        {
-            ClassModel curClass = ASContext.Context.CurrentClass;
-            return !curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass();
         }
 
         private TreeNode GetNextEnabledNode()
@@ -347,36 +349,33 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
-        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+        private void OnInputKeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (int)Keys.Space) e.Handled = true;
         }
 
-        private void OnTreeNodeMouseDoubleClick(object sender, System.Windows.Forms.TreeNodeMouseClickEventArgs e)
+        private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
-        private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
+        private void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             string tag = e.Node.Tag as string;
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
-            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if (string.IsNullOrEmpty(tag) || tag == "enabled")
             {
                 if ((e.State & TreeNodeStates.Selected) > 0)
                 {
                     fillBrush = selectedNodeBrush;
                     drawBrush = Brushes.White;
-                    image = tree.ImageList.Images[e.Node.SelectedImageIndex];
                 }
             }
             else if (tag == "disabled") drawBrush = Brushes.DimGray;
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
+            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
             e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
         }
 
         #endregion
@@ -390,6 +389,7 @@ namespace QuickNavigate.Controls
         {
             Class = theClass;
             Name = theClass.Name;
+            Tag = "enabled";
         }
     }
 }

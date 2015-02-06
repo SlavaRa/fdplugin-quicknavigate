@@ -1,14 +1,17 @@
-﻿using ASCompletion;
-using ASCompletion.Context;
-using ASCompletion.Model;
-using PluginCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using ASCompletion;
+using ASCompletion.Context;
+using ASCompletion.Model;
+using FlashDevelop;
+using PluginCore;
+using ScintillaNet;
 
-namespace QuickNavigate
+namespace QuickNavigate.Controls
 {
     public partial class TypeExplorer : Form
     {
@@ -20,13 +23,18 @@ namespace QuickNavigate
         private readonly Brush defaultNodeBrush;
         private readonly IComparer<string> comparer = new SmartTypeComparer();
 
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
+        /// </summary>
+        /// <param name="settings"></param>
         public TypeExplorer(Settings settings)
         {
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
             if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
-            (PluginBase.MainForm as FlashDevelop.MainForm).ThemeControls(this);
+            searchingInExternalClasspaths.Checked = settings.SearchExternalClassPath;
+            ((MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             CreateItemsList();
             InitTree();
@@ -50,10 +58,13 @@ namespace QuickNavigate
 
         private void CreateItemsList()
         {
+            projectTypes.Clear();
+            openedTypes.Clear();
+            typeToClassModel.Clear();
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
             string projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
-            bool onlyProjectTypes = !settings.SearchExternalClassPath;
+            bool onlyProjectTypes = !searchingInExternalClasspaths.Checked;
             foreach (PathModel classpath in context.Classpath)
             {
                 if (onlyProjectTypes)
@@ -79,20 +90,15 @@ namespace QuickNavigate
             return true;
         }
 
-        private bool IsFileOpened(string fileName)
+        private static bool IsFileOpened(string fileName)
         {
-            foreach (ITabbedDocument doc in PluginBase.MainForm.Documents)
-            {
-                if (doc.FileName == fileName) return true;
-            }
-            return false;
+            return PluginBase.MainForm.Documents.Any(doc => doc.FileName == fileName);
         }
 
         private void InitTree()
         {
-            ImageList icons = new ImageList();
-            icons.TransparentColor = Color.Transparent;
-            icons.Images.AddRange(new Bitmap[] {
+            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
+            icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
                 new Bitmap(PluginUI.GetStream("FolderOpen.png")),
@@ -145,6 +151,7 @@ namespace QuickNavigate
         {
             List<string> matches;
             string search = input.Text.Trim();
+            string itemSpacer = settings.ItemSpacer;
             if (string.IsNullOrEmpty(search)) matches = openedTypes;
             else
             {   
@@ -153,17 +160,21 @@ namespace QuickNavigate
                 ((SmartTypeComparer)comparer).Setup(search, !matchCase);
                 matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
                 matches.Sort(comparer);
-                if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(settings.ItemSpacer);
+                if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(itemSpacer);
                 List<string> tmpMathes = SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase);
                 tmpMathes.Sort(comparer);
                 matches.AddRange(tmpMathes);
             }
             if (matches.Count == 0) return;
-            foreach(string m in matches) 
+            foreach (string m in matches)
             {
-                ClassModel aClass = typeToClassModel[m];
-                int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                tree.Nodes.Add(new TreeNode(){Text = m, ImageIndex = icon, SelectedImageIndex = icon});
+                if (m == itemSpacer) tree.Nodes.Add(new TreeNode(itemSpacer));
+                else
+                {
+                    ClassModel aClass = typeToClassModel[m];
+                    int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                    tree.Nodes.Add(new TreeNode() { Text = m, ImageIndex = icon, SelectedImageIndex = icon });
+                }
             }
             tree.SelectedNode = tree.Nodes[0];
         }
@@ -181,7 +192,7 @@ namespace QuickNavigate
                 if (!aClass.IsVoid())
                 {
                     int line = aClass.LineFrom;
-                    ScintillaNet.ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
+                    ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
                     if (sci != null && line > 0 && line < sci.LineCount)
                         sci.GotoLine(line);
                 }
@@ -191,7 +202,7 @@ namespace QuickNavigate
 
         #region Event Handlers
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
+        private void OnFormKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -202,12 +213,31 @@ namespace QuickNavigate
                     e.Handled = true;
                     Navigate();
                     break;
+                case Keys.E:
+                    if (e.Control) searchingInExternalClasspaths.Checked = !searchingInExternalClasspaths.Checked;
+                    break;
+                case Keys.L:
+                    if (e.Control)
+                    {
+                        input.Focus();
+                        input.SelectAll();
+                    }
+                    break;
             }
+        }
+
+        private void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        {
+            int keyCode = (int)e.KeyChar;
+            e.Handled = keyCode == (int)Keys.Space
+                     || keyCode == 5  //Ctrl+E
+                     || keyCode == 12;//Ctrl+L
         }
 
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.TypeFormSize = Size;
+            settings.SearchExternalClassPath = searchingInExternalClasspaths.Checked;
         }
 
         private void OnInputTextChanged(object sender, EventArgs e)
@@ -266,31 +296,31 @@ namespace QuickNavigate
             e.Handled = true;
         }
 
-        private void OnInputKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+        private void OnSearchingModeCheckStateChanged(object sender, EventArgs eventArgs)
         {
-            if (e.KeyChar == (int)Keys.Space) e.Handled = true;
+            CreateItemsList();
+            RefreshTree();
         }
 
-        private void OnTreeNodeMouseDoubleClick(object sender, System.Windows.Forms.TreeNodeMouseClickEventArgs e)
+        private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
-        private void OnTreeDrawNode(object sender, System.Windows.Forms.DrawTreeNodeEventArgs e)
+        private void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
-            Image image = tree.ImageList.Images[e.Node.ImageIndex];
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 fillBrush = selectedNodeBrush;
                 drawBrush = Brushes.White;
-                image = tree.ImageList.Images[e.Node.SelectedImageIndex];
             }
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, 0, bounds.Y, tree.Width, tree.ItemHeight);
-            e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
-            e.Graphics.DrawImage(image, bounds.X - image.Width, bounds.Y);
+            string text = e.Node.Text;
+            int x = text == settings.ItemSpacer ? 0 : bounds.X;
+            e.Graphics.FillRectangle(fillBrush, x, bounds.Y, tree.Width - x, tree.ItemHeight);
+            e.Graphics.DrawString(text, tree.Font, drawBrush, x, e.Bounds.Top, StringFormat.GenericDefault);
         }
 
         #endregion
@@ -318,12 +348,12 @@ namespace QuickNavigate
             return cmp + StringComparer.Ordinal.Compare(x, y);
         }
 
-        private int GetPkgLength(string type)
+        private static int GetPkgLength(string type)
         {
             return type.LastIndexOf('.');
         }
 
-        private string GetName(string type)
+        private static string GetName(string type)
         {
             int i = type.LastIndexOf('.');
             return i == -1 ? type : type.Substring(i + 1);
@@ -333,8 +363,7 @@ namespace QuickNavigate
         {
             if (noCase) name = name.ToLower();
             if (name == search) return 100;
-            if (name.StartsWith(search)) return 90;
-            return 0;
+            return name.StartsWith(search) ? 90 : 0;
         }
     }
 }

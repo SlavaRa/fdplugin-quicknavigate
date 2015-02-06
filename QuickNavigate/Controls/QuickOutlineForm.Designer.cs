@@ -1,4 +1,4 @@
-﻿namespace QuickNavigate
+﻿namespace QuickNavigate.Controls
 {
     partial class QuickOutlineForm
     {
@@ -46,7 +46,6 @@
             this.tree.ItemHeight = 16;
             this.tree.Location = new System.Drawing.Point(12, 40);
             this.tree.Name = "tree";
-            this.tree.ShowLines = false;
             this.tree.ShowPlusMinus = false;
             this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(305, 173);
