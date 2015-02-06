@@ -1,4 +1,6 @@
-﻿namespace QuickNavigate.Controls
+﻿using System.Windows.Forms;
+
+namespace QuickNavigate.Controls
 {
     partial class QuickOutlineForm
     {
@@ -31,7 +33,6 @@
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
-            this.input.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnInputKeyPress);
             // 
             // tree
             // 
@@ -71,9 +72,9 @@
             this.Text = "Quick Outline";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnKeyDown);
+            this.KeyPress += new KeyPressEventHandler(this.OnFormKeyPress);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
