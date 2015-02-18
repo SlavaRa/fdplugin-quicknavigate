@@ -11,6 +11,7 @@ namespace QuickNavigate.Controls
 {
     public partial class ClassHierarchy : Form
     {
+        private readonly ClassModel curClass;
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
@@ -60,8 +61,18 @@ namespace QuickNavigate.Controls
         /// Initializes a new instance of the QuickNavigate.Controls.ClassHierarchy
         /// </summary>
         /// <param name="settings"></param>
-        public ClassHierarchy(Settings settings)
+        public ClassHierarchy(Settings settings):this(GetCurrentClass(), settings)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.ClassHierarchy
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="settings"></param>
+        public ClassHierarchy(ClassModel model, Settings settings)
+        {
+            this.curClass = model;
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
@@ -143,11 +154,10 @@ namespace QuickNavigate.Controls
         private void FillTree()
         {
             typeToNode.Clear();
-            ClassModel theClass = GetCurrentClass();
-            if (theClass.IsVoid()) return;
+            if (curClass.IsVoid()) return;
             TreeNode parent = null;
             int icon;
-            foreach (ClassModel aClass in GetExtends(theClass))
+            foreach (ClassModel aClass in GetExtends(curClass))
             {
                 icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode child = new ClassNode(aClass, icon, icon);
@@ -156,13 +166,13 @@ namespace QuickNavigate.Controls
                 typeToNode[aClass.Type] = child;
                 parent = child;
             }
-            icon = PluginUI.GetIcon(theClass.Flags, theClass.Access);
-            TreeNode node = new ClassNode(theClass, icon, icon);
+            icon = PluginUI.GetIcon(curClass.Flags, curClass.Access);
+            TreeNode node = new ClassNode(curClass, icon, icon);
             node.NodeFont = new Font(tree.Font, FontStyle.Underline);
             if (parent == null) tree.Nodes.Add(node);
             else parent.Nodes.Add(node);
             tree.SelectedNode = node;
-            typeToNode[theClass.Type] = node;
+            typeToNode[curClass.Type] = node;
             FillNode(node);
         }
 
@@ -296,8 +306,7 @@ namespace QuickNavigate.Controls
             tree.Refresh();
             if (mathesIsEmpty)
             {
-                ClassModel theClass = GetCurrentClass();
-                tree.SelectedNode = typeToNode[theClass.Type];
+                tree.SelectedNode = typeToNode[curClass.Type];
                 return;
             }
             matches.Sort();

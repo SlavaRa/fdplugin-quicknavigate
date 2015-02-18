@@ -54,18 +54,15 @@ namespace QuickNavigate
 
         public ControlClickManager()
         {
-            timer = new Timer();
-            timer.Interval = 10;
+            timer = new Timer {Interval = 10};
             timer.Tick += GoToDeclaration;
         }
 
         public void Dispose()
         {
-            if (timer != null)
-            {
-                timer.Dispose();
-                timer = null;
-            }
+            if (timer == null) return;
+            timer.Dispose();
+            timer = null;
         }
 
         private void GoToDeclaration(object sender, EventArgs e)

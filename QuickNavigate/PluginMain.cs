@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using ASCompletion.Context;
+using ASCompletion.Model;
 using ProjectManager;
 
 namespace QuickNavigate
@@ -184,7 +185,7 @@ namespace QuickNavigate
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.TypeExplorer", typeExploreItem);
             menu.DropDownItems.Add(typeExploreItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
-            quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowOutlineForm, Keys.Control | Keys.Shift | Keys.O);
+            quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", quickOutlineItem);
             menu.DropDownItems.Add(quickOutlineItem);
             classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
@@ -225,18 +226,33 @@ namespace QuickNavigate
         
         private void ShowTypeForm(object sender, EventArgs e)
         {
-            if (PluginBase.CurrentProject != null) new TypeExplorer(settings).ShowDialog();
+            if (PluginBase.CurrentProject == null) return;
+            TypeExplorer form = new TypeExplorer(settings);
+            form.ShowInQuickOutline += ShowQuickOutline;
+            form.ShowInClassHierarchy += ShowClassHierarchy;
+            form.ShowDialog();
         }
 
-        private void ShowOutlineForm(object sender, EventArgs e)
+        private void ShowQuickOutline(object sender, EventArgs e)
         {
-            if (ASContext.Context.CurrentModel != null) new QuickOutlineForm(settings).ShowDialog();
+            if (ASContext.Context.CurrentModel == null) return;
+            new QuickOutlineForm(ASContext.Context.CurrentModel, settings).ShowDialog();
+        }
+
+        private void ShowQuickOutline(ClassModel model)
+        {
+            new QuickOutlineForm(model, settings).ShowDialog();
         }
 
         private void ShowClassHierarchy(object sender, EventArgs e)
         {
             if (GetCanShowClassHierarchy()) new ClassHierarchy(settings).ShowDialog();
         }
+
+	    private void ShowClassHierarchy(ClassModel model)
+	    {
+	        new ClassHierarchy(model, settings);
+	    }
 
         private static bool GetCanShowClassHierarchy()
         {

@@ -9,12 +9,18 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using FlashDevelop;
 using PluginCore;
+using PluginCore.Managers;
 using ScintillaNet;
 
 namespace QuickNavigate.Controls
 {
+    public delegate void ShowInQuickOutline(ClassModel model);
+    public delegate void ShowInClassHierarchy(ClassModel model);
+
     public partial class TypeExplorer : Form
     {
+        public event ShowInQuickOutline ShowInQuickOutline;
+        public event ShowInClassHierarchy ShowInClassHierarchy;
         private readonly List<string> projectTypes = new List<string>();
         private readonly List<string> openedTypes = new List<string>();
         private readonly Dictionary<string, ClassModel> typeToClassModel = new Dictionary<string, ClassModel>();
@@ -56,6 +62,8 @@ namespace QuickNavigate.Controls
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// </summary>
         private void CreateItemsList()
         {
             projectTypes.Clear();
@@ -77,6 +85,10 @@ namespace QuickNavigate.Controls
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         private bool FileModelDelegate(FileModel model)
         {
             foreach (ClassModel aClass in model.Classes)
@@ -90,11 +102,17 @@ namespace QuickNavigate.Controls
             return true;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         private static bool IsFileOpened(string fileName)
         {
             return PluginBase.MainForm.Documents.Any(doc => doc.FileName == fileName);
         }
 
+        /// <summary>
+        /// </summary>
         private void InitTree()
         {
             ImageList icons = new ImageList {TransparentColor = Color.Transparent};
@@ -138,6 +156,8 @@ namespace QuickNavigate.Controls
             tree.ImageList = icons;
         }
 
+        /// <summary>
+        /// </summary>
         private void RefreshTree()
         {
             tree.BeginUpdate();
@@ -147,6 +167,8 @@ namespace QuickNavigate.Controls
             tree.EndUpdate();
         }
 
+        /// <summary>
+        /// </summary>
         private void FillTree()
         {
             List<string> matches;
@@ -173,12 +195,14 @@ namespace QuickNavigate.Controls
                 {
                     ClassModel aClass = typeToClassModel[m];
                     int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                    tree.Nodes.Add(new TreeNode() { Text = m, ImageIndex = icon, SelectedImageIndex = icon });
+                    tree.Nodes.Add(new TypeNode(aClass) { Text = m, ImageIndex = icon, SelectedImageIndex = icon });
                 }
             }
             tree.SelectedNode = tree.Nodes[0];
         }
 
+        /// <summary>
+        /// </summary>
         private void Navigate()
         {
             if (tree.SelectedNode == null) return;
@@ -198,6 +222,22 @@ namespace QuickNavigate.Controls
                 }
             }
             Close();
+        }
+
+        /// <summary>
+        /// </summary>
+        private void ShowContextMenu()
+        {
+            TreeNode node = tree.SelectedNode;
+            if(node == null || node.Text == settings.ItemSpacer) return;
+            //TODO slavara: инициализировать меню на старте
+            tree.ContextMenu = new ContextMenu();
+            tree.ContextMenu.MenuItems.Add("Show in Quick Outline", OnShowInQuickOutline);
+            tree.ContextMenu.MenuItems.Add("Show in Class Hierarchy", OnShowInClassHiearachy);
+            //TODO slavara: брать имена по ключам локализации
+            tree.ContextMenu.MenuItems.Add("Show in Project Manager");
+            tree.ContextMenu.MenuItems.Add("Show in File Explorer");
+            tree.ContextMenu.Show(tree, new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
         }
 
         #region Event Handlers
@@ -222,6 +262,10 @@ namespace QuickNavigate.Controls
                         input.Focus();
                         input.SelectAll();
                     }
+                    break;
+               case Keys.Apps:
+                    ShowContextMenu();
+                    e.Handled = true;
                     break;
             }
         }
@@ -296,7 +340,7 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
-        private void OnSearchingModeCheckStateChanged(object sender, EventArgs eventArgs)
+        private void OnSearchingModeCheckStateChanged(object sender, EventArgs e)
         {
             CreateItemsList();
             RefreshTree();
@@ -323,7 +367,27 @@ namespace QuickNavigate.Controls
             e.Graphics.DrawString(text, tree.Font, drawBrush, x, e.Bounds.Top, StringFormat.GenericDefault);
         }
 
+        private void OnShowInQuickOutline(object sender, EventArgs e)
+        {
+            ShowInQuickOutline(((TypeNode)tree.SelectedNode).Model);
+        }
+
+        private void OnShowInClassHiearachy(object sender, EventArgs e)
+        {
+            ShowInClassHierarchy(((TypeNode)tree.SelectedNode).Model);
+        }
+
         #endregion
+    }
+
+    class TypeNode : TreeNode
+    {
+        public ClassModel Model;
+
+        public TypeNode(ClassModel model)
+        {
+            Model = model;
+        }
     }
 
     class SmartTypeComparer : IComparer<string>
