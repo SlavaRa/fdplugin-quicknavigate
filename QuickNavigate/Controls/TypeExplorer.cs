@@ -245,6 +245,10 @@ namespace QuickNavigate.Controls
 
         #region Event Handlers
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnFormKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -273,6 +277,10 @@ namespace QuickNavigate.Controls
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnFormKeyPress(object sender, KeyPressEventArgs e)
         {
             int keyCode = (int)e.KeyChar;
@@ -281,17 +289,29 @@ namespace QuickNavigate.Controls
                      || keyCode == 12;//Ctrl+L
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.TypeFormSize = Size;
             settings.SearchExternalClassPath = searchingInExternalClasspaths.Checked;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnInputTextChanged(object sender, EventArgs e)
         {
             RefreshTree();
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
@@ -343,17 +363,29 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnSearchingModeCheckStateChanged(object sender, EventArgs e)
         {
             CreateItemsList();
             RefreshTree();
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
@@ -370,21 +402,37 @@ namespace QuickNavigate.Controls
             e.Graphics.DrawString(text, tree.Font, drawBrush, x, e.Bounds.Top, StringFormat.GenericDefault);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnShowInQuickOutline(object sender, EventArgs e)
         {
             ShowInQuickOutline(this, ((TypeNode)tree.SelectedNode).Model);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnShowInClassHiearachy(object sender, EventArgs e)
         {
             ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnShowInProjectManager(object sender, EventArgs e)
         {
             ShowInProjectManager(this, ((TypeNode)tree.SelectedNode).Model);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnShowInFileExplorer(object sender, EventArgs e)
         {
             ShowInFileExplorer(this, ((TypeNode)tree.SelectedNode).Model);
