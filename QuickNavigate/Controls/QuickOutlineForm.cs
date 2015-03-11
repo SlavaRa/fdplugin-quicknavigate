@@ -9,6 +9,8 @@ using PluginCore;
 
 namespace QuickNavigate.Controls
 {
+    /// <summary>
+    /// </summary>
     public partial class QuickOutlineForm : Form
     {
         private readonly ClassModel inClass;

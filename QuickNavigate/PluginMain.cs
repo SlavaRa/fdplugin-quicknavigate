@@ -1,37 +1,44 @@
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
 using ASCompletion.Completion;
+using ASCompletion.Context;
+using ASCompletion.Model;
+using FlashDevelop;
 using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
 using PluginCore.Utilities;
-using QuickNavigate.Controls;
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Windows.Forms;
-using ASCompletion.Context;
-using ASCompletion.Model;
 using ProjectManager;
+using QuickNavigate.Controls;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace QuickNavigate
 {
-	public class PluginMain : IPlugin
+    /// <summary>
+    /// </summary>
+    public class PluginMain : IPlugin
 	{
-        private const string PLUGIN_NAME = "QuickNavigate";
-        private const string PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
-        private const string PLUGIN_HELP = "http://www.flashdevelop.org/community/";
-        private const string PLUGIN_AUTH = "Canab, SlavaRa";
-	    private const string SETTINGS_FILE = "Settings.fdb";
-        private const string PLUGIN_DESC = "QuickNavigate plugin";
-        private string settingFilename;
-        private Settings settings;
-	    private ControlClickManager controlClickManager;
-	    private ToolStripMenuItem typeExploreItem;
-	    private ToolStripMenuItem quickOutlineItem;
-        private ToolStripMenuItem classHierarchyItem;
-        private ToolStripMenuItem editorClassHierarchyItem;
+        const string PLUGIN_NAME = "QuickNavigate";
+        const string PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
+        const string PLUGIN_HELP = "http://www.flashdevelop.org/community/";
+        const string PLUGIN_AUTH = "Canab, SlavaRa";
+	    const string SETTINGS_FILE = "Settings.fdb";
+        const string PLUGIN_DESC = "QuickNavigate plugin";
+        string settingFilename;
+        Settings settings;
+	    ControlClickManager controlClickManager;
+	    ToolStripMenuItem typeExploreItem;
+	    ToolStripMenuItem quickOutlineItem;
+        ToolStripMenuItem classHierarchyItem;
+        ToolStripMenuItem editorClassHierarchyItem;
 
 	    #region Required Properties
 
+        /// <summary>
+        /// </summary>
         public int Api
         {
             get { return 1; }
@@ -39,7 +46,7 @@ namespace QuickNavigate
         
         /// <summary>
         /// Name of the plugin
-        /// </summary> 
+        /// </summary>
         public string Name
 		{
 			get { return PLUGIN_NAME; }
@@ -63,7 +70,7 @@ namespace QuickNavigate
 
         /// <summary>
         /// Description of the plugin
-        /// </summary> 
+        /// </summary>
         public string Description
 		{
 			get { return PLUGIN_DESC; }
@@ -71,7 +78,7 @@ namespace QuickNavigate
 
         /// <summary>
         /// Web address for help
-        /// </summary> 
+        /// </summary>
         public string Help
 		{
 			get { return PLUGIN_HELP; }
@@ -177,10 +184,10 @@ namespace QuickNavigate
         /// <summary>
         /// Creates the required menu items
         /// </summary>
-        private void CreateMenuItems()
+        void CreateMenuItems()
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
-            System.Drawing.Image image = PluginBase.MainForm.FindImage("99|16|0|0");
+            Image image = PluginBase.MainForm.FindImage("99|16|0|0");
             typeExploreItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.TypeExplorer", typeExploreItem);
             menu.DropDownItems.Add(typeExploreItem);
@@ -197,7 +204,7 @@ namespace QuickNavigate
         /// <summary>
         /// Updates the state of the menu items
         /// </summary>
-        private void UpdateMenuItems()
+        void UpdateMenuItems()
         {
             typeExploreItem.Enabled = PluginBase.CurrentProject != null;
             quickOutlineItem.Enabled = ASContext.Context.CurrentModel != null;
@@ -224,54 +231,141 @@ namespace QuickNavigate
             ObjectSerializer.Serialize(settingFilename, settings);
         }
         
-        private void ShowTypeForm(object sender, EventArgs e)
+        void ShowTypeForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
-            TypeExplorer form = new TypeExplorer(settings);
-            form.ShowInQuickOutline += ShowQuickOutline;
-            form.ShowInClassHierarchy += ShowClassHierarchy;
-            form.ShowDialog();
+            using (TypeExplorer form = new TypeExplorer(settings))
+            {
+                form.ShowInQuickOutline += ShowQuickOutline;
+                form.ShowInClassHierarchy += ShowClassHierarchy;
+                form.ShowInProjectManager += ShowInProjectManager;
+                form.ShowInFileExplorer += ShowInFileExplorer;
+                form.ShowDialog();
+            }
         }
 
-        private void ShowQuickOutline(object sender, EventArgs e)
+        void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
-            new QuickOutlineForm(ASContext.Context.CurrentModel, settings).ShowDialog();
+            using (Form form = new QuickOutlineForm(ASContext.Context.CurrentModel, settings))
+            {
+                form.ShowDialog();
+            }
         }
 
-        private void ShowQuickOutline(ClassModel model)
+        void ShowQuickOutline(Form sender, ClassModel model)
         {
-            new QuickOutlineForm(model, settings).ShowDialog();
+            sender.Close();
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            {
+                using (Form form = new QuickOutlineForm(model, settings))
+                {
+                    form.ShowDialog();
+                }
+            });
         }
 
-        private void ShowClassHierarchy(object sender, EventArgs e)
+        void ShowClassHierarchy(object sender, EventArgs e)
         {
-            if (GetCanShowClassHierarchy()) new ClassHierarchy(settings).ShowDialog();
+            if (!GetCanShowClassHierarchy()) return;
+            ClassModel curClass = ASContext.Context.CurrentClass;
+            ShowClassHierarchy(!curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass());
         }
 
-	    private void ShowClassHierarchy(ClassModel model)
+        void ShowClassHierarchy(Form sender, ClassModel model)
 	    {
-	        new ClassHierarchy(model, settings);
+            sender.Close();
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            {
+                ShowClassHierarchy(model);
+            });
 	    }
 
-        private static bool GetCanShowClassHierarchy()
+        void ShowClassHierarchy(ClassModel model)
+        {
+            using (ClassHierarchy form = new ClassHierarchy(model, settings))
+            {
+                form.ShowInQuickOutline += ShowQuickOutline;
+                form.ShowInClassHierarchy += ShowClassHierarchy;
+                form.ShowInProjectManager += ShowInProjectManager;
+                form.ShowInFileExplorer += ShowInFileExplorer;
+                form.ShowDialog();
+            }
+        }
+
+        static bool GetCanShowClassHierarchy()
         {
             if (PluginBase.CurrentProject == null) return false;
             ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
             if (document == null || !document.IsEditable) return false;
-            ASCompletion.Context.IASContext context = ASCompletion.Context.ASContext.Context;
+            IASContext context = ASContext.Context;
             return context != null && context.Features.hasExtends
                 && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
-		#endregion
+        static void ShowInProjectManager(Form sender, ClassModel model)
+        {
+            sender.Close();
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            {
+                foreach (DockPane pane in PluginBase.MainForm.DockPanel.Panes)
+                {
+                    foreach (DockContent content in pane.Contents)
+                    {
+                        if (content.GetPersistString() != "30018864-fadd-1122-b2a5-779832cbbf23") continue;
+                        foreach (Control control in content.Controls)
+                        {
+                            ProjectManager.PluginUI ui = control as ProjectManager.PluginUI;
+                            if (ui == null) continue;
+                            content.Show();
+                            ui.Tree.Select(model.InFile.FileName);
+                            return;
+                        }
+                    }
+                }
+            });
+        }
+
+        static void ShowInFileExplorer(Form sender, ClassModel model)
+        {
+            sender.Close();
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            {
+                string path = model.InFile.FileName;
+                foreach (DockPane pane in PluginBase.MainForm.DockPanel.Panes)
+                {
+                    foreach (DockContent content in pane.Contents)
+                    {
+                        if (content.GetPersistString() != "f534a520-bcc7-4fe4-a4b9-6931948b2686") continue;
+                        foreach (Control control in content.Controls)
+                        {
+                            FileExplorer.PluginUI ui = control as FileExplorer.PluginUI;
+                            if (ui == null) continue;
+                            content.Show();
+                            ui.BrowseTo(Path.GetDirectoryName(path));
+                            foreach (Control feControl in ui.Controls)
+                            {
+                                ListView list = feControl as ListView;
+                                if (list == null) continue;
+                                ListViewItem item = list.FindItemWithText(Path.GetFileName(path));
+                                if (item != null) item.Selected = true;
+                                break;
+                            }
+                            return;
+                        }
+                    }
+                }
+            });
+        }
+
+        #endregion
 
         #region Event Handlers
 
         /// <summary>
         /// Cursor position changed and word at this position was resolved
         /// </summary>
-        private void OnResolvedContextChanged(ResolvedContext resolved)
+        void OnResolvedContextChanged(ResolvedContext resolved)
         {
             UpdateMenuItems();
         }

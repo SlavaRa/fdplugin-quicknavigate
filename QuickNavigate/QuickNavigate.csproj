@@ -124,6 +124,10 @@
       <Project>{4ebf2653-9654-4e40-880e-0046b3d6210e}</Project>
       <Name>ASCompletion</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\FileExplorer\FileExplorer.csproj">
+      <Project>{c1aeddbd-7d3c-4c09-9c88-1644d796fd9a}</Project>
+      <Name>FileExplorer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ProjectManager\ProjectManager.csproj">
       <Project>{78101C01-E186-4954-B1DD-DEBB7905FAD8}</Project>
       <Name>ProjectManager</Name>
