@@ -13,13 +13,13 @@ namespace QuickNavigate.Controls
     /// </summary>
     public partial class QuickOutlineForm : Form
     {
-        private readonly ClassModel inClass;
-        private readonly FileModel inFile;
-        private readonly Settings settings;
-        private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
-        private readonly Brush defaultNodeBrush;
-        private readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
-        private readonly MemberList tmpMembers = new MemberList();
+        readonly ClassModel inClass;
+        readonly FileModel inFile;
+        readonly Settings settings;
+        readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
+        readonly Brush defaultNodeBrush;
+        readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
+        readonly MemberList tmpMembers = new MemberList();
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
@@ -43,7 +43,7 @@ namespace QuickNavigate.Controls
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
         /// <param name="settings"></param>
-        private QuickOutlineForm(FileModel inFile, ClassModel inClass, Settings settings)
+        QuickOutlineForm(FileModel inFile, ClassModel inClass, Settings settings)
         {
             this.inFile = inFile;
             this.inClass = inClass;
@@ -71,7 +71,7 @@ namespace QuickNavigate.Controls
             base.Dispose(disposing);
         }
 
-        private void InitTree()
+        void InitTree()
         {
             ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
             icons.Images.AddRange(new Image[] {
@@ -114,7 +114,7 @@ namespace QuickNavigate.Controls
             tree.ImageList = icons;
         }
 
-        private void RefreshTree()
+        void RefreshTree()
         {
             tree.BeginUpdate();
             tree.Nodes.Clear();
@@ -123,7 +123,7 @@ namespace QuickNavigate.Controls
             tree.EndUpdate();
         }
 
-        private void FillTree()
+        void FillTree()
         {
             bool isHaxe;
             List<ClassModel> classes;
@@ -149,7 +149,7 @@ namespace QuickNavigate.Controls
             }
         }
 
-        private void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
+        void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
         {
             bool noCase = !settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
@@ -182,7 +182,7 @@ namespace QuickNavigate.Controls
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
 
-        private void Navigate()
+        void Navigate()
         {
             if (tree.SelectedNode == null) return;
             if (inFile == null) ModelsExplorer.Instance.OpenFile(inClass.InFile.FileName);
@@ -192,7 +192,7 @@ namespace QuickNavigate.Controls
 
         #region Event Handlers
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
+        void OnKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -213,24 +213,24 @@ namespace QuickNavigate.Controls
             }
         }
 
-        private void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        void OnFormKeyPress(object sender, KeyPressEventArgs e)
         {
             int keyCode = (int)e.KeyChar;
             e.Handled = keyCode == (int)Keys.Space
                      || keyCode == 12;//Ctrl+L
         }
 
-        private void OnFormClosing(object sender, FormClosingEventArgs e)
+        void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             settings.OutlineFormSize = Size;
         }
 
-        private void OnInputTextChanged(object sender, EventArgs e)
+        void OnInputTextChanged(object sender, EventArgs e)
         {
             RefreshTree();
         }
 
-        private void OnInputKeyDown(object sender, KeyEventArgs e)
+        void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
             TreeNode node;
@@ -281,12 +281,12 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
-        private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
-        private void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
+        void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
@@ -305,8 +305,8 @@ namespace QuickNavigate.Controls
 
     class SmartMemberComparer : IComparer<MemberModel>
     {
-        private string search;
-        private bool noCase;
+        string search;
+        bool noCase;
 
         public void Setup(string search, bool noCase)
         {
@@ -321,7 +321,7 @@ namespace QuickNavigate.Controls
             return cmp != 0 ? cmp : StringComparer.Ordinal.Compare(a.Name, b.Name);
         }
 
-        private int GetPriority(string name)
+        int GetPriority(string name)
         {
             if (noCase) name = name.ToLower();
             if (name == search) return -100;

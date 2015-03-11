@@ -230,7 +230,11 @@ namespace QuickNavigate
         {
             ObjectSerializer.Serialize(settingFilename, settings);
         }
-        
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void ShowTypeForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
@@ -244,6 +248,10 @@ namespace QuickNavigate
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
@@ -253,6 +261,10 @@ namespace QuickNavigate
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="model"></param>
         void ShowQuickOutline(Form sender, ClassModel model)
         {
             sender.Close();
@@ -265,6 +277,10 @@ namespace QuickNavigate
             });
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void ShowClassHierarchy(object sender, EventArgs e)
         {
             if (!GetCanShowClassHierarchy()) return;
@@ -272,6 +288,10 @@ namespace QuickNavigate
             ShowClassHierarchy(!curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass());
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="model"></param>
         void ShowClassHierarchy(Form sender, ClassModel model)
 	    {
             sender.Close();
@@ -281,6 +301,9 @@ namespace QuickNavigate
             });
 	    }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="model"></param>
         void ShowClassHierarchy(ClassModel model)
         {
             using (ClassHierarchy form = new ClassHierarchy(model, settings))
@@ -293,6 +316,9 @@ namespace QuickNavigate
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
         static bool GetCanShowClassHierarchy()
         {
             if (PluginBase.CurrentProject == null) return false;
@@ -303,6 +329,10 @@ namespace QuickNavigate
                 && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="model"></param>
         static void ShowInProjectManager(Form sender, ClassModel model)
         {
             sender.Close();
@@ -326,6 +356,10 @@ namespace QuickNavigate
             });
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="model"></param>
         static void ShowInFileExplorer(Form sender, ClassModel model)
         {
             sender.Close();

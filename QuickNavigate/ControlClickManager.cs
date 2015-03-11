@@ -11,19 +11,19 @@ namespace QuickNavigate
 {
     class ControlClickManager : IDisposable
     {
-        private const int CLICK_AREA = 4; //pixels
-        private ScintillaControl sciControl;
-        private Word currentWord;
-        private Timer timer;
-        private POINT clickedPoint = new POINT();
+        const int CLICK_AREA = 4; //pixels
+        ScintillaControl sciControl;
+        Word currentWord;
+        Timer timer;
+        POINT clickedPoint = new POINT();
 
         #region MouseHook definitions
 
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
-        private int hHook = 0;
-        private const int WH_MOUSE = 7;
+        int hHook = 0;
+        const int WH_MOUSE = 7;
 
-        private HookProc SafeHookProc;
+        HookProc SafeHookProc;
 
         [StructLayout(LayoutKind.Sequential)]
         public class POINT
@@ -65,7 +65,7 @@ namespace QuickNavigate
             timer = null;
         }
 
-        private void GoToDeclaration(object sender, EventArgs e)
+        void GoToDeclaration(object sender, EventArgs e)
         {
             timer.Stop();
             SetCurrentWord(null);
@@ -126,7 +126,7 @@ namespace QuickNavigate
             return CallNextHookEx(hHook, nCode, wParam, lParam);
         }
 
-        private void ProcessMouseMove(Point point)
+        void ProcessMouseMove(Point point)
         {
             int position = sciControl.PositionFromPointClose(point.X, point.Y);
             if (position < 0) SetCurrentWord(null);
@@ -141,7 +141,7 @@ namespace QuickNavigate
             }
         }
 
-        private void SetCurrentWord(Word word)
+        void SetCurrentWord(Word word)
         {
             if (Word.Equals(word, currentWord)) return;
             if (currentWord != null) UnHighlight(currentWord);
@@ -149,7 +149,7 @@ namespace QuickNavigate
             if (currentWord != null) Highlight(currentWord);
         }
 
-        private void UnHighlight(Word word)
+        void UnHighlight(Word word)
         {
             sciControl.CursorType = -1;
             int mask = 1 << sciControl.StyleBits;
@@ -157,7 +157,7 @@ namespace QuickNavigate
             sciControl.SetStyling(word.EndPos - word.StartPos, 0);
         }
 
-        private void Highlight(Word word)
+        void Highlight(Word word)
         {
             sciControl.CursorType = 8;
             int mask = 1 << sciControl.StyleBits;
