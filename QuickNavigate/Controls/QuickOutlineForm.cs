@@ -9,8 +9,12 @@ using PluginCore;
 
 namespace QuickNavigate.Controls
 {
+    /// <summary>
+    /// </summary>
     public partial class QuickOutlineForm : Form
     {
+        private readonly ClassModel inClass;
+        private readonly FileModel inFile;
         private readonly Settings settings;
         private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         private readonly Brush defaultNodeBrush;
@@ -20,9 +24,29 @@ namespace QuickNavigate.Controls
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
+        /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        public QuickOutlineForm(Settings settings)
+        public QuickOutlineForm(ClassModel inClass, Settings settings) : this(null, inClass, settings)
+        {   
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
+        /// </summary>
+        /// <param name="inFile"></param>
+        /// <param name="settings"></param>
+        public QuickOutlineForm(FileModel inFile, Settings settings) : this(inFile, null, settings)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
+        /// </summary>
+        /// <param name="settings"></param>
+        private QuickOutlineForm(FileModel inFile, ClassModel inClass, Settings settings)
+        {
+            this.inFile = inFile;
+            this.inClass = inClass;
             this.settings = settings;
             InitializeComponent();
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
@@ -101,11 +125,22 @@ namespace QuickNavigate.Controls
 
         private void FillTree()
         {
-            FileModel model = ASContext.Context.CurrentModel;
-            bool isHaxe = model.haXe;
-            if (model == FileModel.Ignore) return;
-            if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members, isHaxe);
-            foreach (ClassModel aClass in model.Classes)
+            bool isHaxe;
+            List<ClassModel> classes;
+            if (inFile != null)
+            {
+                if (inFile == FileModel.Ignore) return;
+                isHaxe = inFile.haXe;
+                if (inFile.Members.Count > 0) AddMembers(tree.Nodes, inFile.Members, isHaxe);
+                classes = inFile.Classes;
+            } 
+            else if (inClass != null)
+            {
+                isHaxe = inClass.InFile.haXe;
+                classes = new List<ClassModel> {inClass};
+            }
+            else return;
+            foreach (ClassModel aClass in classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
@@ -150,6 +185,7 @@ namespace QuickNavigate.Controls
         private void Navigate()
         {
             if (tree.SelectedNode == null) return;
+            if (inFile == null) ModelsExplorer.Instance.OpenFile(inClass.InFile.FileName);
             ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
             Close();
         }
