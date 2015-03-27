@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace QuickNavigate.Controls
+﻿namespace QuickNavigate.Controls
 {
     partial class TypeExplorer
     {
@@ -57,7 +54,7 @@ namespace QuickNavigate.Controls
             this.searchingInExternalClasspaths.TabIndex = 1;
             this.searchingInExternalClasspaths.Text = "Searching types in external classpaths(Ctrl+E)";
             this.searchingInExternalClasspaths.UseVisualStyleBackColor = true;
-            this.searchingInExternalClasspaths.CheckStateChanged += new EventHandler(OnSearchingModeCheckStateChanged);
+            this.searchingInExternalClasspaths.CheckStateChanged += new System.EventHandler(OnSearchingModeCheckStateChanged);
             // 
             // tree
             // 
@@ -98,9 +95,6 @@ namespace QuickNavigate.Controls
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Type Explorer";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnFormKeyDown);
-            this.KeyPress += new KeyPressEventHandler(this.OnFormKeyPress);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

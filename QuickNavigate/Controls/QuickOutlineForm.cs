@@ -9,20 +9,44 @@ using PluginCore;
 
 namespace QuickNavigate.Controls
 {
+    /// <summary>
+    /// </summary>
     public partial class QuickOutlineForm : Form
     {
-        private readonly Settings settings;
-        private readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
-        private readonly Brush defaultNodeBrush;
-        private readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
-        private readonly MemberList tmpMembers = new MemberList();
+        readonly ClassModel inClass;
+        readonly FileModel inFile;
+        readonly Settings settings;
+        readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
+        readonly Brush defaultNodeBrush;
+        readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
+        readonly MemberList tmpMembers = new MemberList();
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
+        /// </summary>
+        /// <param name="inClass"></param>
+        /// <param name="settings"></param>
+        public QuickOutlineForm(ClassModel inClass, Settings settings) : this(null, inClass, settings)
+        {   
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
+        /// </summary>
+        /// <param name="inFile"></param>
+        /// <param name="settings"></param>
+        public QuickOutlineForm(FileModel inFile, Settings settings) : this(inFile, null, settings)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
         /// <param name="settings"></param>
-        public QuickOutlineForm(Settings settings)
+        QuickOutlineForm(FileModel inFile, ClassModel inClass, Settings settings)
         {
+            this.inFile = inFile;
+            this.inClass = inClass;
             this.settings = settings;
             InitializeComponent();
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
@@ -47,7 +71,9 @@ namespace QuickNavigate.Controls
             base.Dispose(disposing);
         }
 
-        private void InitTree()
+        /// <summary>
+        /// </summary>
+        void InitTree()
         {
             ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
             icons.Images.AddRange(new Image[] {
@@ -90,7 +116,9 @@ namespace QuickNavigate.Controls
             tree.ImageList = icons;
         }
 
-        private void RefreshTree()
+        /// <summary>
+        /// </summary>
+        void RefreshTree()
         {
             tree.BeginUpdate();
             tree.Nodes.Clear();
@@ -99,13 +127,26 @@ namespace QuickNavigate.Controls
             tree.EndUpdate();
         }
 
-        private void FillTree()
+        /// <summary>
+        /// </summary>
+        void FillTree()
         {
-            FileModel model = ASContext.Context.CurrentModel;
-            bool isHaxe = model.haXe;
-            if (model == FileModel.Ignore) return;
-            if (model.Members.Count > 0) AddMembers(tree.Nodes, model.Members, isHaxe);
-            foreach (ClassModel aClass in model.Classes)
+            bool isHaxe;
+            List<ClassModel> classes;
+            if (inFile != null)
+            {
+                if (inFile == FileModel.Ignore) return;
+                isHaxe = inFile.haXe;
+                if (inFile.Members.Count > 0) AddMembers(tree.Nodes, inFile.Members, isHaxe);
+                classes = inFile.Classes;
+            } 
+            else if (inClass != null)
+            {
+                isHaxe = inClass.InFile.haXe;
+                classes = new List<ClassModel> {inClass};
+            }
+            else return;
+            foreach (ClassModel aClass in classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
@@ -114,7 +155,12 @@ namespace QuickNavigate.Controls
             }
         }
 
-        private void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
+        /// <summary>
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="members"></param>
+        /// <param name="isHaxe"></param>
+        void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
         {
             bool noCase = !settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
@@ -147,16 +193,23 @@ namespace QuickNavigate.Controls
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
 
-        private void Navigate()
+        /// <summary>
+        /// </summary>
+        void Navigate()
         {
             if (tree.SelectedNode == null) return;
+            if (inFile == null) ModelsExplorer.Instance.OpenFile(inClass.InFile.FileName);
             ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
             Close();
         }
 
         #region Event Handlers
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -177,24 +230,40 @@ namespace QuickNavigate.Controls
             }
         }
 
-        private void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            int keyCode = (int)e.KeyChar;
-            e.Handled = keyCode == (int)Keys.Space
-                     || keyCode == 12;//Ctrl+L
+            int keyCode = e.KeyChar;
+            e.Handled = keyCode == (int) Keys.Space
+                        || keyCode == 12; //Ctrl+L
         }
 
-        private void OnFormClosing(object sender, FormClosingEventArgs e)
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             settings.OutlineFormSize = Size;
         }
 
-        private void OnInputTextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnInputTextChanged(object sender, EventArgs e)
         {
             RefreshTree();
         }
 
-        private void OnInputKeyDown(object sender, KeyEventArgs e)
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
             TreeNode node;
@@ -245,12 +314,20 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
-        private void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
-        private void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
@@ -267,10 +344,12 @@ namespace QuickNavigate.Controls
         #endregion
     }
 
+    /// <summary>
+    /// </summary>
     class SmartMemberComparer : IComparer<MemberModel>
     {
-        private string search;
-        private bool noCase;
+        string search;
+        bool noCase;
 
         public void Setup(string search, bool noCase)
         {
@@ -285,7 +364,7 @@ namespace QuickNavigate.Controls
             return cmp != 0 ? cmp : StringComparer.Ordinal.Compare(a.Name, b.Name);
         }
 
-        private int GetPriority(string name)
+        int GetPriority(string name)
         {
             if (noCase) name = name.ToLower();
             if (name == search) return -100;

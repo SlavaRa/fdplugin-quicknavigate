@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace QuickNavigate.Controls
+﻿namespace QuickNavigate.Controls
 {
     partial class QuickOutlineForm
     {
@@ -70,9 +68,6 @@ namespace QuickNavigate.Controls
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Quick Outline";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnKeyDown);
-            this.KeyPress += new KeyPressEventHandler(this.OnFormKeyPress);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
