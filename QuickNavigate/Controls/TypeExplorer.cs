@@ -33,7 +33,7 @@ namespace QuickNavigate.Controls
         readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly Brush defaultNodeBrush;
         readonly IComparer<string> comparer = new SmartTypeComparer();
-        
+
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
         /// </summary>
@@ -230,26 +230,28 @@ namespace QuickNavigate.Controls
         }
 
         /// <summary>
+        /// Displays the shortcut menu.
         /// </summary>
         void ShowContextMenu()
         {
             TreeNode node = tree.SelectedNode;
-            if(node == null || node.Text == settings.ItemSpacer) return;
-            tree.ContextMenu = new ContextMenu();
-            tree.ContextMenu.MenuItems.Add("Show in Quick Outline", OnShowInQuickOutline);
-            tree.ContextMenu.MenuItems.Add("Show in Class Hierarchy", OnShowInClassHiearachy);
-            tree.ContextMenu.MenuItems.Add("Show in Project Manager", OnShowInProjectManager);
-            tree.ContextMenu.MenuItems.Add("Show in File Explorer", OnShowInFileExplorer);
+            if (node == null || node.Text == settings.ItemSpacer) return;
+            if (tree.ContextMenu == null) tree.ContextMenu = new ContextMenu();
+            tree.ContextMenu.MenuItems.Clear();
+            tree.ContextMenu.MenuItems.Add("Show in Quick &Outline", OnShowInQuickOutline);
+            tree.ContextMenu.MenuItems.Add("Show in &Class Hierarchy", OnShowInClassHiearachy);
+            tree.ContextMenu.MenuItems.Add("Show in &Project Manager", OnShowInProjectManager);
+            if (File.Exists(((TypeNode)node).Model.InFile.FileName)) tree.ContextMenu.MenuItems.Add("Show in &File Explorer", OnShowInFileExplorer);
             tree.ContextMenu.Show(tree, new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
         }
 
         #region Event Handlers
 
         /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnFormKeyDown(object sender, KeyEventArgs e)
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -278,22 +280,22 @@ namespace QuickNavigate.Controls
         }
 
         /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            int keyCode = (int)e.KeyChar;
+            int keyCode = e.KeyChar;
             e.Handled = keyCode == (int)Keys.Space
                      || keyCode == 5  //Ctrl+E
                      || keyCode == 12;//Ctrl+L
         }
 
         /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnFormClosing(object sender, FormClosingEventArgs e)
+        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             settings.TypeFormSize = Size;
             settings.SearchExternalClassPath = searchingInExternalClasspaths.Checked;

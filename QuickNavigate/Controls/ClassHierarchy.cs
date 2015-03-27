@@ -1,11 +1,15 @@
-﻿using ASCompletion;
-using ASCompletion.Context;
-using ASCompletion.Model;
-using PluginCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
+using ASCompletion;
+using ASCompletion.Context;
+using ASCompletion.Model;
+using FlashDevelop;
+using PluginCore;
+using PluginCore.Managers;
+using ScintillaNet;
 
 namespace QuickNavigate.Controls
 {
@@ -74,7 +78,7 @@ namespace QuickNavigate.Controls
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
             if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
-            ((FlashDevelop.MainForm)PluginBase.MainForm).ThemeControls(this);
+            ((MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
             InitTree();
@@ -212,7 +216,7 @@ namespace QuickNavigate.Controls
                 if (!theClass.IsVoid())
                 {
                     int line = theClass.LineFrom;
-                    ScintillaNet.ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
+                    ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
                     if (sci != null && line > 0 && line < sci.LineCount)
                         sci.GotoLine(line);
                 }
@@ -279,26 +283,29 @@ namespace QuickNavigate.Controls
         }
 
         /// <summary>
+        /// Displays the shortcut menu.
         /// </summary>
         void ShowContextMenu()
         {
             TreeNode node = tree.SelectedNode;
             if (node == null || node.Text == settings.ItemSpacer) return;
-            tree.ContextMenu = new ContextMenu();
-            tree.ContextMenu.MenuItems.Add("Show in Quick Outline", OnShowInQuickOutline);
-            if(!curClass.Equals(((ClassNode)node).Model)) tree.ContextMenu.MenuItems.Add("Show in Class Hierarchy", OnShowInClassHiearachy);
-            tree.ContextMenu.MenuItems.Add("Show in Project Manager", OnShowInProjectManager);
-            tree.ContextMenu.MenuItems.Add("Show in File Explorer", OnShowInFileExplorer);
+            ClassNode cnode = (ClassNode) node;
+            if (tree.ContextMenu == null) tree.ContextMenu = new ContextMenu();
+            tree.ContextMenu.MenuItems.Clear();
+            tree.ContextMenu.MenuItems.Add("Show in Quick &Outline", OnShowInQuickOutline);
+            if (!curClass.Equals(cnode.Model)) tree.ContextMenu.MenuItems.Add("Show in &Class Hierarchy", OnShowInClassHiearachy);
+            tree.ContextMenu.MenuItems.Add("Show in &Project Manager", OnShowInProjectManager);
+            if (File.Exists(cnode.Model.InFile.FileName)) tree.ContextMenu.MenuItems.Add("Show in &File Explorer", OnShowInFileExplorer);
             tree.ContextMenu.Show(tree, new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
         }
 
         #region Event Handlers
 
         /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnKeyDown(object sender, KeyEventArgs e)
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -317,28 +324,28 @@ namespace QuickNavigate.Controls
                     }
                     break;
                 case Keys.Apps:
-                    ShowContextMenu();
                     e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }
 
         /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            int keyCode = (int)e.KeyChar;
-            e.Handled = keyCode == (int)Keys.Space
-                     || keyCode == 12;//Ctrl+L
+            int keyCode = e.KeyChar;
+            e.Handled = keyCode == (int) Keys.Space
+                        || keyCode == 12;//Ctrl+L
         }
 
         /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnFormClosing(object sender, FormClosingEventArgs e)
+        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             settings.HierarchyExplorerSize = Size;
         }

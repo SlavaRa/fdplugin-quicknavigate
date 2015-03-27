@@ -77,12 +77,8 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Class Hierarchy";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnKeyDown);
-            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnFormKeyPress);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion

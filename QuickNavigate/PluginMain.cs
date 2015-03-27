@@ -2,11 +2,11 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using ASCompletion.Completion;
 using ASCompletion.Context;
 using ASCompletion.Model;
-using FlashDevelop;
 using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
@@ -21,14 +21,7 @@ namespace QuickNavigate
     /// </summary>
     public class PluginMain : IPlugin
 	{
-        const string PLUGIN_NAME = "QuickNavigate";
-        const string PLUGIN_GUID = "5e256956-8f0d-4f2b-9548-08673c0adefd";
-        const string PLUGIN_HELP = "http://www.flashdevelop.org/community/";
-        const string PLUGIN_AUTH = "Canab, SlavaRa";
-	    const string SETTINGS_FILE = "Settings.fdb";
-        const string PLUGIN_DESC = "QuickNavigate plugin";
         string settingFilename;
-        Settings settings;
 	    ControlClickManager controlClickManager;
 	    ToolStripMenuItem typeExploreItem;
 	    ToolStripMenuItem quickOutlineItem;
@@ -39,59 +32,38 @@ namespace QuickNavigate
 
         /// <summary>
         /// </summary>
-        public int Api
-        {
-            get { return 1; }
-        }
+        public int Api { get { return 1; }}
         
         /// <summary>
         /// Name of the plugin
         /// </summary>
-        public string Name
-		{
-			get { return PLUGIN_NAME; }
-		}
+        public string Name { get { return "QuickNavigate"; }}
 
         /// <summary>
         /// GUID of the plugin
         /// </summary>
-        public string Guid
-		{
-			get { return PLUGIN_GUID; }
-		}
+        public string Guid { get { return "5e256956-8f0d-4f2b-9548-08673c0adefd"; }}
 
         /// <summary>
         /// Author of the plugin
         /// </summary> 
-        public string Author
-		{
-			get { return PLUGIN_AUTH; }
-		}
+        public string Author { get { return "Canab, SlavaRa"; }}
 
         /// <summary>
         /// Description of the plugin
         /// </summary>
-        public string Description
-		{
-			get { return PLUGIN_DESC; }
-		}
+        public string Description { get { return "QuickNavigate plugin"; }}
 
         /// <summary>
         /// Web address for help
         /// </summary>
-        public string Help
-		{
-			get { return PLUGIN_HELP; }
-		}
+        public string Help { get { return "http://www.flashdevelop.org/community/"; }}
 
         /// <summary>
         /// Object that contains the settings
         /// </summary>
         [Browsable(false)]
-        public object Settings
-        {
-            get { return settings; }
-        }
+        public object Settings { get; private set; }
 		
 		#endregion
 		
@@ -107,7 +79,7 @@ namespace QuickNavigate
             AddEventHandlers();
             CreateMenuItems();
             UpdateMenuItems();
-            if (settings.CtrlClickEnabled) controlClickManager = new ControlClickManager();
+            if (((Settings)Settings).CtrlClickEnabled) controlClickManager = new ControlClickManager();
         }
 		
 		/// <summary>
@@ -166,17 +138,27 @@ namespace QuickNavigate
         /// <summary>
         /// Initializes important variables
         /// </summary>
-        public void InitBasics()
+        void InitBasics()
         {
-            string dataPath = Path.Combine(PathHelper.DataDir, PLUGIN_NAME);
+            string dataPath = Path.Combine(PathHelper.DataDir, Name);
             if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
-            settingFilename = Path.Combine(dataPath, SETTINGS_FILE);
+            settingFilename = Path.Combine(dataPath, "Settings.fdb");
+        }
+
+        /// <summary>
+        /// Loads the plugin settings
+        /// </summary>
+        void LoadSettings()
+        {
+            Settings = new Settings();
+            if (!File.Exists(settingFilename)) SaveSettings();
+            else Settings = (Settings)ObjectSerializer.Deserialize(settingFilename, Settings);
         }
 
         /// <summary>
         /// Adds the required event handlers
         /// </summary>
-        public void AddEventHandlers()
+        void AddEventHandlers()
         {
             EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command);
         }
@@ -195,9 +177,10 @@ namespace QuickNavigate
             quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", quickOutlineItem);
             menu.DropDownItems.Add(quickOutlineItem);
-            classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
+            image = PluginBase.MainForm.FindImage("99|16|0|0");
+            classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             menu.DropDownItems.Add(classHierarchyItem);
-            editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", null, ShowClassHierarchy);
+            editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
         }
 
@@ -214,21 +197,11 @@ namespace QuickNavigate
         }
 
         /// <summary>
-        /// Loads the plugin settings
-        /// </summary>
-        public void LoadSettings()
-        {
-            settings = new Settings();
-            if (!File.Exists(settingFilename)) SaveSettings();
-            else settings = (Settings)ObjectSerializer.Deserialize(settingFilename, settings);
-        }
-
-        /// <summary>
         /// Saves the plugin settings
         /// </summary>
-        public void SaveSettings()
+        void SaveSettings()
         {
-            ObjectSerializer.Serialize(settingFilename, settings);
+            ObjectSerializer.Serialize(settingFilename, Settings);
         }
 
         /// <summary>
@@ -238,7 +211,7 @@ namespace QuickNavigate
         void ShowTypeForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
-            using (TypeExplorer form = new TypeExplorer(settings))
+            using (TypeExplorer form = new TypeExplorer((Settings)Settings))
             {
                 form.ShowInQuickOutline += ShowQuickOutline;
                 form.ShowInClassHierarchy += ShowClassHierarchy;
@@ -255,7 +228,7 @@ namespace QuickNavigate
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
-            using (Form form = new QuickOutlineForm(ASContext.Context.CurrentModel, settings))
+            using (Form form = new QuickOutlineForm(ASContext.Context.CurrentModel, (Settings)Settings))
             {
                 form.ShowDialog();
             }
@@ -270,7 +243,7 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                using (Form form = new QuickOutlineForm(model, settings))
+                using (Form form = new QuickOutlineForm(model, (Settings)Settings))
                 {
                     form.ShowDialog();
                 }
@@ -306,7 +279,7 @@ namespace QuickNavigate
         /// <param name="model"></param>
         void ShowClassHierarchy(ClassModel model)
         {
-            using (ClassHierarchy form = new ClassHierarchy(model, settings))
+            using (ClassHierarchy form = new ClassHierarchy(model, (Settings)Settings))
             {
                 form.ShowInQuickOutline += ShowQuickOutline;
                 form.ShowInClassHierarchy += ShowClassHierarchy;
@@ -345,7 +318,7 @@ namespace QuickNavigate
                         if (content.GetPersistString() != "30018864-fadd-1122-b2a5-779832cbbf23") continue;
                         foreach (Control control in content.Controls)
                         {
-                            ProjectManager.PluginUI ui = control as ProjectManager.PluginUI;
+                            PluginUI ui = control as PluginUI;
                             if (ui == null) continue;
                             content.Show();
                             ui.Tree.Select(model.InFile.FileName);
@@ -365,26 +338,15 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                string path = model.InFile.FileName;
                 foreach (DockPane pane in PluginBase.MainForm.DockPanel.Panes)
                 {
                     foreach (DockContent content in pane.Contents)
                     {
                         if (content.GetPersistString() != "f534a520-bcc7-4fe4-a4b9-6931948b2686") continue;
-                        foreach (Control control in content.Controls)
+                        foreach (FileExplorer.PluginUI ui in content.Controls.OfType<FileExplorer.PluginUI>())
                         {
-                            FileExplorer.PluginUI ui = control as FileExplorer.PluginUI;
-                            if (ui == null) continue;
+                            ui.BrowseTo(Path.GetDirectoryName(model.InFile.FileName));
                             content.Show();
-                            ui.BrowseTo(Path.GetDirectoryName(path));
-                            foreach (Control feControl in ui.Controls)
-                            {
-                                ListView list = feControl as ListView;
-                                if (list == null) continue;
-                                ListViewItem item = list.FindItemWithText(Path.GetFileName(path));
-                                if (item != null) item.Selected = true;
-                                break;
-                            }
                             return;
                         }
                     }

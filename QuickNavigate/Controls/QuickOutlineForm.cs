@@ -71,6 +71,8 @@ namespace QuickNavigate.Controls
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// </summary>
         void InitTree()
         {
             ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
@@ -114,6 +116,8 @@ namespace QuickNavigate.Controls
             tree.ImageList = icons;
         }
 
+        /// <summary>
+        /// </summary>
         void RefreshTree()
         {
             tree.BeginUpdate();
@@ -123,6 +127,8 @@ namespace QuickNavigate.Controls
             tree.EndUpdate();
         }
 
+        /// <summary>
+        /// </summary>
         void FillTree()
         {
             bool isHaxe;
@@ -149,6 +155,11 @@ namespace QuickNavigate.Controls
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="members"></param>
+        /// <param name="isHaxe"></param>
         void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
         {
             bool noCase = !settings.OutlineFormMatchCase;
@@ -182,6 +193,8 @@ namespace QuickNavigate.Controls
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
 
+        /// <summary>
+        /// </summary>
         void Navigate()
         {
             if (tree.SelectedNode == null) return;
@@ -192,7 +205,11 @@ namespace QuickNavigate.Controls
 
         #region Event Handlers
 
-        void OnKeyDown(object sender, KeyEventArgs e)
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -213,23 +230,39 @@ namespace QuickNavigate.Controls
             }
         }
 
-        void OnFormKeyPress(object sender, KeyPressEventArgs e)
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            int keyCode = (int)e.KeyChar;
-            e.Handled = keyCode == (int)Keys.Space
-                     || keyCode == 12;//Ctrl+L
+            int keyCode = e.KeyChar;
+            e.Handled = keyCode == (int) Keys.Space
+                        || keyCode == 12; //Ctrl+L
         }
 
-        void OnFormClosing(object sender, FormClosingEventArgs e)
+        /// <summary>
+        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
+        /// </summary>
+        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             settings.OutlineFormSize = Size;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnInputTextChanged(object sender, EventArgs e)
         {
             RefreshTree();
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
@@ -281,11 +314,19 @@ namespace QuickNavigate.Controls
             e.Handled = true;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
@@ -303,6 +344,8 @@ namespace QuickNavigate.Controls
         #endregion
     }
 
+    /// <summary>
+    /// </summary>
     class SmartMemberComparer : IComparer<MemberModel>
     {
         string search;
