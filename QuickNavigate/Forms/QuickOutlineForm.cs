@@ -6,8 +6,9 @@ using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
+using QuickNavigate.Collections;
 
-namespace QuickNavigate.Controls
+namespace QuickNavigate.Forms
 {
     /// <summary>
     /// </summary>
@@ -18,8 +19,7 @@ namespace QuickNavigate.Controls
         readonly Settings settings;
         readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly Brush defaultNodeBrush;
-        readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
-        readonly MemberList tmpMembers = new MemberList();
+        private readonly MemberList tmpMembers = new MemberList();
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
@@ -165,15 +165,11 @@ namespace QuickNavigate.Controls
             bool noCase = !settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
             bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
-            if (searchIsNotEmpty)
-            {
-                if (noCase) search = search.ToLower();
-                tmpMembers.Clear();
-                tmpMembers.Add(members);
-                ((SmartMemberComparer)comparer).Setup(search, noCase);
-                tmpMembers.Sort(comparer);
-                members = tmpMembers;
-            }
+            if (searchIsNotEmpty && noCase) search = search.ToLower();
+            tmpMembers.Clear();
+            tmpMembers.Add(members);
+            tmpMembers.Sort(new QuickNavigate.Collections.SmartMemberComparer(search, noCase));
+            members = tmpMembers;
             bool wholeWord = settings.OutlineFormWholeWord;
             foreach (MemberModel member in members)
             {
@@ -342,34 +338,5 @@ namespace QuickNavigate.Controls
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// </summary>
-    class SmartMemberComparer : IComparer<MemberModel>
-    {
-        string search;
-        bool noCase;
-
-        public void Setup(string search, bool noCase)
-        {
-            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
-            this.search = search;
-            this.noCase = noCase;
-        }
-
-        public int Compare(MemberModel a, MemberModel b)
-        {
-            int cmp = GetPriority(a.Name).CompareTo(GetPriority(b.Name));
-            return cmp != 0 ? cmp : StringComparer.Ordinal.Compare(a.Name, b.Name);
-        }
-
-        int GetPriority(string name)
-        {
-            if (noCase) name = name.ToLower();
-            if (name == search) return -100;
-            if (name.StartsWith(search)) return -90;
-            return 0;
-        }
     }
 }

@@ -12,7 +12,7 @@ using PluginCore.Helpers;
 using PluginCore.Managers;
 using PluginCore.Utilities;
 using ProjectManager;
-using QuickNavigate.Controls;
+using QuickNavigate.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace QuickNavigate
@@ -316,10 +316,8 @@ namespace QuickNavigate
                     foreach (DockContent content in pane.Contents)
                     {
                         if (content.GetPersistString() != "30018864-fadd-1122-b2a5-779832cbbf23") continue;
-                        foreach (Control control in content.Controls)
+                        foreach (ProjectManager.PluginUI ui in content.Controls.OfType<ProjectManager.PluginUI>())
                         {
-                            PluginUI ui = control as PluginUI;
-                            if (ui == null) continue;
                             content.Show();
                             ui.Tree.Select(model.InFile.FileName);
                             return;

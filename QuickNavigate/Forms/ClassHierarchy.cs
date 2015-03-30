@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
@@ -11,43 +10,78 @@ using FlashDevelop;
 using PluginCore;
 using ScintillaNet;
 
-namespace QuickNavigate.Controls
+namespace QuickNavigate.Forms
 {
     /// <summary>
     /// </summary>
-    /// <param name="model"></param>
-    public delegate void ShowInHandler(Form sender, ClassModel model);
-
-    /// <summary>
-    /// </summary>
-    public partial class TypeExplorer : Form
+    public partial class ClassHierarchy : Form
     {
         public event ShowInHandler ShowInQuickOutline;
         public event ShowInHandler ShowInClassHierarchy;
         public event ShowInHandler ShowInProjectManager;
         public event ShowInHandler ShowInFileExplorer;
-        readonly List<string> projectTypes = new List<string>();
-        readonly List<string> openedTypes = new List<string>();
-        readonly Dictionary<string, ClassModel> typeToClassModel = new Dictionary<string, ClassModel>();
+        readonly ClassModel curClass;
         readonly Settings settings;
         readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly Brush defaultNodeBrush;
-        readonly IComparer<string> comparer = new SmartTypeComparer();
+        readonly Dictionary<string, List<ClassModel>> extendsToClasses;
+        readonly Dictionary<string, TreeNode> typeToNode = new Dictionary<string, TreeNode>();
 
         /// <summary>
-        /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
         /// </summary>
-        /// <param name="settings"></param>
-        public TypeExplorer(Settings settings)
+        /// <returns></returns>
+        static Dictionary<string, List<ClassModel>> GetAllProjectExtendsClasses()
         {
+            Dictionary<string, List<ClassModel>> result = new Dictionary<string, List<ClassModel>>();
+            foreach (PathModel path in ASContext.Context.Classpath)
+            {
+                path.ForeachFile(aFile =>
+                {
+                    foreach (ClassModel aClass in aFile.Classes)
+                    {
+                        string extendsType = aClass.ExtendsType;
+                        if (string.IsNullOrEmpty(extendsType)) continue;
+                        if (!result.ContainsKey(extendsType)) result[extendsType] = new List<ClassModel>();
+                        result[extendsType].Add(aClass);
+                    }
+                    return true;
+                });
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="theClass"></param>
+        /// <returns></returns>
+        static IEnumerable<ClassModel> GetExtends(ClassModel theClass)
+        {
+            List<ClassModel> result = new List<ClassModel>();
+            ClassModel aClass = theClass.Extends;
+            while (!aClass.IsVoid())
+            {
+                result.Add(aClass);
+                aClass = aClass.Extends;
+            }
+            result.Reverse();
+            return result;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the QuickNavigate.Controls.ClassHierarchy
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="settings"></param>
+        public ClassHierarchy(ClassModel model, Settings settings)
+        {
+            curClass = model;
             this.settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
             InitializeComponent();
-            if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
-            searchingInExternalClasspaths.Checked = settings.SearchExternalClassPath;
+            if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
             ((MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
-            CreateItemsList();
+            extendsToClasses = GetAllProjectExtendsClasses();
             InitTree();
             RefreshTree();
         }
@@ -69,58 +103,9 @@ namespace QuickNavigate.Controls
 
         /// <summary>
         /// </summary>
-        void CreateItemsList()
-        {
-            projectTypes.Clear();
-            openedTypes.Clear();
-            typeToClassModel.Clear();
-            IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
-            if (context == null) return;
-            string projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
-            bool onlyProjectTypes = !searchingInExternalClasspaths.Checked;
-            foreach (PathModel classpath in context.Classpath)
-            {
-                if (onlyProjectTypes)
-                {
-                    string path = classpath.Path;
-                    if (!Path.IsPathRooted(classpath.Path)) path = Path.GetFullPath(Path.Combine(projectFolder, classpath.Path));
-                    if (!path.StartsWith(projectFolder)) continue;
-                }
-                classpath.ForeachFile(FileModelDelegate);
-            }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        bool FileModelDelegate(FileModel model)
-        {
-            foreach (ClassModel aClass in model.Classes)
-            {
-                string type = aClass.Type;
-                if (typeToClassModel.ContainsKey(type)) continue;
-                if (IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
-                else projectTypes.Add(type);
-                typeToClassModel.Add(type, aClass);
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        static bool IsFileOpened(string fileName)
-        {
-            return PluginBase.MainForm.Documents.Any(doc => doc.FileName == fileName);
-        }
-
-        /// <summary>
-        /// </summary>
         void InitTree()
         {
-            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
+            ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
             icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
@@ -176,34 +161,47 @@ namespace QuickNavigate.Controls
         /// </summary>
         void FillTree()
         {
-            List<string> matches;
-            string search = input.Text.Trim();
-            string itemSpacer = settings.ItemSpacer;
-            if (string.IsNullOrEmpty(search)) matches = openedTypes;
-            else
-            {   
-                bool wholeWord = settings.TypeFormWholeWord;
-                bool matchCase = settings.TypeFormMatchCase;
-                ((SmartTypeComparer)comparer).Setup(search, !matchCase);
-                matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
-                matches.Sort(comparer);
-                if (settings.EnableItemSpacer && matches.Capacity > 0) matches.Add(itemSpacer);
-                List<string> tmpMathes = SearchUtil.Matches(projectTypes, search, ".", settings.MaxItems, wholeWord, matchCase);
-                tmpMathes.Sort(comparer);
-                matches.AddRange(tmpMathes);
-            }
-            if (matches.Count == 0) return;
-            foreach (string m in matches)
+            typeToNode.Clear();
+            if (curClass.IsVoid()) return;
+            TreeNode parent = null;
+            int icon;
+            foreach (ClassModel aClass in GetExtends(curClass))
             {
-                if (m == itemSpacer) tree.Nodes.Add(new TreeNode(itemSpacer));
-                else
+                icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                TreeNode child = new ClassNode(aClass, icon, icon);
+                if (parent == null) tree.Nodes.Add(child);
+                else parent.Nodes.Add(child);
+                typeToNode[aClass.Type] = child;
+                parent = child;
+            }
+            icon = PluginUI.GetIcon(curClass.Flags, curClass.Access);
+            TreeNode node = new ClassNode(curClass, icon, icon);
+            node.NodeFont = new Font(tree.Font, FontStyle.Underline);
+            if (parent == null) tree.Nodes.Add(node);
+            else parent.Nodes.Add(node);
+            tree.SelectedNode = node;
+            typeToNode[curClass.Type] = node;
+            FillNode(node);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="node"></param>
+        void FillNode(TreeNode node)
+        {
+            if (!extendsToClasses.ContainsKey(node.Name)) return;
+            foreach (ClassModel aClass in extendsToClasses[node.Name])
+            {
+                ClassModel extends = aClass.InFile.Context.ResolveType(aClass.ExtendsType, aClass.InFile);
+                if (extends.Type == node.Text)
                 {
-                    ClassModel aClass = typeToClassModel[m];
                     int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                    tree.Nodes.Add(new TypeNode(aClass) { Text = m, ImageIndex = icon, SelectedImageIndex = icon });
+                    TreeNode child = new ClassNode(aClass, icon, icon);
+                    node.Nodes.Add(child);
+                    typeToNode[aClass.Type] = child;
+                    FillNode(child);
                 }
             }
-            tree.SelectedNode = tree.Nodes[0];
         }
 
         /// <summary>
@@ -211,16 +209,14 @@ namespace QuickNavigate.Controls
         void Navigate()
         {
             if (tree.SelectedNode == null) return;
-            string selectedItem = tree.SelectedNode.Text;
-            if (selectedItem == settings.ItemSpacer) return;
-            ClassModel aClass = typeToClassModel[selectedItem];
-            FileModel model = ModelsExplorer.Instance.OpenFile(aClass.InFile.FileName);
-            if (model != null)
+            ClassModel theClass = ((ClassNode)tree.SelectedNode).Model;
+            FileModel file = ModelsExplorer.Instance.OpenFile(theClass.InFile.FileName);
+            if (file != null)
             {
-                aClass = model.GetClassByName(aClass.Name);
-                if (!aClass.IsVoid())
+                theClass = file.GetClassByName(theClass.Name);
+                if (!theClass.IsVoid())
                 {
-                    int line = aClass.LineFrom;
+                    int line = theClass.LineFrom;
                     ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
                     if (sci != null && line > 0 && line < sci.LineCount)
                         sci.GotoLine(line);
@@ -230,18 +226,77 @@ namespace QuickNavigate.Controls
         }
 
         /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        TreeNode GetNextEnabledNode()
+        {
+            TreeNode node = tree.SelectedNode;
+            while (node.NextVisibleNode != null)
+            {
+                node = node.NextVisibleNode;
+                if ((node.Tag as string) == "enabled") return node;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        TreeNode GetPrevEnabledNode()
+        {
+            TreeNode node = tree.SelectedNode;
+            while (node.PrevVisibleNode != null)
+            {
+                node = node.PrevVisibleNode;
+                if ((node.Tag as string) == "enabled") return node;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        TreeNode GetUpEnabledNode()
+        {
+            TreeNode result = null;
+            TreeNode node = tree.SelectedNode;
+            while (node.PrevVisibleNode != null)
+            {
+                node = node.PrevVisibleNode;
+                if ((node.Tag as string) == "enabled") result = node;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        TreeNode GetLastEnabledNode()
+        {
+            TreeNode result = null;
+            TreeNode node = tree.SelectedNode;
+            while (node.NextVisibleNode != null)
+            {
+                node = node.NextVisibleNode;
+                if ((node.Tag as string) == "enabled") result = node;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Displays the shortcut menu.
         /// </summary>
         void ShowContextMenu()
         {
             TreeNode node = tree.SelectedNode;
             if (node == null || node.Text == settings.ItemSpacer) return;
+            ClassNode cnode = (ClassNode) node;
             if (tree.ContextMenu == null) tree.ContextMenu = new ContextMenu();
             tree.ContextMenu.MenuItems.Clear();
             tree.ContextMenu.MenuItems.Add("Show in Quick &Outline", OnShowInQuickOutline);
-            tree.ContextMenu.MenuItems.Add("Show in &Class Hierarchy", OnShowInClassHiearachy);
+            if (!curClass.Equals(cnode.Model)) tree.ContextMenu.MenuItems.Add("Show in &Class Hierarchy", OnShowInClassHiearachy);
             tree.ContextMenu.MenuItems.Add("Show in &Project Manager", OnShowInProjectManager);
-            if (File.Exists(((TypeNode)node).Model.InFile.FileName)) tree.ContextMenu.MenuItems.Add("Show in &File Explorer", OnShowInFileExplorer);
+            if (File.Exists(cnode.Model.InFile.FileName)) tree.ContextMenu.MenuItems.Add("Show in &File Explorer", OnShowInFileExplorer);
             tree.ContextMenu.Show(tree, new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
         }
 
@@ -262,9 +317,6 @@ namespace QuickNavigate.Controls
                     e.Handled = true;
                     Navigate();
                     break;
-                case Keys.E:
-                    if (e.Control) searchingInExternalClasspaths.Checked = !searchingInExternalClasspaths.Checked;
-                    break;
                 case Keys.L:
                     if (e.Control)
                     {
@@ -272,9 +324,9 @@ namespace QuickNavigate.Controls
                         input.SelectAll();
                     }
                     break;
-               case Keys.Apps:
-                    ShowContextMenu();
+                case Keys.Apps:
                     e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }
@@ -286,9 +338,8 @@ namespace QuickNavigate.Controls
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             int keyCode = e.KeyChar;
-            e.Handled = keyCode == (int)Keys.Space
-                     || keyCode == 5  //Ctrl+E
-                     || keyCode == 12;//Ctrl+L
+            e.Handled = keyCode == (int) Keys.Space
+                        || keyCode == 12;//Ctrl+L
         }
 
         /// <summary>
@@ -297,8 +348,7 @@ namespace QuickNavigate.Controls
         /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            settings.TypeFormSize = Size;
-            settings.SearchExternalClassPath = searchingInExternalClasspaths.Checked;
+            settings.HierarchyExplorerSize = Size;
         }
 
         /// <summary>
@@ -307,7 +357,22 @@ namespace QuickNavigate.Controls
         /// <param name="e"></param>
         void OnInputTextChanged(object sender, EventArgs e)
         {
-            RefreshTree();
+            if (tree.Nodes.Count == 0) return;
+            List<string> matches = SearchUtil.Matches(new List<string>(typeToNode.Keys), input.Text, ".", settings.MaxItems, settings.HierarchyExplorerWholeWord, settings.HierarchyExplorerMatchCase);
+            bool mathesIsEmpty = matches.Count == 0;
+            foreach (KeyValuePair<string, TreeNode> k in typeToNode)
+            {
+                if (mathesIsEmpty) k.Value.Tag = "enabled";
+                else k.Value.Tag = matches.Contains(k.Key) ? "enabled" : "disabled";
+            }
+            tree.Refresh();
+            if (mathesIsEmpty)
+            {
+                tree.SelectedNode = typeToNode[curClass.Type];
+                return;
+            }
+            matches.Sort();
+            tree.SelectedNode = typeToNode[matches[0]];
         }
 
         /// <summary>
@@ -318,29 +383,35 @@ namespace QuickNavigate.Controls
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
             TreeNode node;
+            TreeNode enabledNode = null;
             int visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
             {
                 case Keys.Down:
-                    if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
-                    else if (settings.WrapList) tree.SelectedNode = tree.Nodes[0];
-                    break;
-                case Keys.Up:
-                    if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                    node = GetNextEnabledNode();
+                    if (node != null) tree.SelectedNode = node;
                     else if (settings.WrapList)
                     {
-                        node = tree.SelectedNode;
-                        while (node.NextVisibleNode != null) node = node.NextVisibleNode;
-                        tree.SelectedNode = node;
+                        node = GetUpEnabledNode();
+                        if (node != null) tree.SelectedNode = node;
+                    }
+                    break;
+                case Keys.Up:
+                    node = GetPrevEnabledNode();
+                    if (node != null) tree.SelectedNode = node;
+                    else if (settings.WrapList)
+                    {
+                        node = GetLastEnabledNode();
+                        if (node != null) tree.SelectedNode = node;
                     }
                     break;
                 case Keys.Home:
-                    tree.SelectedNode = tree.Nodes[0];
+                    node = GetUpEnabledNode();
+                    if (node != null) tree.SelectedNode = node;
                     break;
                 case Keys.End:
-                    node = tree.SelectedNode;
-                    while (node.NextVisibleNode != null) node = node.NextVisibleNode;
-                    tree.SelectedNode = node;
+                    node = GetLastEnabledNode();
+                    if (node != null) tree.SelectedNode = node;
                     break;
                 case Keys.PageUp:
                     node = tree.SelectedNode;
@@ -348,8 +419,9 @@ namespace QuickNavigate.Controls
                     {
                         if (node.PrevVisibleNode == null) break;
                         node = node.PrevVisibleNode;
+                        if ((node.Tag as string) == "enabled") enabledNode = node;
                     }
-                    tree.SelectedNode = node;
+                    if (enabledNode != null) tree.SelectedNode = enabledNode;
                     break;
                 case Keys.PageDown:
                     node = tree.SelectedNode;
@@ -357,22 +429,13 @@ namespace QuickNavigate.Controls
                     {
                         if (node.NextVisibleNode == null) break;
                         node = node.NextVisibleNode;
+                        if ((node.Tag as string) == "enabled") enabledNode = node;
                     }
-                    tree.SelectedNode = node;
+                    if (enabledNode != null) tree.SelectedNode = enabledNode;
                     break;
                 default: return;
             }
             e.Handled = true;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnSearchingModeCheckStateChanged(object sender, EventArgs e)
-        {
-            CreateItemsList();
-            RefreshTree();
         }
 
         /// <summary>
@@ -390,18 +453,21 @@ namespace QuickNavigate.Controls
         /// <param name="e"></param>
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
+            string tag = e.Node.Tag as string;
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
-            if ((e.State & TreeNodeStates.Selected) > 0)
+            if (string.IsNullOrEmpty(tag) || tag == "enabled")
             {
-                fillBrush = selectedNodeBrush;
-                drawBrush = Brushes.White;
+                if ((e.State & TreeNodeStates.Selected) > 0)
+                {
+                    fillBrush = selectedNodeBrush;
+                    drawBrush = Brushes.White;
+                }
             }
+            else if (tag == "disabled") drawBrush = Brushes.DimGray;
             Rectangle bounds = e.Bounds;
-            string text = e.Node.Text;
-            int x = text == settings.ItemSpacer ? 0 : bounds.X;
-            e.Graphics.FillRectangle(fillBrush, x, bounds.Y, tree.Width - x, tree.ItemHeight);
-            e.Graphics.DrawString(text, tree.Font, drawBrush, x, e.Bounds.Top, StringFormat.GenericDefault);
+            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
+            e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
         }
 
         /// <summary>
@@ -410,7 +476,7 @@ namespace QuickNavigate.Controls
         /// <param name="e"></param>
         void OnShowInQuickOutline(object sender, EventArgs e)
         {
-            ShowInQuickOutline(this, ((TypeNode)tree.SelectedNode).Model);
+            ShowInQuickOutline(this, ((ClassNode)tree.SelectedNode).Model);
         }
 
         /// <summary>
@@ -419,7 +485,7 @@ namespace QuickNavigate.Controls
         /// <param name="e"></param>
         void OnShowInClassHiearachy(object sender, EventArgs e)
         {
-            ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
+            ShowInClassHierarchy(this, ((ClassNode)tree.SelectedNode).Model);
         }
 
         /// <summary>
@@ -428,7 +494,7 @@ namespace QuickNavigate.Controls
         /// <param name="e"></param>
         void OnShowInProjectManager(object sender, EventArgs e)
         {
-            ShowInProjectManager(this, ((TypeNode)tree.SelectedNode).Model);
+            ShowInProjectManager(this, ((ClassNode)tree.SelectedNode).Model);
         }
 
         /// <summary>
@@ -437,76 +503,9 @@ namespace QuickNavigate.Controls
         /// <param name="e"></param>
         void OnShowInFileExplorer(object sender, EventArgs e)
         {
-            ShowInFileExplorer(this, ((TypeNode)tree.SelectedNode).Model);
+            ShowInFileExplorer(this, ((ClassNode)tree.SelectedNode).Model);
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// </summary>
-    class TypeNode : TreeNode
-    {
-        public ClassModel Model;
-
-        public TypeNode(ClassModel model)
-        {
-            Model = model;
-        }
-    }
-
-    /// <summary>
-    /// </summary>
-    class SmartTypeComparer : IComparer<string>
-    {
-        string search;
-        bool noCase;
-
-        public void Setup(string search, bool noCase)
-        {
-            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
-            this.search = search;
-            this.noCase = noCase;
-        }
-
-        public int Compare(string x, string y)
-        {
-            int cmp = GetPkgLength(x).CompareTo(GetPkgLength(y)) * 100;
-            x = GetName(x);
-            y = GetName(y);
-            int priority = GetPriority(y).CompareTo(GetPriority(x));
-            if (priority != 0) return cmp + priority;
-            return cmp + StringComparer.Ordinal.Compare(x, y);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        static int GetPkgLength(string type)
-        {
-            return type.LastIndexOf('.');
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        static string GetName(string type)
-        {
-            int i = type.LastIndexOf('.');
-            return i == -1 ? type : type.Substring(i + 1);
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        int GetPriority(string name)
-        {
-            if (noCase) name = name.ToLower();
-            if (name == search) return 100;
-            return name.StartsWith(search) ? 90 : 0;
-        }
     }
 }
