@@ -26,6 +26,8 @@ namespace QuickNavigate.Forms
         readonly Brush defaultNodeBrush;
         readonly Dictionary<string, List<ClassModel>> extendsToClasses;
         readonly Dictionary<string, TreeNode> typeToNode = new Dictionary<string, TreeNode>();
+        readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
+        readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
 
         /// <summary>
         /// </summary>
@@ -82,6 +84,7 @@ namespace QuickNavigate.Forms
             ((MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
+            CreateContextMenu();
             InitTree();
             RefreshTree();
         }
@@ -99,6 +102,16 @@ namespace QuickNavigate.Forms
                 if (components != null) components.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// </summary>
+        void CreateContextMenu()
+        {
+            contextMenu.Items.Add("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0"), OnShowInQuickOutline);
+            contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy);
+            contextMenu.Items.Add("Show in &Project Manager", PluginBase.MainForm.FindImage("274"), OnShowInProjectManager);
+            contextMenu.Items.Add("Show in &File Explorer", PluginBase.MainForm.FindImage("209"), OnShowInFileExplorer);
         }
 
         /// <summary>
@@ -288,16 +301,21 @@ namespace QuickNavigate.Forms
         /// </summary>
         void ShowContextMenu()
         {
-            TreeNode node = tree.SelectedNode;
-            if (node == null || node.Text == settings.ItemSpacer) return;
-            ClassNode cnode = (ClassNode) node;
-            if (tree.ContextMenu == null) tree.ContextMenu = new ContextMenu();
-            tree.ContextMenu.MenuItems.Clear();
-            tree.ContextMenu.MenuItems.Add("Show in Quick &Outline", OnShowInQuickOutline);
-            if (!curClass.Equals(cnode.Model)) tree.ContextMenu.MenuItems.Add("Show in &Class Hierarchy", OnShowInClassHiearachy);
-            tree.ContextMenu.MenuItems.Add("Show in &Project Manager", OnShowInProjectManager);
-            if (File.Exists(cnode.Model.InFile.FileName)) tree.ContextMenu.MenuItems.Add("Show in &File Explorer", OnShowInFileExplorer);
-            tree.ContextMenu.Show(tree, new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+            ClassNode node = tree.SelectedNode as ClassNode;
+            if (node == null) return;
+            ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        void ShowContextMenu(Point position)
+        {
+            ClassNode node = tree.SelectedNode as ClassNode;
+            if (node == null) return;
+            contextMenu.Items[1].Enabled = !curClass.Equals(node.Model);
+            contextMenu.Items[3].Enabled = File.Exists(node.Model.InFile.FileName);
+            contextMenu.Show(tree, position);
         }
 
         #region Event Handlers
@@ -339,7 +357,7 @@ namespace QuickNavigate.Forms
         {
             int keyCode = e.KeyChar;
             e.Handled = keyCode == (int) Keys.Space
-                        || keyCode == 12;//Ctrl+L
+                        || keyCode == 12; //Ctrl+L
         }
 
         /// <summary>
@@ -373,6 +391,15 @@ namespace QuickNavigate.Forms
             }
             matches.Sort();
             tree.SelectedNode = typeToNode[matches[0]];
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void InputOnPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null ? inputEmptyContextMenu : null;
         }
 
         /// <summary>
@@ -436,6 +463,19 @@ namespace QuickNavigate.Forms
                 default: return;
             }
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            ClassNode node = e.Node as ClassNode;
+            if (node == null) return;
+            tree.SelectedNode = node;
+            ShowContextMenu(new Point(e.Location.X, node.Bounds.Y + node.Bounds.Height));
         }
 
         /// <summary>

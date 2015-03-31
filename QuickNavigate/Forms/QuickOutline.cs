@@ -12,7 +12,7 @@ namespace QuickNavigate.Forms
 {
     /// <summary>
     /// </summary>
-    public partial class QuickOutlineForm : Form
+    public partial class QuickOutline : Form
     {
         readonly ClassModel inClass;
         readonly FileModel inFile;
@@ -26,7 +26,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        public QuickOutlineForm(ClassModel inClass, Settings settings) : this(null, inClass, settings)
+        public QuickOutline(ClassModel inClass, Settings settings) : this(null, inClass, settings)
         {   
         }
 
@@ -35,7 +35,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="inFile"></param>
         /// <param name="settings"></param>
-        public QuickOutlineForm(FileModel inFile, Settings settings) : this(inFile, null, settings)
+        public QuickOutline(FileModel inFile, Settings settings) : this(inFile, null, settings)
         {
         }
 
@@ -43,7 +43,7 @@ namespace QuickNavigate.Forms
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
         /// <param name="settings"></param>
-        QuickOutlineForm(FileModel inFile, ClassModel inClass, Settings settings)
+        QuickOutline(FileModel inFile, ClassModel inClass, Settings settings)
         {
             this.inFile = inFile;
             this.inClass = inClass;

@@ -1,6 +1,6 @@
 ﻿namespace QuickNavigate.Forms
 {
-    partial class QuickOutlineForm
+    partial class QuickOutline
     {
         /// <summary>
         /// Required designer variable.
@@ -63,7 +63,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(320, 200);
-            this.Name = "QuickOutlineForm";
+            this.Name = "QuickOutline";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

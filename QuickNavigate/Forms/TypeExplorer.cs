@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
 using FlashDevelop;
 using PluginCore;
-using PluginCore.Managers;
 using QuickNavigate.Collections;
 using ScintillaNet;
 
@@ -36,6 +33,8 @@ namespace QuickNavigate.Forms
         readonly Settings settings;
         readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly Brush defaultNodeBrush;
+        readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
+        readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
@@ -51,6 +50,7 @@ namespace QuickNavigate.Forms
             ((MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             CreateItemsList();
+            CreateContextMenu();
             InitTree();
             RefreshTree();
         }
@@ -121,6 +121,16 @@ namespace QuickNavigate.Forms
                 if (doc.FileName == fileName) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// </summary>
+        void CreateContextMenu()
+        {
+            contextMenu.Items.Add("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0"), OnShowInQuickOutline);
+            contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy);
+            contextMenu.Items.Add("Show in &Project Manager", PluginBase.MainForm.FindImage("274"), OnShowInProjectManager);
+            contextMenu.Items.Add("Show in &File Explorer", PluginBase.MainForm.FindImage("209"), OnShowInFileExplorer);
         }
 
         /// <summary>
@@ -272,13 +282,18 @@ namespace QuickNavigate.Forms
         {
             TypeNode node = tree.SelectedNode as TypeNode;
             if (node == null) return;
-            if (tree.ContextMenu == null) tree.ContextMenu = new ContextMenu();
-            tree.ContextMenu.MenuItems.Clear();
-            tree.ContextMenu.MenuItems.Add("Show in Quick &Outline", OnShowInQuickOutline);
-            tree.ContextMenu.MenuItems.Add("Show in &Class Hierarchy", OnShowInClassHiearachy);
-            tree.ContextMenu.MenuItems.Add("Show in &Project Manager", OnShowInProjectManager);
-            if (File.Exists(node.Model.InFile.FileName)) tree.ContextMenu.MenuItems.Add("Show in &File Explorer", OnShowInFileExplorer);
-            tree.ContextMenu.Show(tree, new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+            ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        void ShowContextMenu(Point position)
+        {
+            TypeNode node = tree.SelectedNode as TypeNode;
+            if (node == null) return;
+            contextMenu.Items[3].Enabled = File.Exists(node.Model.InFile.FileName);
+            contextMenu.Show(tree, position);
         }
 
         #region Event Handlers
@@ -350,6 +365,15 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        void InputOnPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null ? inputEmptyContextMenu : null;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control || e.Shift || tree.SelectedNode == null) return;
@@ -409,6 +433,19 @@ namespace QuickNavigate.Forms
         {
             CreateItemsList();
             RefreshTree();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            TypeNode node = e.Node as TypeNode;
+            if (node == null) return;
+            tree.SelectedNode = node;
+            ShowContextMenu(new Point(e.Location.X, node.Bounds.Y + node.Bounds.Height));
         }
 
         /// <summary>

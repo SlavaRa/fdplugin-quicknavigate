@@ -228,7 +228,7 @@ namespace QuickNavigate
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
-            using (Form form = new QuickOutlineForm(ASContext.Context.CurrentModel, (Settings)Settings))
+            using (Form form = new QuickOutline(ASContext.Context.CurrentModel, (Settings)Settings))
             {
                 form.ShowDialog();
             }
@@ -243,7 +243,7 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                using (Form form = new QuickOutlineForm(model, (Settings)Settings))
+                using (Form form = new QuickOutline(model, (Settings)Settings))
                 {
                     form.ShowDialog();
                 }

@@ -41,6 +41,7 @@
             this.input.Size = new System.Drawing.Size(365, 21);
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
+            this.input.PreviewKeyDown += InputOnPreviewKeyDown;
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
             // 
             // searchingInExternalClasspaths
@@ -75,6 +76,7 @@
             this.tree.Size = new System.Drawing.Size(365, 175);
             this.tree.TabIndex = 2;
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
+            this.tree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseClick);
             this.tree.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseDoubleClick);
             // 
             // TypeExplorer
