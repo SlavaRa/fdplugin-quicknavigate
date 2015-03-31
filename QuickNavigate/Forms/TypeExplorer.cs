@@ -427,11 +427,13 @@ namespace QuickNavigate.Forms
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
-            Brush drawBrush = Brushes.Black;
+            Brush textBrush = Brushes.Black;
+            Brush moduleBrush = Brushes.DimGray;
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 fillBrush = selectedNodeBrush;
-                drawBrush = Brushes.White;
+                textBrush = Brushes.White;
+                moduleBrush = Brushes.LightGray;
             }
             Rectangle bounds = e.Bounds;
             string text = e.Node.Text;
@@ -440,22 +442,26 @@ namespace QuickNavigate.Forms
             Graphics graphics = e.Graphics;
             graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
             Font font = tree.Font;
-            graphics.DrawString(text, font, drawBrush, x, bounds.Top, StringFormat.GenericDefault);
+            graphics.DrawString(text, font, textBrush, x, bounds.Top, StringFormat.GenericDefault);
             TypeNode node = e.Node as TypeNode;
             if (node != null)
             {
+                if (!string.IsNullOrEmpty(node.In))
+                {
+                    graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x + graphics.MeasureString(text, font).Width, bounds.Top, StringFormat.GenericDefault);
+                }
                 string module = node.Module;
                 x = itemWidth;
                 if (!string.IsNullOrEmpty(module))
                 {
                     x -= graphics.MeasureString(module, font).Width;
-                    graphics.DrawString(module, font, drawBrush, x, bounds.Y, StringFormat.GenericDefault);
+                    graphics.DrawString(module, font, moduleBrush, x, bounds.Y, StringFormat.GenericDefault);
                 }
                 if (node.IsPrivate)
                 {
                     font = new Font(font, FontStyle.Underline);
                     x -= graphics.MeasureString("(private)", font).Width;
-                    graphics.DrawString("(private)", font, drawBrush, x, bounds.Y, StringFormat.GenericTypographic);
+                    graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
                 }
             }
         }

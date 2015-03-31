@@ -23,7 +23,8 @@ namespace QuickNavigate.Tests.Forms
             Assert.AreEqual(model, node.Model);
             Assert.IsFalse(node.IsPrivate);
             Assert.IsNull(node.Module);
-            Assert.AreEqual("TestClass (test)", node.Text);
+            Assert.AreEqual("TestClass", node.Text);
+            Assert.AreEqual("test", node.In);
         }
 
         [TestMethod]
@@ -40,7 +41,8 @@ namespace QuickNavigate.Tests.Forms
             };
             TypeNode node = new TypeNode(model, 0);
             Assert.AreEqual("playerglobal.swc", node.Module);
-            Assert.AreEqual("DisplayObject (flash.display)", node.Text);
+            Assert.AreEqual("DisplayObject", node.Text);
+            Assert.AreEqual("flash.display", node.In);
         }
 
         [TestMethod]
@@ -58,7 +60,8 @@ namespace QuickNavigate.Tests.Forms
             };
             TypeNode node = new TypeNode(model, 0);
             Assert.IsTrue(node.IsPrivate);
-            Assert.AreEqual("TestClass2 (test.TestClass)", node.Text);
+            Assert.AreEqual("TestClass2", node.Text);
+            Assert.AreEqual("test.TestClass", node.In);
         }
 
     }

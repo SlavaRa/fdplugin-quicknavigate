@@ -11,6 +11,7 @@ namespace QuickNavigate.Forms
     {
         public readonly ClassModel Model;
         public new string Name;
+        public string In;
         public string NameInLowercase;
         public string Package;
         public string Module;
@@ -27,13 +28,14 @@ namespace QuickNavigate.Forms
             bool inFileNotNull = model.InFile != null;
             Package = inFileNotNull ? model.InFile.Package : string.Empty;
             IsPrivate = (model.Access & Visibility.Private) > 0;
+            Text = Name;
+            In = Package;
             if (!string.IsNullOrEmpty(Package))
             {
-                if (IsPrivate) Text = string.Format("{0} ({1})", Name, string.Format("{0}.{1}", Package, Path.GetFileNameWithoutExtension(model.InFile.FileName)));
-                else Text = string.Format("{0} ({1})", Name, Package);
+                if (IsPrivate)
+                    In = string.Format("{0}.{1}", Package, Path.GetFileNameWithoutExtension(model.InFile.FileName));
             }
-            else if (IsPrivate && inFileNotNull) Text = string.Format("{0} ({1})", Name, Path.GetFileNameWithoutExtension(model.InFile.FileName));
-            else Text = string.Format("{0}", Name);
+            else if (IsPrivate) In = Path.GetFileNameWithoutExtension(model.InFile.FileName);
             ImageIndex = icon;
             SelectedImageIndex = icon;
             if (inFileNotNull)
