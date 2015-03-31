@@ -448,7 +448,8 @@ namespace QuickNavigate.Forms
             {
                 if (!string.IsNullOrEmpty(node.In))
                 {
-                    graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x + graphics.MeasureString(text, font).Width, bounds.Top, StringFormat.GenericDefault);
+                    x += graphics.MeasureString(text, font).Width;
+                    graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
                 }
                 string module = node.Module;
                 x = itemWidth;

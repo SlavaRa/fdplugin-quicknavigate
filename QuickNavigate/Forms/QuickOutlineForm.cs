@@ -149,7 +149,7 @@ namespace QuickNavigate.Forms
             foreach (ClassModel aClass in classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
+                TreeNode node = new TypeNode(aClass, icon) { Tag = "class" };
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, aClass.Members, isHaxe);
             }
@@ -327,14 +327,36 @@ namespace QuickNavigate.Forms
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
+            Brush moduleBrush = Brushes.DimGray;
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 fillBrush = selectedNodeBrush;
                 drawBrush = Brushes.White;
+                moduleBrush = Brushes.LightGray;
             }
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
-            e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            Font font = tree.Font;
+            float x = bounds.X;
+            float itemWidth = tree.Width - x;
+            Graphics graphics = e.Graphics;
+            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
+            string text = e.Node.Text;
+            graphics.DrawString(text, font, drawBrush, bounds.Left, bounds.Top, StringFormat.GenericDefault);
+            TypeNode node = e.Node as TypeNode;
+            if (node != null)
+            {
+                if (!string.IsNullOrEmpty(node.In))
+                {
+                    x += graphics.MeasureString(text, font).Width;
+                    graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+                }
+                if (node.IsPrivate)
+                {
+                    font = new Font(font, FontStyle.Underline);
+                    x = itemWidth - graphics.MeasureString("(private)", font).Width;
+                    graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
+                }
+            }
         }
 
         #endregion
