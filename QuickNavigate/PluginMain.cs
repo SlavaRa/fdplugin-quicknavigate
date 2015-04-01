@@ -228,8 +228,9 @@ namespace QuickNavigate
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
-            using (Form form = new QuickOutline(ASContext.Context.CurrentModel, (Settings)Settings))
+            using (QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings)Settings))
             {
+                form.ShowInClassHierarchy += ShowClassHierarchy;
                 form.ShowDialog();
             }
         }

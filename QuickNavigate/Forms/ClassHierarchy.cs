@@ -397,7 +397,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void InputOnPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null ? inputEmptyContextMenu : null;
         }

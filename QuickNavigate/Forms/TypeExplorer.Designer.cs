@@ -41,7 +41,7 @@
             this.input.Size = new System.Drawing.Size(365, 21);
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
-            this.input.PreviewKeyDown += InputOnPreviewKeyDown;
+            this.input.PreviewKeyDown += OnInputPreviewKeyDown;
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
             // 
             // searchingInExternalClasspaths

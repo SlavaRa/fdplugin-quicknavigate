@@ -31,7 +31,7 @@
             this.input.Size = new System.Drawing.Size(365, 21);
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
-            this.input.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.InputOnPreviewKeyDown);
+            this.input.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.OnInputPreviewKeyDown);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
             // 
             // tree

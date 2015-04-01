@@ -14,12 +14,15 @@ namespace QuickNavigate.Forms
     /// </summary>
     public partial class QuickOutline : Form
     {
+        public event ShowInHandler ShowInClassHierarchy;
         readonly ClassModel inClass;
         readonly FileModel inFile;
         readonly Settings settings;
         readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly Brush defaultNodeBrush;
-        private readonly MemberList tmpMembers = new MemberList();
+        readonly MemberList tmpMembers = new MemberList();
+        readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
+        readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
@@ -52,6 +55,7 @@ namespace QuickNavigate.Forms
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
             ((FlashDevelop.MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
+            CreateContextMenu();
             InitTree();
             RefreshTree();
         }
@@ -69,6 +73,13 @@ namespace QuickNavigate.Forms
                 if (components != null) components.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// </summary>
+        void CreateContextMenu()
+        {
+            contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy);
         }
 
         /// <summary>
@@ -183,7 +194,7 @@ namespace QuickNavigate.Forms
                 FlagType flags = member.Flags;
                 int icon = PluginUI.GetIcon(flags, member.Access);
                 nodes.Add(new TreeNode(member.ToString(), icon, icon) {
-                    Tag = ((isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName) + "@" + member.LineFrom
+                    Tag = string.Format("{0}@{1}", ((isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName), member.LineFrom)
                 });
             }
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
@@ -197,6 +208,24 @@ namespace QuickNavigate.Forms
             if (inFile == null) ModelsExplorer.Instance.OpenFile(inClass.InFile.FileName);
             ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
             Close();
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        void ShowContextMenu()
+        {
+            TreeNode node = tree.SelectedNode as TypeNode;
+            if (node != null && (string) node.Tag == "class") ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        void ShowContextMenu(Point position)
+        {
+            TreeNode node = tree.SelectedNode as TypeNode;
+            if (node != null && (string) node.Tag == "class") contextMenu.Show(tree, position);
         }
 
         #region Event Handlers
@@ -222,6 +251,10 @@ namespace QuickNavigate.Forms
                         input.Focus();
                         input.SelectAll();
                     }
+                    break;
+                case Keys.Apps:
+                    ShowContextMenu();
+                    e.Handled = true;
                     break;
             }
         }
@@ -253,6 +286,15 @@ namespace QuickNavigate.Forms
         void OnInputTextChanged(object sender, EventArgs e)
         {
             RefreshTree();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null && (string) tree.SelectedNode.Tag == "class" ? inputEmptyContextMenu : null;
         }
 
         /// <summary>
@@ -314,6 +356,19 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            TreeNode node = e.Node as TypeNode;
+            if (node == null || (string) node.Tag != "class") return;
+            tree.SelectedNode = node;
+            ShowContextMenu(new Point(e.Location.X, node.Bounds.Y + node.Bounds.Height));
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
@@ -343,20 +398,25 @@ namespace QuickNavigate.Forms
             string text = e.Node.Text;
             graphics.DrawString(text, font, drawBrush, bounds.Left, bounds.Top, StringFormat.GenericDefault);
             TypeNode node = e.Node as TypeNode;
-            if (node != null)
+            if (node == null) return;
+            if (!string.IsNullOrEmpty(node.In))
             {
-                if (!string.IsNullOrEmpty(node.In))
-                {
-                    x += graphics.MeasureString(text, font).Width;
-                    graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
-                }
-                if (node.IsPrivate)
-                {
-                    font = new Font(font, FontStyle.Underline);
-                    x = itemWidth - graphics.MeasureString("(private)", font).Width;
-                    graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
-                }
+                x += graphics.MeasureString(text, font).Width;
+                graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
             }
+            if (!node.IsPrivate) return;
+            font = new Font(font, FontStyle.Underline);
+            x = itemWidth - graphics.MeasureString("(private)", font).Width;
+            graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnShowInClassHiearachy(object sender, EventArgs e)
+        {
+            ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
         }
 
         #endregion

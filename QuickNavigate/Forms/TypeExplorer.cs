@@ -281,8 +281,7 @@ namespace QuickNavigate.Forms
         void ShowContextMenu()
         {
             TypeNode node = tree.SelectedNode as TypeNode;
-            if (node == null) return;
-            ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+            if (node != null) ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
         }
 
         /// <summary>
@@ -365,7 +364,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void InputOnPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null ? inputEmptyContextMenu : null;
         }
