@@ -6,27 +6,30 @@ using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
+using QuickNavigate.Collections;
 
-namespace QuickNavigate.Controls
+namespace QuickNavigate.Forms
 {
     /// <summary>
     /// </summary>
-    public partial class QuickOutlineForm : Form
+    public partial class QuickOutline : Form
     {
+        public event ShowInHandler ShowInClassHierarchy;
         readonly ClassModel inClass;
         readonly FileModel inFile;
         readonly Settings settings;
         readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly Brush defaultNodeBrush;
-        readonly IComparer<MemberModel> comparer = new SmartMemberComparer();
         readonly MemberList tmpMembers = new MemberList();
+        readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
+        readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
         /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        public QuickOutlineForm(ClassModel inClass, Settings settings) : this(null, inClass, settings)
+        public QuickOutline(ClassModel inClass, Settings settings) : this(null, inClass, settings)
         {   
         }
 
@@ -35,7 +38,7 @@ namespace QuickNavigate.Controls
         /// </summary>
         /// <param name="inFile"></param>
         /// <param name="settings"></param>
-        public QuickOutlineForm(FileModel inFile, Settings settings) : this(inFile, null, settings)
+        public QuickOutline(FileModel inFile, Settings settings) : this(inFile, null, settings)
         {
         }
 
@@ -43,7 +46,7 @@ namespace QuickNavigate.Controls
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
         /// <param name="settings"></param>
-        QuickOutlineForm(FileModel inFile, ClassModel inClass, Settings settings)
+        QuickOutline(FileModel inFile, ClassModel inClass, Settings settings)
         {
             this.inFile = inFile;
             this.inClass = inClass;
@@ -52,6 +55,7 @@ namespace QuickNavigate.Controls
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
             ((FlashDevelop.MainForm)PluginBase.MainForm).ThemeControls(this);
             defaultNodeBrush = new SolidBrush(tree.BackColor);
+            CreateContextMenu();
             InitTree();
             RefreshTree();
         }
@@ -69,6 +73,13 @@ namespace QuickNavigate.Controls
                 if (components != null) components.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// </summary>
+        void CreateContextMenu()
+        {
+            contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy);
         }
 
         /// <summary>
@@ -149,7 +160,7 @@ namespace QuickNavigate.Controls
             foreach (ClassModel aClass in classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                TreeNode node = new TreeNode(aClass.Name, icon, icon) {Tag = "class"};
+                TreeNode node = new TypeNode(aClass, icon) { Tag = "class" };
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, aClass.Members, isHaxe);
             }
@@ -165,15 +176,11 @@ namespace QuickNavigate.Controls
             bool noCase = !settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
             bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
-            if (searchIsNotEmpty)
-            {
-                if (noCase) search = search.ToLower();
-                tmpMembers.Clear();
-                tmpMembers.Add(members);
-                ((SmartMemberComparer)comparer).Setup(search, noCase);
-                tmpMembers.Sort(comparer);
-                members = tmpMembers;
-            }
+            if (searchIsNotEmpty && noCase) search = search.ToLower();
+            tmpMembers.Clear();
+            tmpMembers.Add(members);
+            tmpMembers.Sort(new QuickNavigate.Collections.SmartMemberComparer(search, noCase));
+            members = tmpMembers;
             bool wholeWord = settings.OutlineFormWholeWord;
             foreach (MemberModel member in members)
             {
@@ -187,7 +194,7 @@ namespace QuickNavigate.Controls
                 FlagType flags = member.Flags;
                 int icon = PluginUI.GetIcon(flags, member.Access);
                 nodes.Add(new TreeNode(member.ToString(), icon, icon) {
-                    Tag = ((isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName) + "@" + member.LineFrom
+                    Tag = string.Format("{0}@{1}", ((isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName), member.LineFrom)
                 });
             }
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
@@ -201,6 +208,24 @@ namespace QuickNavigate.Controls
             if (inFile == null) ModelsExplorer.Instance.OpenFile(inClass.InFile.FileName);
             ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
             Close();
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        void ShowContextMenu()
+        {
+            TreeNode node = tree.SelectedNode as TypeNode;
+            if (node != null && (string) node.Tag == "class") ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        void ShowContextMenu(Point position)
+        {
+            TreeNode node = tree.SelectedNode as TypeNode;
+            if (node != null && (string) node.Tag == "class") contextMenu.Show(tree, position);
         }
 
         #region Event Handlers
@@ -226,6 +251,10 @@ namespace QuickNavigate.Controls
                         input.Focus();
                         input.SelectAll();
                     }
+                    break;
+                case Keys.Apps:
+                    ShowContextMenu();
+                    e.Handled = true;
                     break;
             }
         }
@@ -257,6 +286,15 @@ namespace QuickNavigate.Controls
         void OnInputTextChanged(object sender, EventArgs e)
         {
             RefreshTree();
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null && (string) tree.SelectedNode.Tag == "class" ? inputEmptyContextMenu : null;
         }
 
         /// <summary>
@@ -318,6 +356,19 @@ namespace QuickNavigate.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            TreeNode node = e.Node as TypeNode;
+            if (node == null || (string) node.Tag != "class") return;
+            tree.SelectedNode = node;
+            ShowContextMenu(new Point(e.Location.X, node.Bounds.Y + node.Bounds.Height));
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Navigate();
@@ -331,45 +382,43 @@ namespace QuickNavigate.Controls
         {
             Brush fillBrush = defaultNodeBrush;
             Brush drawBrush = Brushes.Black;
+            Brush moduleBrush = Brushes.DimGray;
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 fillBrush = selectedNodeBrush;
                 drawBrush = Brushes.White;
+                moduleBrush = Brushes.LightGray;
             }
             Rectangle bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
-            e.Graphics.DrawString(e.Node.Text, tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            Font font = tree.Font;
+            float x = bounds.X;
+            float itemWidth = tree.Width - x;
+            Graphics graphics = e.Graphics;
+            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
+            string text = e.Node.Text;
+            graphics.DrawString(text, font, drawBrush, bounds.Left, bounds.Top, StringFormat.GenericDefault);
+            TypeNode node = e.Node as TypeNode;
+            if (node == null) return;
+            if (!string.IsNullOrEmpty(node.In))
+            {
+                x += graphics.MeasureString(text, font).Width;
+                graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+            }
+            if (!node.IsPrivate) return;
+            font = new Font(font, FontStyle.Underline);
+            x = itemWidth - graphics.MeasureString("(private)", font).Width;
+            graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnShowInClassHiearachy(object sender, EventArgs e)
+        {
+            ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// </summary>
-    class SmartMemberComparer : IComparer<MemberModel>
-    {
-        string search;
-        bool noCase;
-
-        public void Setup(string search, bool noCase)
-        {
-            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
-            this.search = search;
-            this.noCase = noCase;
-        }
-
-        public int Compare(MemberModel a, MemberModel b)
-        {
-            int cmp = GetPriority(a.Name).CompareTo(GetPriority(b.Name));
-            return cmp != 0 ? cmp : StringComparer.Ordinal.Compare(a.Name, b.Name);
-        }
-
-        int GetPriority(string name)
-        {
-            if (noCase) name = name.ToLower();
-            if (name == search) return -100;
-            if (name.StartsWith(search)) return -90;
-            return 0;
-        }
     }
 }
