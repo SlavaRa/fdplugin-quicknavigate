@@ -12,7 +12,7 @@ using PluginCore.Helpers;
 using PluginCore.Managers;
 using PluginCore.Utilities;
 using ProjectManager;
-using QuickNavigate.Controls;
+using QuickNavigate.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace QuickNavigate
@@ -228,8 +228,9 @@ namespace QuickNavigate
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
-            using (Form form = new QuickOutlineForm(ASContext.Context.CurrentModel, (Settings)Settings))
+            using (QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings)Settings))
             {
+                form.ShowInClassHierarchy += ShowClassHierarchy;
                 form.ShowDialog();
             }
         }
@@ -243,7 +244,7 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                using (Form form = new QuickOutlineForm(model, (Settings)Settings))
+                using (Form form = new QuickOutline(model, (Settings)Settings))
                 {
                     form.ShowDialog();
                 }
@@ -316,10 +317,8 @@ namespace QuickNavigate
                     foreach (DockContent content in pane.Contents)
                     {
                         if (content.GetPersistString() != "30018864-fadd-1122-b2a5-779832cbbf23") continue;
-                        foreach (Control control in content.Controls)
+                        foreach (ProjectManager.PluginUI ui in content.Controls.OfType<ProjectManager.PluginUI>())
                         {
-                            PluginUI ui = control as PluginUI;
-                            if (ui == null) continue;
                             content.Show();
                             ui.Tree.Select(model.InFile.FileName);
                             return;

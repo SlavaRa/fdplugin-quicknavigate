@@ -22,7 +22,7 @@ namespace QuickNavigate
 
         [Category("General")]
         [DisplayName("Item spacer")]
-        [DefaultValue("-----------------")]
+        [DefaultValue("—————————————————————————————————————————————————————————————")]
         public string ItemSpacer { get; set; }
 
         [Category("General")]

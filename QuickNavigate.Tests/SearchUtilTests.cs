@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace QuickNavigate.Tests
 {
     [TestClass]
-    public class SearchUtilTest
+    public class SearchUtilTests
     {
         [TestMethod]
         public void TestSimpleSearchMatchWholeWord()
