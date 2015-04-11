@@ -23,6 +23,7 @@ namespace QuickNavigate.Forms
     /// </summary>
     public partial class TypeExplorer : Form
     {
+        public event ShowInHandler GotoLineOrPosition;
         public event ShowInHandler ShowInQuickOutline;
         public event ShowInHandler ShowInClassHierarchy;
         public event ShowInHandler ShowInProjectManager;
@@ -127,6 +128,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         void CreateContextMenu()
         {
+            contextMenu.Items.Add("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"), OnGotoLineOrPosition);
             contextMenu.Items.Add("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0"), OnShowInQuickOutline);
             contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy);
             contextMenu.Items.Add("Show in &Project Manager", PluginBase.MainForm.FindImage("274"), OnShowInProjectManager);
@@ -501,6 +503,11 @@ namespace QuickNavigate.Forms
                     graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
                 }
             }
+        }
+
+        void OnGotoLineOrPosition(object sender, EventArgs e)
+        {
+            GotoLineOrPosition(this, ((TypeNode) tree.SelectedNode).Model);
         }
 
         /// <summary>

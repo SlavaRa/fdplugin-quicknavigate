@@ -16,6 +16,7 @@ namespace QuickNavigate.Forms
     /// </summary>
     public partial class ClassHierarchy : Form
     {
+        public event ShowInHandler GotoPositionOrLine;
         public event ShowInHandler ShowInQuickOutline;
         public event ShowInHandler ShowInClassHierarchy;
         public event ShowInHandler ShowInProjectManager;
@@ -108,6 +109,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         void CreateContextMenu()
         {
+            contextMenu.Items.Add("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"), OnGotoPositionOnLine);
             contextMenu.Items.Add("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0"), OnShowInQuickOutline);
             contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy);
             contextMenu.Items.Add("Show in &Project Manager", PluginBase.MainForm.FindImage("274"), OnShowInProjectManager);
@@ -508,6 +510,11 @@ namespace QuickNavigate.Forms
             Rectangle bounds = e.Bounds;
             e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
             e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+        }
+
+        void OnGotoPositionOnLine(object sender, EventArgs e)
+        {
+            GotoPositionOrLine(this, ((ClassNode)tree.SelectedNode).Model);
         }
 
         /// <summary>
