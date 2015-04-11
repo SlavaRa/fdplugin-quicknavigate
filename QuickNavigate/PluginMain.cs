@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using ASCompletion;
 using ASCompletion.Completion;
 using ASCompletion.Context;
 using ASCompletion.Model;
@@ -213,12 +214,23 @@ namespace QuickNavigate
             if (PluginBase.CurrentProject == null) return;
             using (TypeExplorer form = new TypeExplorer((Settings)Settings))
             {
+                form.GotoLineOrPosition += OnGotoPositionOrLine;
                 form.ShowInQuickOutline += ShowQuickOutline;
                 form.ShowInClassHierarchy += ShowClassHierarchy;
                 form.ShowInProjectManager += ShowInProjectManager;
                 form.ShowInFileExplorer += ShowInFileExplorer;
                 form.ShowDialog();
             }
+        }
+
+        static void OnGotoPositionOrLine(Form sender, ClassModel model)
+        {
+            sender.Close();
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            {
+                ModelsExplorer.Instance.OpenFile(model.InFile.FileName);
+                PluginBase.MainForm.CallCommand("GoTo", null);
+            });
         }
 
         /// <summary>
@@ -282,6 +294,7 @@ namespace QuickNavigate
         {
             using (ClassHierarchy form = new ClassHierarchy(model, (Settings)Settings))
             {
+                form.GotoPositionOrLine += OnGotoPositionOrLine;
                 form.ShowInQuickOutline += ShowQuickOutline;
                 form.ShowInClassHierarchy += ShowClassHierarchy;
                 form.ShowInProjectManager += ShowInProjectManager;
