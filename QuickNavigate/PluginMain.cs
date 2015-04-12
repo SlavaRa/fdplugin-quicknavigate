@@ -214,7 +214,7 @@ namespace QuickNavigate
             if (PluginBase.CurrentProject == null) return;
             using (TypeExplorer form = new TypeExplorer((Settings)Settings))
             {
-                form.GotoLineOrPosition += OnGotoPositionOrLine;
+                form.GotoPositionOrLine += OnGotoPositionOrLine;
                 form.ShowInQuickOutline += ShowQuickOutline;
                 form.ShowInClassHierarchy += ShowClassHierarchy;
                 form.ShowInProjectManager += ShowInProjectManager;

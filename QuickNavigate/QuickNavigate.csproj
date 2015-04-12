@@ -82,6 +82,9 @@
       <DependentUpon>ClassHierarchy.cs</DependentUpon>
     </Compile>
     <Compile Include="Collections\Comparers.cs" />
+    <Compile Include="Forms\ClassModelExplorerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\Nodes.cs" />
     <Compile Include="Forms\TypeExplorer.cs">
       <SubType>Form</SubType>
