@@ -21,7 +21,16 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="model"></param>
         /// <param name="icon"></param>
-        public TypeNode(ClassModel model, int icon)
+        public TypeNode(ClassModel model, int icon) : this(model, icon, icon)
+        {
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="imageIndex"></param>
+        /// <param name="selectedImageIndex"></param>
+        public TypeNode(ClassModel model, int imageIndex, int selectedImageIndex)
         {
             Model = model;
             Name = model.Name;
@@ -36,8 +45,8 @@ namespace QuickNavigate.Forms
                     In = string.Format("{0}.{1}", Package, Path.GetFileNameWithoutExtension(model.InFile.FileName));
             }
             else if (IsPrivate) In = Path.GetFileNameWithoutExtension(model.InFile.FileName);
-            ImageIndex = icon;
-            SelectedImageIndex = icon;
+            ImageIndex = imageIndex;
+            SelectedImageIndex = selectedImageIndex;
             if (inFileNotNull)
             {
                 Match match = Regex.Match(model.InFile.FileName, @"\S*.swc", RegexOptions.Compiled);
@@ -48,20 +57,19 @@ namespace QuickNavigate.Forms
 
     /// <summary>
     /// </summary>
-    class ClassNode : TreeNode
+    class ClassHierarchyNode : TypeNode
     {
-        public readonly ClassModel Model;
-
         /// <summary>
         /// </summary>
         /// <param name="model"></param>
         /// <param name="imageIndex"></param>
         /// <param name="selectedImageIndex"></param>
-        public ClassNode(ClassModel model, int imageIndex, int selectedImageIndex) : base(model.Type, imageIndex, selectedImageIndex)
+        public ClassHierarchyNode(ClassModel model, int imageIndex, int selectedImageIndex)
+            : base(model, imageIndex, selectedImageIndex)
         {
-            Model = model;
-            Name = model.Name;
             Tag = "enabled";
+            Name = model.Name;
+            Text = model.Type;
         }
     }
 }
