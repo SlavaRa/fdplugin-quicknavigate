@@ -29,7 +29,6 @@ namespace QuickNavigate.Forms
         {
             Settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
-            ((MainForm) PluginBase.MainForm).ThemeControls(this);
             CreateContextMenu();
         }
 
