@@ -115,10 +115,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\FlashDevelop\FlashDevelop.csproj">
-      <Project>{efd07485-9a64-4eec-94e7-acbd4da5ca93}</Project>
-      <Name>FlashDevelop</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\PluginCore\PluginCore.csproj">
       <Project>{61885f70-b4dc-4b44-852d-5d6d03f2a734}</Project>
       <Name>PluginCore</Name>

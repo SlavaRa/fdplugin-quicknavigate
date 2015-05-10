@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Model;
-using FlashDevelop;
 using PluginCore;
 using ScintillaNet;
 
@@ -29,7 +28,6 @@ namespace QuickNavigate.Forms
         {
             Settings = settings;
             Font = PluginBase.Settings.ConsoleFont;
-            ((MainForm) PluginBase.MainForm).ThemeControls(this);
             CreateContextMenu();
         }
 
