@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Model;
-using FlashDevelop;
 using PluginCore;
 using ScintillaNet;
 
