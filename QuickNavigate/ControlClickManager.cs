@@ -1,29 +1,32 @@
-﻿using ASCompletion.Completion;
-using ASCompletion.Context;
-using PluginCore;
-using ScintillaNet;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using ASCompletion.Completion;
+using ASCompletion.Context;
+using PluginCore;
+using ScintillaNet;
+using ScintillaNet.Configuration;
+using ScintillaNet.Enums;
+using Keys = System.Windows.Forms.Keys;
 
 namespace QuickNavigate
 {
     class ControlClickManager : IDisposable
     {
         const int CLICK_AREA = 4; //pixels
-        ScintillaControl sciControl;
+        ScintillaControl sci;
         Word currentWord;
         Timer timer;
-        POINT clickedPoint = new POINT();
+        readonly POINT clickedPoint = new POINT();
 
         #region MouseHook definitions
 
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
-        int hHook = 0;
+        int hHook;
         const int WH_MOUSE = 7;
 
-        HookProc SafeHookProc;
+        HookProc safeHookProc;
 
         [StructLayout(LayoutKind.Sequential)]
         public class POINT
@@ -69,28 +72,27 @@ namespace QuickNavigate
         {
             timer.Stop();
             SetCurrentWord(null);
-            ASComplete.DeclarationLookup(sciControl);
+            ASComplete.DeclarationLookup(sci);
         }
 
-        public ScintillaControl SciControl
+        public ScintillaControl Sci
         {
-            get { return sciControl; }
             set
             {
                 if (hHook == 0)
                 {
-                    SafeHookProc = new HookProc(MouseHookProc);
+                    safeHookProc = MouseHookProc;
                     #pragma warning disable 618,612
-                    hHook = SetWindowsHookEx(WH_MOUSE, SafeHookProc, (IntPtr)0, AppDomain.GetCurrentThreadId());
+                    hHook = SetWindowsHookEx(WH_MOUSE, safeHookProc, (IntPtr)0, AppDomain.GetCurrentThreadId());
                     #pragma warning restore 618,612
                 }
-                sciControl = value;
+                sci = value;
             }
         }
 
-        public int MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
+        int MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && sciControl != null)
+            if (nCode >= 0 && sci != null)
             {
                 MouseHookStruct hookStruct = (MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(MouseHookStruct));
                 if (wParam == (IntPtr) 513) //mouseDown
@@ -106,7 +108,7 @@ namespace QuickNavigate
                     }
                     else
                     {
-                        if (((Control.MouseButtons & MouseButtons.Left) > 0))
+                        if ((Control.MouseButtons & MouseButtons.Left) > 0)
                         {
                             int dx = Math.Abs(clickedPoint.x - hookStruct.pt.x);
                             int dy = Math.Abs(clickedPoint.y - hookStruct.pt.y);
@@ -116,7 +118,7 @@ namespace QuickNavigate
                         else
                         {
                             Point globalPoint = new Point(hookStruct.pt.x, hookStruct.pt.y);
-                            Point localPoint = sciControl.PointToClient(globalPoint);
+                            Point localPoint = sci.PointToClient(globalPoint);
                             ProcessMouseMove(localPoint);
                         }
                     }
@@ -128,16 +130,23 @@ namespace QuickNavigate
 
         void ProcessMouseMove(Point point)
         {
-            int position = sciControl.PositionFromPointClose(point.X, point.Y);
+            int position = sci.PositionFromPointClose(point.X, point.Y);
             if (position < 0) SetCurrentWord(null);
             else if (ASContext.Context.IsFileValid)
             {
-                Word word = new Word();
-                word.StartPos = sciControl.WordStartPosition(position, true);
-                word.EndPos = sciControl.WordEndPosition(position, true);
-                ASResult result = ASComplete.GetExpressionType(sciControl, word.EndPos);
-                if (!result.IsNull()) SetCurrentWord(word);
-                else SetCurrentWord(null);
+                Word word = new Word
+                {
+                    StartPos = sci.WordStartPosition(position, true),
+                    EndPos = sci.WordEndPosition(position, true)
+                };
+                ASResult expr = ASComplete.GetExpressionType(sci, word.EndPos);
+                if (expr.IsNull())
+                {
+                    string overrideKey = ASContext.Context.Features.overrideKey;
+                    if (expr.Context == null || !expr.Context.BeforeBody || string.IsNullOrEmpty(overrideKey) || sci.GetWordFromPosition(position) != overrideKey)
+                        word = null;
+                }
+                SetCurrentWord(word);
             }
         }
 
@@ -151,21 +160,21 @@ namespace QuickNavigate
 
         void UnHighlight(Word word)
         {
-            sciControl.CursorType = -1;
-            int mask = 1 << sciControl.StyleBits;
-            sciControl.StartStyling(word.StartPos, mask);
-            sciControl.SetStyling(word.EndPos - word.StartPos, 0);
+            sci.CursorType = -1;
+            int mask = 1 << sci.StyleBits;
+            sci.StartStyling(word.StartPos, mask);
+            sci.SetStyling(word.EndPos - word.StartPos, 0);
         }
 
         void Highlight(Word word)
         {
-            sciControl.CursorType = 8;
-            int mask = 1 << sciControl.StyleBits;
-            ScintillaNet.Configuration.Language language = PluginBase.MainForm.SciConfig.GetLanguage(sciControl.ConfigurationLanguage);
-            sciControl.SetIndicStyle(0, (int)ScintillaNet.Enums.IndicatorStyle.RoundBox);
-            sciControl.SetIndicFore(0, language.editorstyle.HighlightBackColor);
-            sciControl.StartStyling(word.StartPos, mask);
-            sciControl.SetStyling(word.EndPos - word.StartPos, mask);
+            sci.CursorType = 8;
+            int mask = 1 << sci.StyleBits;
+            Language language = PluginBase.MainForm.SciConfig.GetLanguage(sci.ConfigurationLanguage);
+            sci.SetIndicStyle(0, (int)IndicatorStyle.RoundBox);
+            sci.SetIndicFore(0, language.editorstyle.HighlightBackColor);
+            sci.StartStyling(word.StartPos, mask);
+            sci.SetStyling(word.EndPos - word.StartPos, mask);
         }
     }
 

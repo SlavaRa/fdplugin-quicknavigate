@@ -118,7 +118,7 @@ namespace QuickNavigate
                     UpdateMenuItems();
                     break;
                 case EventType.FileSwitch:
-                    if (controlClickManager != null) controlClickManager.SciControl = PluginBase.MainForm.CurrentDocument.SciControl;
+                    if (controlClickManager != null) controlClickManager.Sci = PluginBase.MainForm.CurrentDocument.SciControl;
                     break;
                 case EventType.Command:
                     DataEvent da = (DataEvent)e;
