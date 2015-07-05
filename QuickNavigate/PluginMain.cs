@@ -256,8 +256,9 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                using (Form form = new QuickOutline(model, (Settings)Settings))
+                using (QuickOutline form = new QuickOutline(model, (Settings)Settings))
                 {
+                    form.ShowInClassHierarchy += ShowClassHierarchy;
                     form.ShowDialog();
                 }
             });
