@@ -18,7 +18,7 @@ namespace QuickNavigate.Forms
     {
         readonly List<string> projectTypes = new List<string>();
         readonly List<string> openedTypes = new List<string>();
-        static readonly Dictionary<string, ClassModel> typeToClassModel = new Dictionary<string, ClassModel>();
+        static readonly Dictionary<string, ClassModel> TypeToClassModel = new Dictionary<string, ClassModel>();
         readonly Brush defaultNodeBrush;
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace QuickNavigate.Forms
         {
             projectTypes.Clear();
             openedTypes.Clear();
-            typeToClassModel.Clear();
+            TypeToClassModel.Clear();
             IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
             string projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
@@ -76,16 +76,16 @@ namespace QuickNavigate.Forms
         /// <summary>
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>true</returns>
         bool FileModelDelegate(FileModel model)
         {
             foreach (ClassModel aClass in model.Classes)
             {
                 string type = aClass.Type;
-                if (typeToClassModel.ContainsKey(type)) continue;
+                if (TypeToClassModel.ContainsKey(type)) continue;
                 if (IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
                 else projectTypes.Add(type);
-                typeToClassModel.Add(type, aClass);
+                TypeToClassModel.Add(type, aClass);
             }
             return true;
         }
@@ -194,7 +194,7 @@ namespace QuickNavigate.Forms
         /// <returns></returns>
         static TypeNode CreateNode(string type)
         {
-            ClassModel aClass = typeToClassModel[type];
+            ClassModel aClass = TypeToClassModel[type];
             return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access));
         }
 
@@ -300,7 +300,6 @@ namespace QuickNavigate.Forms
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button != MouseButtons.Right) return;
             TypeNode node = e.Node as TypeNode;
             if (node == null) return;
             tree.SelectedNode = node;
@@ -414,26 +413,24 @@ namespace QuickNavigate.Forms
             Font font = tree.Font;
             graphics.DrawString(text, font, textBrush, x, bounds.Top, StringFormat.GenericDefault);
             TypeNode node = e.Node as TypeNode;
-            if (node != null)
+            if (node == null) return;
+            if (!string.IsNullOrEmpty(node.In))
             {
-                if (!string.IsNullOrEmpty(node.In))
-                {
-                    x += graphics.MeasureString(text, font).Width;
-                    graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
-                }
-                string module = node.Module;
-                x = itemWidth;
-                if (!string.IsNullOrEmpty(module))
-                {
-                    x -= graphics.MeasureString(module, font).Width;
-                    graphics.DrawString(module, font, moduleBrush, x, bounds.Y, StringFormat.GenericDefault);
-                }
-                if (node.IsPrivate)
-                {
-                    font = new Font(font, FontStyle.Underline);
-                    x -= graphics.MeasureString("(private)", font).Width;
-                    graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
-                }
+                x += graphics.MeasureString(text, font).Width;
+                graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+            }
+            x = itemWidth;
+            string module = node.Module;
+            if (!string.IsNullOrEmpty(module))
+            {
+                x -= graphics.MeasureString(module, font).Width;
+                graphics.DrawString(module, font, moduleBrush, x, bounds.Y, StringFormat.GenericDefault);
+            }
+            if (node.IsPrivate)
+            {
+                font = new Font(font, FontStyle.Underline);
+                x -= graphics.MeasureString("(private)", font).Width;
+                graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
             }
         }
 
