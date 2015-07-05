@@ -9,26 +9,50 @@ namespace QuickNavigate
     {
         #region General
 
+        bool ctrlClickEnabled = true;
+
         [Category("General")]
         [DisplayName("Enable navigation by Ctrl+Click")]
         [Description("Go to declaration by Ctrl+Click on the word")]
         [DefaultValue(true)]
-        public bool CtrlClickEnabled { get; set; }
+        public bool CtrlClickEnabled
+        {
+            get { return ctrlClickEnabled; }
+            set { ctrlClickEnabled = value; }
+        }
+
+        bool enableItemSpacer = true;
 
         [Category("General")]
         [DisplayName("Enable item spacer")]
         [DefaultValue(true)]
-        public bool EnableItemSpacer { get; set; }
+        public bool EnableItemSpacer
+        {
+            get { return enableItemSpacer; }
+            set { enableItemSpacer = value; }
+        }
+
+        string itemSpacer = "—————————————————————————————————————————————————————————————";
 
         [Category("General")]
         [DisplayName("Item spacer")]
         [DefaultValue("—————————————————————————————————————————————————————————————")]
-        public string ItemSpacer { get; set; }
+        public string ItemSpacer
+        {
+            get { return itemSpacer; }
+            set { itemSpacer = value; }
+        }
+
+        int maxItems = 100;
 
         [Category("General")]
         [DisplayName("Max items")]
         [DefaultValue(100)]
-        public int MaxItems { get; set; }
+        public int MaxItems
+        {
+            get { return maxItems; }
+            set { maxItems = value; }
+        }
 
         [Category("General")]
         [DisplayName("Wrap list")]
@@ -43,12 +67,18 @@ namespace QuickNavigate
         [Category("Type Explorer")]
         public Size TypeFormSize { get; set; }
 
+        bool searchExternalClassPath = true;
+
         [Browsable(false)]
         [Category("Type Explorer")]
         [DisplayName("Search in external classpath")]
         [Description("Enable searching types in external classpath")]
         [DefaultValue(true)]
-        public bool SearchExternalClassPath { get; set; }
+        public bool SearchExternalClassPath
+        {
+            get { return searchExternalClassPath; }
+            set { searchExternalClassPath = value; }
+        }
 
         [Category("Type Explorer")]
         [DisplayName("Whole word")]
@@ -60,9 +90,9 @@ namespace QuickNavigate
         [DefaultValue(false)]
         public bool TypeFormMatchCase { get; set; }
 
-        #endregion
-
         #region Outline Form
+
+        #endregion
 
         [Browsable(false)]
         [Category("Outline Form")]
