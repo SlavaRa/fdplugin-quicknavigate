@@ -323,7 +323,6 @@ namespace QuickNavigate.Forms
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button != MouseButtons.Right) return;
             TypeNode node = e.Node as TypeNode;
             if (node == null) return;
             tree.SelectedNode = node;

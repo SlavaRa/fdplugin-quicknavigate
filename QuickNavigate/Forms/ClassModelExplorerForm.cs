@@ -10,6 +10,7 @@ namespace QuickNavigate.Forms
 {
     /// <summary>
     /// </summary>
+    /// <param name="sender"></param>
     /// <param name="model"></param>
     public delegate void ShowInHandler(Form sender, ClassModel model);
 
