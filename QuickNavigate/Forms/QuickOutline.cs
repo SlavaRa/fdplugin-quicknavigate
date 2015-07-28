@@ -6,7 +6,7 @@ using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
 using PluginCore;
-using QuickNavigate.Collections;
+using SmartMemberComparer = QuickNavigate.Collections.SmartMemberComparer;
 
 namespace QuickNavigate.Forms
 {
@@ -68,8 +68,8 @@ namespace QuickNavigate.Forms
             if (disposing)
             {
                 selectedNodeBrush.Dispose();
-                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
-                if (components != null) components.Dispose();
+                defaultNodeBrush?.Dispose();
+                components?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -85,7 +85,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         void InitTree()
         {
-            ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
+            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
             icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
@@ -178,7 +178,7 @@ namespace QuickNavigate.Forms
             if (searchIsNotEmpty && noCase) search = search.ToLower();
             tmpMembers.Clear();
             tmpMembers.Add(members);
-            tmpMembers.Sort(new QuickNavigate.Collections.SmartMemberComparer(search, noCase));
+            tmpMembers.Sort(new SmartMemberComparer(search, noCase));
             members = tmpMembers;
             bool wholeWord = settings.OutlineFormWholeWord;
             foreach (MemberModel member in members)
@@ -192,9 +192,8 @@ namespace QuickNavigate.Forms
                 }
                 FlagType flags = member.Flags;
                 int icon = PluginUI.GetIcon(flags, member.Access);
-                nodes.Add(new TreeNode(member.ToString(), icon, icon) {
-                    Tag = string.Format("{0}@{1}", ((isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName), member.LineFrom)
-                });
+                string constrDeclName = (isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName;
+                nodes.Add(new TreeNode(member.ToString(), icon, icon) {Tag = $"{constrDeclName}@{member.LineFrom}"});
             }
             if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
         }
@@ -282,10 +281,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnInputTextChanged(object sender, EventArgs e)
-        {
-            RefreshTree();
-        }
+        void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
         /// <summary>
         /// </summary>
@@ -368,10 +364,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            Navigate();
-        }
+        void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) => Navigate();
 
         /// <summary>
         /// </summary>
@@ -401,7 +394,7 @@ namespace QuickNavigate.Forms
             if (!string.IsNullOrEmpty(node.In))
             {
                 x += graphics.MeasureString(text, font).Width;
-                graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+                graphics.DrawString($"({node.In})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
             }
             if (!node.IsPrivate) return;
             font = new Font(font, FontStyle.Underline);
@@ -413,10 +406,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnShowInClassHiearachy(object sender, EventArgs e)
-        {
-            ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
-        }
+        void OnShowInClassHiearachy(object sender, EventArgs e) => ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
 
         #endregion
     }

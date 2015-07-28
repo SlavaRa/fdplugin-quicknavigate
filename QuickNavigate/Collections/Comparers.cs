@@ -9,8 +9,8 @@ namespace QuickNavigate.Collections
     /// </summary>
     public class SmartMemberComparer : IComparer<MemberModel>
     {
-        readonly string Search;
-        readonly bool NoCase;
+        readonly string search;
+        readonly bool noCase;
 
         /// <summary>
         /// </summary>
@@ -19,8 +19,8 @@ namespace QuickNavigate.Collections
         public SmartMemberComparer(string search, bool noCase)
         {
             if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
-            Search = search;
-            NoCase = noCase;
+            this.search = search;
+            this.noCase = noCase;
         }
 
         /// <summary>
@@ -43,9 +43,9 @@ namespace QuickNavigate.Collections
         /// <returns></returns>
         int GetPriority(string name)
         {
-            if (NoCase) name = name.ToLower();
-            if (name == Search) return -100;
-            if (name.StartsWith(Search)) return -90;
+            if (noCase) name = name.ToLower();
+            if (name == search) return -100;
+            if (name.StartsWith(search)) return -90;
             return 0;
         }
     }
@@ -126,10 +126,7 @@ namespace QuickNavigate.Collections
         /// Value Condition Less than zero<paramref name="x"/> is less than <paramref name="y"/>.Zero<paramref name="x"/> equals <paramref name="y"/>.Greater than zero<paramref name="x"/> is greater than <paramref name="y"/>.
         /// </returns>
         /// <param name="x">The first object to compare.</param><param name="y">The second object to compare.</param>
-        public int Compare(TypeNode x, TypeNode y)
-        {
-            return StringComparer.OrdinalIgnoreCase.Compare(x.Name + x.Package, y.Name + y.Package);
-        }
+        public int Compare(TypeNode x, TypeNode y) => StringComparer.OrdinalIgnoreCase.Compare($"{x.Name}{x.Package}", $"{y.Name}{y.Package}");
     }
 
     /// <summary>

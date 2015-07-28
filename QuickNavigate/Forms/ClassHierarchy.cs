@@ -82,8 +82,8 @@ namespace QuickNavigate.Forms
         {
             if (disposing)
             {
-                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
-                if (components != null) components.Dispose();
+                defaultNodeBrush?.Dispose();
+                components?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -92,7 +92,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         protected override void InitTree()
         {
-            ImageList icons = new ImageList() {TransparentColor = Color.Transparent};
+            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
             icons.Images.AddRange(new Image[] {
                 new Bitmap(PluginUI.GetStream("FilePlain.png")),
                 new Bitmap(PluginUI.GetStream("FolderClosed.png")),
@@ -180,14 +180,12 @@ namespace QuickNavigate.Forms
             foreach (ClassModel aClass in extendsToClasses[node.Name])
             {
                 ClassModel extends = aClass.InFile.Context.ResolveType(aClass.ExtendsType, aClass.InFile);
-                if (extends.Type == node.Text)
-                {
-                    int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                    TreeNode child = new ClassHierarchyNode(aClass, icon, icon);
-                    node.Nodes.Add(child);
-                    typeToNode[aClass.Type] = child;
-                    FillNode(child);
-                }
+                if (extends.Type != node.Text) continue;
+                int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                TreeNode child = new ClassHierarchyNode(aClass, icon, icon);
+                node.Nodes.Add(child);
+                typeToNode[aClass.Type] = child;
+                FillNode(child);
             }
         }
 
@@ -283,7 +281,6 @@ namespace QuickNavigate.Forms
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
         /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -304,7 +301,6 @@ namespace QuickNavigate.Forms
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
         /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             int keyCode = e.KeyChar;
@@ -315,7 +311,6 @@ namespace QuickNavigate.Forms
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
         /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             Settings.HierarchyExplorerSize = Size;
