@@ -19,9 +19,13 @@ before_build:
 - mv QuickNavigate C:\projects\FlashDevelop\External\Plugins
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
+after_build:
+- 7z a QuickNavigate.zip C:\projects\FlashDevelop\FlashDevelop\Bin\Debug\Plugins\QuickNavigate.dll
+- mv QuickNavigate.zip QuickNavigate.fdz
 artifacts:
-  - path: C:\projects\FlashDevelop\FlashDevelop\Bin\Debug\Plugins\QuickNavigate.dll
+  - path: QuickNavigate.fdz
     name: QuickNavigate
+    typy: zip
 deploy:
 - provider: GitHub
   release: QuickNavigate-2.5.$(appveyor_build_version)
