@@ -20,3 +20,8 @@ before_build:
 - cd C:\projects\FlashDevelop\External\Plugins\QuickNavigate
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
+deploy:
+- provider: GitHub
+  release: QuickNavigate-2.5.{build}
+  auth_token:
+    secure: vVXSjwChRC/dkEFV35otYA==
