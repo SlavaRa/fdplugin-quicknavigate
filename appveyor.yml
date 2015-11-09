@@ -18,5 +18,5 @@ before_build:
 - cd C:\projects\FlashDevelop-plugins\External
 - mv QuickNavigate C:\projects\FlashDevelop\External
 - cd C:\projects\FlashDevelop\External\QuickNavigate
-build:
-- msbuild FD-QuickNavigate.sln
+#build:false
+#- msbuild FD-QuickNavigate.sln
