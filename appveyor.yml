@@ -24,7 +24,7 @@ after_build:
 - mkdir Plugins
 - cd ..
 - mv C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll $(BaseDir)\Plugins\QuickNavigate.dll
-- 7z e QuickNavigate.zip -o$(BaseDir) *.dll -r
+- 7z a QuickNavigate.zip -o$(BaseDir) *.dll -r
 - mv QuickNavigate.zip QuickNavigate.fdz
 artifacts:
   - path: QuickNavigate.fdz
