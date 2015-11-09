@@ -4,7 +4,7 @@ os: Visual Studio 2015
 version: '{build}'
 skip_tags: true
 clone_depth: 10
-clone_folder: C:\projects\FlashDevelop-plugins\External\QuickNavigate
+clone_folder: C:\projects\FlashDevelop-plugins\External\Plugins\QuickNavigate
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 platform:
@@ -15,8 +15,8 @@ configuration:
 matrix:
   fast_finish: true
 before_build:
-- cd C:\projects\FlashDevelop-plugins\External
-- mv QuickNavigate C:\projects\FlashDevelop\External
-- cd C:\projects\FlashDevelop\External\QuickNavigate
+- cd C:\projects\FlashDevelop-plugins\External\Plugins
+- mv QuickNavigate C:\projects\FlashDevelop\External\Plugins
+- cd C:\projects\FlashDevelop\External\Plugins\QuickNavigate
 build:
 - msbuild FD-QuickNavigate.sln
