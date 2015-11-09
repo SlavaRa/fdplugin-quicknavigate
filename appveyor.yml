@@ -19,14 +19,23 @@ before_build:
 - mv QuickNavigate C:\projects\FlashDevelop\External\Plugins
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
+after_build:
+# configuration debug
+#- 7z a QuickNavigate.zip C:\projects\FlashDevelop\FlashDevelop\Bin\Debug\Plugins\QuickNavigate.dll
+- 7z a QuickNavigate.zip C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll
+- mv QuickNavigate.zip QuickNavigate.fdz
+artifacts:
+  on:
+    configuration: release
+  - path: QuickNavigate.fdz
+    name: QuickNavigate
+    type: zip
 deploy:
 - provider: GitHub
   release: QuickNavigate-2.5.$(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
-  artifact: /.*\QuickNavigate.dll/
   draft: false
   prerelease: false
   on:
     branch: master
-    configuration: release
