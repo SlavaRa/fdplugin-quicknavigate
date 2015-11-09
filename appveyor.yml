@@ -19,7 +19,10 @@ before_build:
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
 after_build:
-- 7z a QuickNavigate.zip C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll
+- mkdir $(BaseDir)
+- mkdir $(BaseDir)/Plugins
+- mv C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll $(BaseDir)/Plugins
+- 7z a QuickNavigate.zip $(BaseDir)
 - mv QuickNavigate.zip QuickNavigate.fdz
 artifacts:
   - path: QuickNavigate.fdz
@@ -30,6 +33,7 @@ deploy:
   release: QuickNavigate-2.5.$(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
+  artifact: QuickNavigate
   draft: false
   prerelease: false
   on:
