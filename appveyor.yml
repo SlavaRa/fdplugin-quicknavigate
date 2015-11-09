@@ -20,7 +20,7 @@ before_build:
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
 artifacts:
-  - path: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll
+  - path: C:\projects\FlashDevelop\FlashDevelop\Bin\Debug\Plugins\QuickNavigate.dll
     name: QuickNavigate
 deploy:
 - provider: GitHub
