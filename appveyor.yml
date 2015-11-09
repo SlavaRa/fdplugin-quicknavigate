@@ -20,3 +20,8 @@ before_build:
 - cd C:\projects\FlashDevelop\External\Plugins\QuickNavigate
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
+deploy:
+- provider: GitHub
+  release: QuickNavigate-2.5.{build}
+  auth_token:
+    secure: l91WXbUY/CxlQcoDm+5eKHekBPzOcND/AC+A2hO0jyL8xKT5y3g12Z+R2Yo4rBHP6WccMIsnbJoW2gZoICSP6fgURqhcQWBhjcA5oBxjEFMa5JG68RTAzN+rYOjod2yelySRvkpBIb5fe4vR6mKzm7qMIVpgUIxAmYcKwjz7xNb/Z3B11oQCva3eYUlIP+rrkM7QVff7F/BVBLjHqz2PrsgmjsEswdXb8d0LZPZM8Lt9h9krZ3P3LWLiiSKuiIE7eU/AtzGSg3x+/wuKZA5NdxOUb71O7+tcoeGVSaT+v4Tznx0Hl1g9LN3tUOJ594kjbTPjxTKEm0GrCSbOUGRG7fEWrsCzyfIF6uEwwk/tdV5dSNrF6qHTka95mRXckIe6jXo7k4WrQKMhhqSApP43Y4Ltr/HMO2YyFIug0g67IU7Fr8o0EA1mvei4WQsau4xEeu6VdfawNJ1RuuWnDoIIQIjm3P9ov/InmVPw+ij3tCjtMjSHsopEzleqTguwHI7osFQ4QsyqF3pn4GnsPynKrzetGD5+dLUdNqgoZi4zkW9uZbG6pixtkskavckFBfkJ+Kp6rY+TpoHaFhErpo+svDpfcvipI2Wh+hYi/4G1tg2le1Hw7/z6Li5ICP9f1JzSyyDLMh4UAn1t/F7TjGljTzwM+FYKXrzL3XB/QbxFspjD4kWIHj9cQzCMhj5tLAd7ucWu+MDeaAhMO+h1vmyLdQ==
