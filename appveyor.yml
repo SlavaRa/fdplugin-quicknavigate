@@ -10,7 +10,6 @@ install:
 platform:
 - x86
 configuration:
-- Debug
 - Release
 matrix:
   fast_finish: true
@@ -20,13 +19,9 @@ before_build:
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
 after_build:
-# configuration debug
-#- 7z a QuickNavigate.zip C:\projects\FlashDevelop\FlashDevelop\Bin\Debug\Plugins\QuickNavigate.dll
 - 7z a QuickNavigate.zip C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll
 - mv QuickNavigate.zip QuickNavigate.fdz
 artifacts:
-  on:
-    configuration: release
   - path: QuickNavigate.fdz
     name: QuickNavigate
     type: zip
