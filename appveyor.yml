@@ -17,6 +17,6 @@ matrix:
 before_build:
 - cd C:\projects\FlashDevelop-plugins\External\Plugins
 - mv QuickNavigate C:\projects\FlashDevelop\External\Plugins
-- cd C:\projects\FlashDevelop\External\Plugins\QuickNavigate
+- cd C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate
 #build:
 #- msbuild FD-QuickNavigate.sln
