@@ -17,11 +17,16 @@ matrix:
 before_build:
 - cd C:\projects\FlashDevelop-plugins\External\Plugins
 - mv QuickNavigate C:\projects\FlashDevelop\External\Plugins
-#- cd C:\projects\FlashDevelop\External\Plugins\QuickNavigate
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
 deploy:
 - provider: GitHub
-  release: QuickNavigate-2.5.{build}
+  release: QuickNavigate-2.5.$(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
+  artifact: /.*\QuickNavigate.dll/
+  draft: false
+  prerelease: false
+  on:
+    branch: master
+    configuration: release
