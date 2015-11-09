@@ -25,7 +25,7 @@ after_build:
 artifacts:
   - path: QuickNavigate.fdz
     name: QuickNavigate
-    typy: zip
+    type: zip
 deploy:
 - provider: GitHub
   release: QuickNavigate-2.5.$(appveyor_build_version)
