@@ -22,8 +22,9 @@ after_build:
 - mkdir $(BaseDir)
 - cd $(BaseDir)
 - mkdir Plugins
-- cd ..
-- mv C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll $(BaseDir)\Plugins\QuickNavigate.dll
+- cd Plugins
+- mv C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll QuickNavigate.dll
+- cd ..\..
 - 7z a QuickNavigate.zip $(BaseDir)\
 - mv QuickNavigate.zip QuickNavigate.fdz
 - dir
