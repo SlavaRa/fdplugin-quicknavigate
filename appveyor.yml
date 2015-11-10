@@ -9,7 +9,7 @@ os: Visual Studio 2015
 skip_tags: true
 environment:
   PluginName: QuickNavigate
-clone_folder: C:\projects\FlashDevelop-plugins\External\Plugins\$env:PluginName
+clone_folder: C:\projects\FlashDevelop-plugins\External\Plugins\"$env:PluginName"
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 matrix:
