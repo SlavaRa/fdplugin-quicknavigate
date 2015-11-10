@@ -15,10 +15,7 @@ matrix:
   fast_finish: true
 before_build:
 - cd ..
-- ls
-- mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_NAME%
-- ls
-- mv %PLUGIN_NAME% C:\projects\FlashDevelop\External\Plugins
+- mv %APPVEYOR_BUILD_FOLDER% C:\projects\FlashDevelop\External\Plugins\%PLUGIN_NAME%
 build:
   project: C:\projects\FlashDevelop\External\Plugins\$(PLUGIN_NAME)\FD-QuickNavigate.sln
 after_build:
