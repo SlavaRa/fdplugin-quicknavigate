@@ -18,7 +18,7 @@ before_build:
 - cd C:\projects\FlashDevelop-plugins\External\Plugins
 - mv %PLUGIN_NAME% C:\projects\FlashDevelop\External\Plugins
 build:
-  project: C:\projects\FlashDevelop\External\Plugins\%PLUGIN_NAME%\FD-QuickNavigate.sln
+  project: C:\projects\FlashDevelop\External\Plugins\$(PLUGIN_NAME)\FD-QuickNavigate.sln
 after_build:
 - mkdir %PLUGIN_NAME%\$(BaseDir)\Plugins && cd %PLUGIN_NAME%\$(BaseDir)\Plugins
 - mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %PLUGIN_NAME%.dll
