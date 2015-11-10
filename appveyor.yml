@@ -25,8 +25,8 @@ after_build:
 - cd ..\..
 - 7z a %PLUGIN_NAME%.fdz $(BaseDir)\
 artifacts:
-  - path: "$env:PLUGIN_NAME".fdz
-    name: "$env:PLUGIN_NAME"
+  - path: $(PLUGIN_NAME).fdz
+    name: $(PLUGIN_NAME)
     type: zip
 deploy:
 - provider: GitHub
