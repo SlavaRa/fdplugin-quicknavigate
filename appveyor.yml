@@ -18,10 +18,8 @@ before_build:
 build:
   project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
 after_build:
-- mkdir QuickNavigate && cd QuickNavigate
-- mkdir $(BaseDir) && cd $(BaseDir)
-- mkdir Plugins && cd Plugins
-- mv C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll QuickNavigate.dll
+- mkdir QuickNavigate\$(BaseDir)\Plugins && cd QuickNavigate\$(BaseDir)\Plugins
+- mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\QuickNavigate.dll QuickNavigate.dll
 - cd ..\..
 - 7z a QuickNavigate.zip $(BaseDir)\
 - rmdir $(BaseDir) /S /Q
