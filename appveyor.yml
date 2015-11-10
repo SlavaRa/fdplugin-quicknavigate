@@ -26,7 +26,8 @@ after_build:
 - cd ..\..
 - 7z a QuickNavigate.zip $(BaseDir)\
 - rmdir $(BaseDir) /S /Q
-- mv QuickNavigate.zip %APPVEYOR_BUILD_FOLDER%\QuickNavigate.fdz
+- cd %APPVEYOR_BUILD_FOLDER%
+- mv C:\projects\FlashDevelop-plugins\External\Plugins\QuickNavigate.zip QuickNavigate.fdz
 - dir
 - ls
 artifacts:
