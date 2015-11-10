@@ -16,7 +16,7 @@ matrix:
   fast_finish: true
 before_build:
 - cd ..
-- mv \%APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
+- mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
 build:
   project: $(PLUGIN_PATH)\FD-QuickNavigate.sln
 after_build:
