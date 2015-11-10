@@ -1,16 +1,15 @@
 init:
 - git clone https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
-os: Visual Studio 2015
-version: '{build}'
-skip_tags: true
-clone_depth: 10
-clone_folder: C:\projects\FlashDevelop-plugins\External\Plugins\QuickNavigate
-install:
-- set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
+version: 2.5.{build}
 platform:
 - x86
 configuration:
 - Release
+os: Visual Studio 2015
+skip_tags: true
+clone_folder: C:\projects\FlashDevelop-plugins\External\Plugins\QuickNavigate
+install:
+- set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 matrix:
   fast_finish: true
 before_build:
@@ -26,7 +25,8 @@ after_build:
 - mv C:\projects\FlashDevelop\External\Plugins\QuickNavigate\QuickNavigate\Bin\Release\QuickNavigate.dll QuickNavigate.dll
 - cd ..\..
 - 7z a QuickNavigate.zip $(BaseDir)\
-- mv QuickNavigate.zip QuickNavigate.fdz
+- rmdir $(BaseDir) /S /Q
+- mv QuickNavigate.zip %APPVEYOR_BUILD_FOLDER%\QuickNavigate.fdz
 - dir
 - ls
 artifacts:
