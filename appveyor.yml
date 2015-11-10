@@ -14,6 +14,7 @@ install:
 matrix:
   fast_finish: true
 before_build:
+- cd ..
 - ls
 - mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_NAME%
 - ls
