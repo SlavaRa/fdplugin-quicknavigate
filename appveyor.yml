@@ -9,16 +9,19 @@ os: Visual Studio 2015
 skip_tags: true
 environment:
   PLUGIN_NAME: QuickNavigate
+  PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\%PLUGIN_NAME%
+  FDZ_STRUCTURE: %PLUGIN_NAME%\$(BaseDir)\Plugins
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 matrix:
   fast_finish: true
 before_build:
-- mv ..\%APPVEYOR_PROJECT_NAME% C:\projects\FlashDevelop\External\Plugins\%PLUGIN_NAME%
+- cd ..
+- mv \%APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
 build:
-  project: C:\projects\FlashDevelop\External\Plugins\$(PLUGIN_NAME)\FD-QuickNavigate.sln
+  project: $(PLUGIN_PATH)\FD-QuickNavigate.sln
 after_build:
-- mkdir %PLUGIN_NAME%\$(BaseDir)\Plugins && cd %PLUGIN_NAME%\$(BaseDir)\Plugins
+- mkdir %FDZ_STRUCTURE% && cd %FDZ_STRUCTURE%
 - mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %PLUGIN_NAME%.dll
 - cd ..\..
 - 7z a %PLUGIN_NAME%.fdz $(BaseDir)\
