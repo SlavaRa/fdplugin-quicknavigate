@@ -18,7 +18,7 @@ before_build:
 - cd ..
 - mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
 build:
-  project: $(PLUGIN_PATH)\FD-QuickNavigate.sln
+  project: $(PLUGIN_PATH)\$(PLUGIN_NAME).sln
 after_build:
 - mkdir %PLUGIN_NAME%\$(BaseDir)\Plugins && cd %PLUGIN_NAME%\$(BaseDir)\Plugins
 - mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %PLUGIN_NAME%.dll
