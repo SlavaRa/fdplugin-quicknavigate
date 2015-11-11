@@ -20,12 +20,10 @@ before_build:
 build:
   project: $(PLUGIN_PATH)\$(PLUGIN_NAME).sln
 after_build:
-- mkdir %PLUGIN_NAME%\$(BaseDir)\Plugins && cd %PLUGIN_NAME%\$(BaseDir)\Plugins
-- mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %PLUGIN_NAME%.dll
-- cd ..\..
+- mkdir %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins
+- mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins\%PLUGIN_NAME%.dll
+- cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.fdz $(BaseDir)\
-- pwd
-- ls
 artifacts:
   - path: $(PLUGIN_NAME).fdz
     name: $(PLUGIN_NAME)
