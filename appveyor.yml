@@ -24,9 +24,11 @@ after_build:
 - mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %PLUGIN_NAME%.dll
 - cd ..\..
 - 7z a %PLUGIN_NAME%.fdz $(BaseDir)\
+- pwd
+- ls
 artifacts:
-  - path: QuickNavigate.fdz
-    name: QuickNavigate
+  - path: $(PLUGIN_NAME).fdz
+    name: $(PLUGIN_NAME)
     type: zip
 deploy:
 - provider: GitHub
