@@ -1,5 +1,5 @@
 init:
-- git clone https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
+- git clone -q https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
 version: 2.5.{build}
 platform:
 - x86
@@ -7,28 +7,30 @@ configuration:
 - Release
 os: Visual Studio 2015
 skip_tags: true
-clone_folder: C:\projects\FlashDevelop-plugins\External\Plugins\QuickNavigate
+environment:
+  PLUGIN_NAME: QuickNavigate
+  PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 matrix:
   fast_finish: true
 before_build:
-- cd C:\projects\FlashDevelop-plugins\External\Plugins
-- mv QuickNavigate C:\projects\FlashDevelop\External\Plugins
+- cd ..
+- mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
 build:
-  project: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\FD-QuickNavigate.sln
+  project: $(PLUGIN_PATH)\FD-QuickNavigate.sln
 after_build:
-- mkdir QuickNavigate\$(BaseDir)\Plugins && cd QuickNavigate\$(BaseDir)\Plugins
-- mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\QuickNavigate.dll QuickNavigate.dll
+- mkdir %PLUGIN_NAME%\$(BaseDir)\Plugins && cd %PLUGIN_NAME%\$(BaseDir)\Plugins
+- mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %PLUGIN_NAME%.dll
 - cd ..\..
-- 7z a QuickNavigate.fdz $(BaseDir)\
+- 7z a %PLUGIN_NAME%.fdz $(BaseDir)\
 artifacts:
-  - path: QuickNavigate.fdz
-    name: QuickNavigate
+  - path: $(PLUGIN_NAME).fdz
+    name: $(PLUGIN_NAME)
     type: zip
 deploy:
 - provider: GitHub
-  release: QuickNavigate-$(appveyor_build_version)
+  release: $(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
   artifact: /.*\.fdz/
