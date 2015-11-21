@@ -33,32 +33,32 @@ namespace QuickNavigate
 
         /// <summary>
         /// </summary>
-        public int Api { get { return 1; }}
-        
+        public int Api => 1;
+
         /// <summary>
         /// Name of the plugin
         /// </summary>
-        public string Name { get { return "QuickNavigate"; }}
+        public string Name => "QuickNavigate";
 
         /// <summary>
         /// GUID of the plugin
         /// </summary>
-        public string Guid { get { return "5e256956-8f0d-4f2b-9548-08673c0adefd"; }}
+        public string Guid => "5e256956-8f0d-4f2b-9548-08673c0adefd";
 
         /// <summary>
         /// Author of the plugin
         /// </summary> 
-        public string Author { get { return "Canab, SlavaRa"; }}
+        public string Author => "Canab, SlavaRa";
 
         /// <summary>
         /// Description of the plugin
         /// </summary>
-        public string Description { get { return "QuickNavigate plugin"; }}
+        public string Description => "QuickNavigate plugin";
 
         /// <summary>
         /// Web address for help
         /// </summary>
-        public string Help { get { return "http://www.flashdevelop.org/community/"; }}
+        public string Help => "http://www.flashdevelop.org/community/";
 
         /// <summary>
         /// Object that contains the settings
@@ -159,10 +159,7 @@ namespace QuickNavigate
         /// <summary>
         /// Adds the required event handlers
         /// </summary>
-        void AddEventHandlers()
-        {
-            EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command);
-        }
+        void AddEventHandlers() => EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command);
 
         /// <summary>
         /// Creates the required menu items
@@ -200,10 +197,7 @@ namespace QuickNavigate
         /// <summary>
         /// Saves the plugin settings
         /// </summary>
-        void SaveSettings()
-        {
-            ObjectSerializer.Serialize(settingFilename, Settings);
-        }
+        void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
 
         /// <summary>
         /// </summary>
@@ -374,10 +368,7 @@ namespace QuickNavigate
         /// <summary>
         /// Cursor position changed and word at this position was resolved
         /// </summary>
-        void OnResolvedContextChanged(ResolvedContext resolved)
-        {
-            UpdateMenuItems();
-        }
+        void OnResolvedContextChanged(ResolvedContext resolved) => UpdateMenuItems();
 
         #endregion
     }

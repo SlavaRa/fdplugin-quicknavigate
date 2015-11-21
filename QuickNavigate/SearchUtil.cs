@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace QuickNavigate
 {
@@ -13,7 +14,7 @@ namespace QuickNavigate
             bool firstCharIsUpper = char.IsUpper(search[0]);
             foreach (string item in source)
             {
-                string type = item.Contains(separator) ? item.Substring(item.LastIndexOf(separator) + 1) : item;
+                string type = item.Contains(separator) ? item.Substring(item.LastIndexOf(separator, StringComparison.Ordinal) + 1) : item;
                 string itemName = searchHasSeparator ? item : type;
                 string found = string.Empty;
                 if (GetIsAbbreviation(search))

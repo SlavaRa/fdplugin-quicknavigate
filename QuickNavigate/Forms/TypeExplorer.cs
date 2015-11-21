@@ -44,8 +44,8 @@ namespace QuickNavigate.Forms
         {
             if (disposing)
             {
-                if (defaultNodeBrush != null) defaultNodeBrush.Dispose();
-                if (components != null) components.Dispose();
+                defaultNodeBrush?.Dispose();
+                components?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -94,14 +94,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        static bool IsFileOpened(string fileName)
-        {
-            foreach (var doc in PluginBase.MainForm.Documents)
-            {
-                if (doc.FileName == fileName) return true;
-            }
-            return false;
-        }
+        static bool IsFileOpened(string fileName) => PluginBase.MainForm.Documents.Any(doc => doc.FileName == fileName);
 
         /// <summary>
         /// </summary>
@@ -183,10 +176,7 @@ namespace QuickNavigate.Forms
         /// <param name="matches"></param>
         /// <param name="search"></param>
         /// <returns></returns>
-        static IEnumerable<TypeNode> CreateNodes(IEnumerable<string> matches, string search)
-        {
-            return SortNodes(matches.Select(CreateNode), search);
-        }
+        static IEnumerable<TypeNode> CreateNodes(IEnumerable<string> matches, string search) => SortNodes(matches.Select(CreateNode), search);
 
         /// <summary>
         /// </summary>
@@ -310,10 +300,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnInputTextChanged(object sender, EventArgs e)
-        {
-            RefreshTree();
-        }
+        void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
         /// <summary>
         /// </summary>
@@ -417,7 +404,7 @@ namespace QuickNavigate.Forms
             if (!string.IsNullOrEmpty(node.In))
             {
                 x += graphics.MeasureString(text, font).Width;
-                graphics.DrawString(string.Format("({0})", node.In), font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+                graphics.DrawString($"({node.In})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
             }
             x = itemWidth;
             string module = node.Module;

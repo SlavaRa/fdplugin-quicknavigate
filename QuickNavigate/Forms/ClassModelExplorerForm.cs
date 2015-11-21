@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -144,6 +145,7 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         protected void OnShowInQuickOutline(object sender, EventArgs e)
         {
+            Debug.Assert(ShowInQuickOutline != null, "ShowInQuickOutline != null");
             ShowInQuickOutline(this, GetModelFromSelectedNode());
         }
 
@@ -153,6 +155,7 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         protected void OnShowInClassHiearachy(object sender, EventArgs e)
         {
+            Debug.Assert(ShowInClassHierarchy != null, "ShowInClassHierarchy != null");
             ShowInClassHierarchy(this, GetModelFromSelectedNode());
         }
 
@@ -162,6 +165,7 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         protected void OnShowInProjectManager(object sender, EventArgs e)
         {
+            Debug.Assert(ShowInProjectManager != null, "ShowInProjectManager != null");
             ShowInProjectManager(this, GetModelFromSelectedNode());
         }
 
@@ -171,6 +175,7 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         protected void OnShowInFileExplorer(object sender, EventArgs e)
         {
+            Debug.Assert(ShowInFileExplorer != null, "ShowInFileExplorer != null");
             ShowInFileExplorer(this, GetModelFromSelectedNode());
         }
 
@@ -180,10 +185,7 @@ namespace QuickNavigate.Forms
             return tree ?? ContextMenuStrip.SourceControl.Controls.OfType<TreeView>().FirstOrDefault();
         }
 
-        ClassModel GetModelFromSelectedNode()
-        {
-            return ((TypeNode) GetTreeView().SelectedNode).Model;
-        }
+        ClassModel GetModelFromSelectedNode() => ((TypeNode) GetTreeView().SelectedNode).Model;
 
         #region Event Handlers
 
@@ -225,10 +227,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        protected void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            Navigate();
-        }
+        protected void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) => Navigate();
 
         #endregion
     }
