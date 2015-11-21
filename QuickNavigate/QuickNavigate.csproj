@@ -70,8 +70,10 @@
   -->
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlClickManager.cs" />
@@ -86,6 +88,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Nodes.cs" />
+    <Compile Include="Forms\RecentFilesExplorer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\RecentFilesExplorer.Designer.cs">
+      <DependentUpon>RecentFilesExplorer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\TypeExplorer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +114,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Forms\ClassHierarchy.resx">
       <DependentUpon>ClassHierarchy.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\RecentFilesExplorer.resx">
+      <DependentUpon>RecentFilesExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TypeExplorer.resx">
       <DependentUpon>TypeExplorer.cs</DependentUpon>
