@@ -127,5 +127,41 @@ namespace QuickNavigate
         public bool HierarchyExplorerMatchCase { get; set; }
 
         #endregion
+
+        #region Resent Files
+
+        [Browsable(false)]
+        [Category("Recent Files")]
+        public Size RecentFilesSize { get; set; }
+
+        [Category("Recent Files")]
+        [DisplayName("Whole word")]
+        [DefaultValue(false)]
+        public bool RecentFilesWholeWord { get; set; }
+
+        [Category("Recent Files")]
+        [DisplayName("Match case")]
+        [DefaultValue(false)]
+        public bool RecentFilesMatchCase { get; set; }
+
+        #endregion
+
+        #region Resent Projects
+
+        [Browsable(false)]
+        [Category("Recent Projects")]
+        public Size RecentProjectsSize { get; set; }
+
+        [Category("Recent Projects")]
+        [DisplayName("Whole word")]
+        [DefaultValue(false)]
+        public bool RecentProjectsWholeWord { get; set; }
+
+        [Category("Recent Projects")]
+        [DisplayName("Match case")]
+        [DefaultValue(false)]
+        public bool RecentProjectsMatchCase { get; set; }
+
+        #endregion
     }
 }
