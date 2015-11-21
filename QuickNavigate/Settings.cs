@@ -127,5 +127,23 @@ namespace QuickNavigate
         public bool HierarchyExplorerMatchCase { get; set; }
 
         #endregion
+
+        #region Resent Files
+
+        [Browsable(false)]
+        [Category("Resent Files")]
+        public Size ResentFilesSize { get; set; }
+
+        [Category("Resent Files")]
+        [DisplayName("Whole word")]
+        [DefaultValue(false)]
+        public bool ResentFilesWholeWord { get; set; }
+
+        [Category("Resent Files")]
+        [DisplayName("Match case")]
+        [DefaultValue(false)]
+        public bool ResentFilesMatchCase { get; set; }
+
+        #endregion
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace QuickNavigate.Forms
+﻿using System.Windows.Forms;
+
+namespace QuickNavigate.Forms
 {
     partial class RecentFilesExplorer
     {
@@ -42,6 +44,8 @@
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(305, 21);
             this.input.TabIndex = 1;
+            this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
+            this.input.KeyDown += new KeyEventHandler(this.OnInputKeyDown);
             // 
             // tree
             // 
