@@ -2,7 +2,7 @@
 
 namespace QuickNavigate.Forms
 {
-    partial class OpenRecentFileForm
+    sealed partial class OpenRecentFileForm
     {
         /// <summary>
         /// Required designer variable.

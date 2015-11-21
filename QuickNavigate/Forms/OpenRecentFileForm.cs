@@ -8,7 +8,7 @@ using PluginCore;
 
 namespace QuickNavigate.Forms
 {
-    public partial class OpenRecentFileForm : Form
+    public sealed partial class OpenRecentFileForm : Form
     {
         readonly Settings settings;
 
@@ -16,9 +16,9 @@ namespace QuickNavigate.Forms
         {
             this.settings = settings;
             InitializeComponent();
-            if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             Font = PluginBase.Settings.DefaultFont;
             tree.ItemHeight = tree.Font.Height;
+            if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             RefrestTree();
         }
 
