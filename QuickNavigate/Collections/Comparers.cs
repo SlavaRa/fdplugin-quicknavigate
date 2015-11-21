@@ -109,8 +109,9 @@ namespace QuickNavigate.Collections
         /// <param name="x">The first object to compare.</param><param name="y">The second object to compare.</param>
         public int Compare(TypeNode x, TypeNode y)
         {
-            if (x.Package.Length == y.Package.Length) return StringComparer.Ordinal.Compare(x.Package, y.Package);
-            return x.Package.Length.CompareTo(y.Package.Length);
+            return x.Package.Length == y.Package.Length
+                 ? StringComparer.Ordinal.Compare(x.Package, y.Package)
+                 : x.Package.Length.CompareTo(y.Package.Length);
         }
     }
 

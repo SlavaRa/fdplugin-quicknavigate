@@ -82,7 +82,7 @@ namespace QuickNavigate
                 else 
                 {
                     i = abbreviation.IndexOf(c, i);
-                    if (i < 0) return false;
+                    if (i == -1) return false;
                     --i;
                     mathes = 0;
                 }
