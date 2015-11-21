@@ -131,18 +131,36 @@ namespace QuickNavigate
         #region Resent Files
 
         [Browsable(false)]
-        [Category("Resent Files")]
-        public Size ResentFilesSize { get; set; }
+        [Category("Recent Files")]
+        public Size RecentFilesSize { get; set; }
 
-        [Category("Resent Files")]
+        [Category("Recent Files")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
-        public bool ResentFilesWholeWord { get; set; }
+        public bool RecentFilesWholeWord { get; set; }
 
-        [Category("Resent Files")]
+        [Category("Recent Files")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
-        public bool ResentFilesMatchCase { get; set; }
+        public bool RecentFilesMatchCase { get; set; }
+
+        #endregion
+
+        #region Resent Projects
+
+        [Browsable(false)]
+        [Category("Recent Projects")]
+        public Size RecentProjectsSize { get; set; }
+
+        [Category("Recent Projects")]
+        [DisplayName("Whole word")]
+        [DefaultValue(false)]
+        public bool RecentProjectsWholeWord { get; set; }
+
+        [Category("Recent Projects")]
+        [DisplayName("Match case")]
+        [DefaultValue(false)]
+        public bool RecentProjectsMatchCase { get; set; }
 
         #endregion
     }

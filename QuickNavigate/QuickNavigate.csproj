@@ -88,11 +88,17 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Nodes.cs" />
-    <Compile Include="Forms\RecentFilesExplorer.cs">
+    <Compile Include="Forms\OpenRecentProjectForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\RecentFilesExplorer.Designer.cs">
-      <DependentUpon>RecentFilesExplorer.cs</DependentUpon>
+    <Compile Include="Forms\OpenRecentProjectForm.Designer.cs">
+      <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\OpenRecentFileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OpenRecentFileForm.Designer.cs">
+      <DependentUpon>OpenRecentFileForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\TypeExplorer.cs">
       <SubType>Form</SubType>
@@ -115,8 +121,11 @@
     <EmbeddedResource Include="Forms\ClassHierarchy.resx">
       <DependentUpon>ClassHierarchy.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\RecentFilesExplorer.resx">
-      <DependentUpon>RecentFilesExplorer.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\OpenRecentProjectForm.resx">
+      <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OpenRecentFileForm.resx">
+      <DependentUpon>OpenRecentFileForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TypeExplorer.resx">
       <DependentUpon>TypeExplorer.cs</DependentUpon>

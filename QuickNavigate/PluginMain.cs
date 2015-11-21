@@ -181,14 +181,23 @@ namespace QuickNavigate
             menu.DropDownItems.Add(classHierarchyItem);
             editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
-            ToolStripMenuItem item = new ToolStripMenuItem("Resent Files", null, ShowRecentFiles, Keys.Control | Keys.E);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.ResentFiles", item);
+            ToolStripMenuItem item = new ToolStripMenuItem("Recent Files", null, ShowRecentFiles, Keys.Control | Keys.E);
+            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.RecentFiles", item);
+            menu.DropDownItems.Add(item);
+            item = new ToolStripMenuItem("Resent Projects", null, ShowRecentProjets);
+            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.RecentProjects", item);
             menu.DropDownItems.Add(item);
         }
 
         void ShowRecentFiles(object sender, EventArgs e)
         {
-            RecentFilesExplorer form = new RecentFilesExplorer((Settings)Settings);
+            OpenRecentFileForm form = new OpenRecentFileForm((Settings) Settings);
+            form.Show();
+        }
+
+        void ShowRecentProjets(object sender, EventArgs e)
+        {
+            OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
             form.Show();
         }
 

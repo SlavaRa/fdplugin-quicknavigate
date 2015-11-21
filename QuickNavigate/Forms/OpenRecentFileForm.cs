@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -7,15 +8,15 @@ using PluginCore;
 
 namespace QuickNavigate.Forms
 {
-    public partial class RecentFilesExplorer : Form
+    public partial class OpenRecentFileForm : Form
     {
         readonly Settings settings;
 
-        public RecentFilesExplorer(Settings settings)
+        public OpenRecentFileForm(Settings settings)
         {
             this.settings = settings;
             InitializeComponent();
-            if (!settings.ResentFilesSize.Equals(Size)) Size = settings.ResentFilesSize;
+            if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             Font = PluginBase.Settings.DefaultFont;
             tree.ItemHeight = tree.Font.Height;
             RefrestTree();
@@ -34,7 +35,7 @@ namespace QuickNavigate.Forms
         {
             List<string> matches = PluginBase.MainForm.Settings.PreviousDocuments;
             string search = input.Text;
-            if (search.Length > 0) matches = SearchUtil.Matches(matches, search, Path.PathSeparator.ToString(), settings.MaxItems, settings.ResentFilesWholeWord, settings.ResentFilesMatchCase);
+            if (search.Length > 0) matches = SearchUtil.Matches(matches, search, Path.PathSeparator.ToString(), settings.MaxItems, settings.RecentFilesWholeWord, settings.RecentFilesMatchCase);
             foreach (string file in matches.Where(File.Exists))
                 tree.Items.Add(file);
         }
@@ -92,8 +93,7 @@ namespace QuickNavigate.Forms
         /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            settings.ResentFilesSize = Size;
-            base.OnFormClosing(e);
+            settings.RecentFilesSize = new Size(Size.Width, Size.Height);
         }
 
         void OnInputTextChanged(object sender, EventArgs e) => RefrestTree();
@@ -128,5 +128,7 @@ namespace QuickNavigate.Forms
             }
             e.Handled = true;
         }
+
+        void OnTreeMouseDoubleClick(object sender, MouseEventArgs e) => Navigate();
     }
 }
