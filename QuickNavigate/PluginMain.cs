@@ -192,13 +192,13 @@ namespace QuickNavigate
         void ShowRecentFiles(object sender, EventArgs e)
         {
             OpenRecentFileForm form = new OpenRecentFileForm((Settings) Settings);
-            form.Show();
+            form.ShowDialog();
         }
 
         void ShowRecentProjets(object sender, EventArgs e)
         {
             OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
-            form.Show();
+            form.ShowDialog();
         }
 
         /// <summary>
