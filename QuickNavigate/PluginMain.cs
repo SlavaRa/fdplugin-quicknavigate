@@ -39,7 +39,7 @@ namespace QuickNavigate
         /// <summary>
         /// Name of the plugin
         /// </summary>
-        public string Name => "QuickNavigate";
+        public string Name => nameof(QuickNavigate);
 
         /// <summary>
         /// GUID of the plugin
@@ -170,11 +170,11 @@ namespace QuickNavigate
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             Image image = PluginBase.MainForm.FindImage("99|16|0|0");
             typeExploreItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.TypeExplorer", typeExploreItem);
+            PluginBase.MainForm.RegisterShortcutItem($"{Name}.TypeExplorer", typeExploreItem);
             menu.DropDownItems.Add(typeExploreItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
             quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline, Keys.Control | Keys.Shift | Keys.O);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.Outline", quickOutlineItem);
+            PluginBase.MainForm.RegisterShortcutItem($"{Name}.Outline", quickOutlineItem);
             menu.DropDownItems.Add(quickOutlineItem);
             image = PluginBase.MainForm.FindImage("99|16|0|0");
             classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
@@ -182,23 +182,23 @@ namespace QuickNavigate
             editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
             ToolStripMenuItem item = new ToolStripMenuItem("Recent Files", null, ShowRecentFiles, Keys.Control | Keys.E);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.RecentFiles", item);
+            PluginBase.MainForm.RegisterShortcutItem($"{Name}.RecentFiles", item);
             menu.DropDownItems.Add(item);
-            item = new ToolStripMenuItem("Resent Projects", null, ShowRecentProjets);
-            PluginBase.MainForm.RegisterShortcutItem("QuickNavigate.RecentProjects", item);
+            item = new ToolStripMenuItem("Recent Projects", null, ShowRecentProjets);
+            PluginBase.MainForm.RegisterShortcutItem($"{Name}.RecentProjects", item);
             menu.DropDownItems.Add(item);
         }
 
         void ShowRecentFiles(object sender, EventArgs e)
         {
             OpenRecentFileForm form = new OpenRecentFileForm((Settings) Settings);
-            form.Show();
+            form.ShowDialog();
         }
 
         void ShowRecentProjets(object sender, EventArgs e)
         {
             OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
-            form.Show();
+            form.ShowDialog();
         }
 
         /// <summary>
