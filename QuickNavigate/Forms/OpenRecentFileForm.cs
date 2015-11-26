@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -14,7 +13,7 @@ namespace QuickNavigate.Forms
         readonly List<string> recentFiles;
         readonly List<string> openedFiles;
 
-        static List<string> GetOpenedFiles(List<string> documents)
+        static List<string> GetOpenedFiles(ICollection<string> documents)
         {
             return (from document in PluginBase.MainForm.Documents
                     where documents.Contains(document.FileName)
@@ -28,7 +27,7 @@ namespace QuickNavigate.Forms
             Font = PluginBase.Settings.DefaultFont;
             tree.ItemHeight = tree.Font.Height;
             if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
-            recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(it => File.Exists(it)).ToList();
+            recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(File.Exists).ToList();
             openedFiles = GetOpenedFiles(recentFiles);
             RefrestTree();
         }
