@@ -11,6 +11,15 @@ namespace QuickNavigate.Forms
     public sealed partial class OpenRecentFileForm : Form
     {
         readonly Settings settings;
+        readonly List<string> recentFiles;
+        readonly List<string> openedFiles;
+
+        static List<string> GetOpenedFiles(List<string> documents)
+        {
+            return (from document in PluginBase.MainForm.Documents
+                    where documents.Contains(document.FileName)
+                    select document.FileName).ToList();
+        }
 
         public OpenRecentFileForm(Settings settings)
         {
@@ -19,6 +28,8 @@ namespace QuickNavigate.Forms
             Font = PluginBase.Settings.DefaultFont;
             tree.ItemHeight = tree.Font.Height;
             if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
+            recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(it => File.Exists(it)).ToList();
+            openedFiles = GetOpenedFiles(recentFiles);
             RefrestTree();
         }
 
@@ -33,11 +44,18 @@ namespace QuickNavigate.Forms
 
         void FillTree()
         {
-            List<string> matches = PluginBase.MainForm.Settings.PreviousDocuments;
+            string separator = Path.PathSeparator.ToString();
+            int maxItems = settings.MaxItems;
+            bool wholeWord = settings.RecentFilesWholeWord;
+            bool matchCase = settings.RecentFilesMatchCase;
             string search = input.Text;
-            if (search.Length > 0) matches = SearchUtil.Matches(matches, search, Path.PathSeparator.ToString(), settings.MaxItems, settings.RecentFilesWholeWord, settings.RecentFilesMatchCase);
-            foreach (string file in matches.Where(File.Exists))
-                tree.Items.Add(file);
+            List<string> matches = openedFiles;
+            if (search.Length > 0) matches = SearchUtil.Matches(openedFiles, search, separator, maxItems, wholeWord, matchCase);
+            tree.Items.AddRange(matches.ToArray());
+            if (matches.Capacity > 0 && settings.EnableItemSpacer) tree.Items.Add(settings.ItemSpacer);
+            matches = (from it in recentFiles where !openedFiles.Contains(it) select it).ToList();
+            if (search.Length > 0) matches = SearchUtil.Matches(matches, search, separator, maxItems, wholeWord, matchCase);
+            tree.Items.AddRange(matches.ToArray());
         }
 
         void Navigate()
@@ -91,10 +109,7 @@ namespace QuickNavigate.Forms
         /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
         /// </summary>
         /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            settings.RecentFilesSize = new Size(Size.Width, Size.Height);
-        }
+        protected override void OnFormClosing(FormClosingEventArgs e) => settings.RecentFilesSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefrestTree();
 
