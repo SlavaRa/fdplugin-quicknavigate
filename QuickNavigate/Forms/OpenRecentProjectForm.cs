@@ -39,6 +39,7 @@ namespace QuickNavigate.Forms
             List<string> matches = ProjectManager.PluginMain.Settings.RecentProjects
                         .Where(File.Exists)
                         .ToList();
+            if (matches.Count == 0) return;
             string search = input.Text;
             if (search.Length > 0) matches = SearchUtil.Matches(matches, search, Path.PathSeparator.ToString(), settings.MaxItems, settings.RecentProjectsWholeWord, settings.RecentProjectsMatchCase);
             if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());

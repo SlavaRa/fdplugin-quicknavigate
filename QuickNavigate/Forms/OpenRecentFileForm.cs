@@ -67,16 +67,24 @@ namespace QuickNavigate.Forms
             bool wholeWord = settings.RecentFilesWholeWord;
             bool matchCase = settings.RecentFilesMatchCase;
             string search = input.Text;
-            List<string> matches = openedFiles;
-            if (search.Length > 0) matches = SearchUtil.Matches(openedFiles, search, separator, maxItems, wholeWord, matchCase);
-            if (matches.Count > 0)
+            if (openedFiles.Count > 0)
             {
-                tree.Items.AddRange(matches.ToArray());
-                if (settings.EnableItemSpacer) tree.Items.Add(settings.ItemSpacer);
+                List<string> matches = openedFiles;
+                if (search.Length > 0) matches = SearchUtil.Matches(openedFiles, search, separator, maxItems, wholeWord, matchCase);
+                if (matches.Count > 0)
+                {
+                    tree.Items.AddRange(matches.ToArray());
+                    if (settings.EnableItemSpacer) tree.Items.Add(settings.ItemSpacer);
+                }
             }
-            matches = (from it in recentFiles where !openedFiles.Contains(it) select it).ToList();
-            if (search.Length > 0) matches = SearchUtil.Matches(matches, search, separator, maxItems, wholeWord, matchCase);
-            if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
+            if (recentFiles.Count > 0)
+            {
+                List<string> matches = (from it in recentFiles
+                                        where !openedFiles.Contains(it)
+                                        select it).ToList();
+                if (search.Length > 0) matches = SearchUtil.Matches(matches, search, separator, maxItems, wholeWord, matchCase);
+                if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
+            }
         }
 
         void Navigate()

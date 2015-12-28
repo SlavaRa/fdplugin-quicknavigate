@@ -162,11 +162,20 @@ namespace QuickNavigate.Forms
             {   
                 bool wholeWord = Settings.TypeFormWholeWord;
                 bool matchCase = Settings.TypeFormMatchCase;
-                var matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
-                if (matches.Count > 0) tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
-                if (Settings.EnableItemSpacer && matches.Capacity > 0) tree.Nodes.Add(Settings.ItemSpacer);
-                matches = SearchUtil.Matches(projectTypes, search, ".", Settings.MaxItems, wholeWord, matchCase);
-                if (matches.Count > 0) tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
+                if (openedTypes.Count > 0)
+                {
+                    var matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
+                    if (matches.Count > 0)
+                    {
+                        tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
+                        if (Settings.EnableItemSpacer) tree.Nodes.Add(Settings.ItemSpacer);
+                    }
+                }
+                if (projectTypes.Count > 0)
+                {
+                    var matches = SearchUtil.Matches(projectTypes, search, ".", Settings.MaxItems, wholeWord, matchCase);
+                    if (matches.Count > 0) tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
+                }
             }
             if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
         }
