@@ -89,21 +89,9 @@ namespace QuickNavigate
 		/// </summary>
 		public void Dispose()
 		{
-            if (controlClickManager != null)
-            {
-                controlClickManager.Dispose();
-                controlClickManager = null;
-            }
-            if (classHierarchyItem != null)
-            {
-                classHierarchyItem.Dispose();
-                classHierarchyItem = null;
-            }
-            if (editorClassHierarchyItem != null)
-            {
-                editorClassHierarchyItem.Dispose();
-                editorClassHierarchyItem = null;
-            }
+		    controlClickManager?.Dispose();
+		    classHierarchyItem?.Dispose();
+		    editorClassHierarchyItem?.Dispose();
             SaveSettings();
 		}
 		
@@ -192,7 +180,19 @@ namespace QuickNavigate
         void ShowRecentFiles(object sender, EventArgs e)
         {
             OpenRecentFileForm form = new OpenRecentFileForm((Settings) Settings);
-            form.ShowDialog();
+            switch (form.ShowDialog())
+            {
+                case DialogResult.OK:
+                    ProjectManager.PluginMain plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+                    foreach (object item in form.SelectedItems)
+                    {
+                        string file = item.ToString();
+                        if (!File.Exists(file)) continue;
+                        if (!Path.IsPathRooted(file)) file = Path.GetFullPath(file);
+                        plugin.OpenFile(file);
+                    }
+                    break;
+            }
         }
 
         void ShowRecentProjets(object sender, EventArgs e)
@@ -225,7 +225,7 @@ namespace QuickNavigate
         void ShowTypeForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
-            using (TypeExplorer form = new TypeExplorer((Settings)Settings))
+            using (TypeExplorer form = new TypeExplorer((Settings) Settings))
             {
                 form.GotoPositionOrLine += OnGotoPositionOrLine;
                 form.ShowInQuickOutline += ShowQuickOutline;
@@ -253,7 +253,7 @@ namespace QuickNavigate
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
-            using (QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings)Settings))
+            using (QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings) Settings))
             {
                 form.ShowInClassHierarchy += ShowClassHierarchy;
                 form.ShowDialog();
@@ -269,7 +269,7 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                using (QuickOutline form = new QuickOutline(model, (Settings)Settings))
+                using (QuickOutline form = new QuickOutline(model, (Settings) Settings))
                 {
                     form.ShowInClassHierarchy += ShowClassHierarchy;
                     form.ShowDialog();
@@ -293,20 +293,17 @@ namespace QuickNavigate
         /// <param name="sender"></param>
         /// <param name="model"></param>
         void ShowClassHierarchy(Form sender, ClassModel model)
-	    {
+        {
             sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
-            {
-                ShowClassHierarchy(model);
-            });
-	    }
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate { ShowClassHierarchy(model); });
+        }
 
         /// <summary>
         /// </summary>
         /// <param name="model"></param>
         void ShowClassHierarchy(ClassModel model)
         {
-            using (ClassHierarchy form = new ClassHierarchy(model, (Settings)Settings))
+            using (ClassHierarchy form = new ClassHierarchy(model, (Settings) Settings))
             {
                 form.GotoPositionOrLine += OnGotoPositionOrLine;
                 form.ShowInQuickOutline += ShowQuickOutline;
@@ -326,8 +323,7 @@ namespace QuickNavigate
             ITabbedDocument document = PluginBase.MainForm.CurrentDocument;
             if (document == null || !document.IsEditable) return false;
             IASContext context = ASContext.Context;
-            return context != null && context.Features.hasExtends
-                && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
+            return context != null && context.Features.hasExtends && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
         /// <summary>
@@ -390,5 +386,5 @@ namespace QuickNavigate
         void OnResolvedContextChanged(ResolvedContext resolved) => UpdateMenuItems();
 
         #endregion
-    }
+	}
 }
