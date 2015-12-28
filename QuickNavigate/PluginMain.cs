@@ -180,25 +180,21 @@ namespace QuickNavigate
         void ShowRecentFiles(object sender, EventArgs e)
         {
             OpenRecentFileForm form = new OpenRecentFileForm((Settings) Settings);
-            switch (form.ShowDialog())
+            if (form.ShowDialog() != DialogResult.OK) return;
+            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            foreach (string it in form.SelectedItems)
             {
-                case DialogResult.OK:
-                    ProjectManager.PluginMain plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-                    foreach (object item in form.SelectedItems)
-                    {
-                        string file = item.ToString();
-                        if (!File.Exists(file)) continue;
-                        if (!Path.IsPathRooted(file)) file = Path.GetFullPath(file);
-                        plugin.OpenFile(file);
-                    }
-                    break;
+                plugin.OpenFile(it);
             }
         }
 
         void ShowRecentProjets(object sender, EventArgs e)
         {
             OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
-            form.ShowDialog();
+            if (form.ShowDialog() != DialogResult.OK) return;
+            string file = PluginBase.CurrentProject.GetAbsolutePath(form.SelectedItem);
+            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            plugin.OpenFile(file);
         }
 
         /// <summary>

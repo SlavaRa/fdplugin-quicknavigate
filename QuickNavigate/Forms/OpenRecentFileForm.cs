@@ -69,11 +69,14 @@ namespace QuickNavigate.Forms
             string search = input.Text;
             List<string> matches = openedFiles;
             if (search.Length > 0) matches = SearchUtil.Matches(openedFiles, search, separator, maxItems, wholeWord, matchCase);
-            tree.Items.AddRange(matches.ToArray());
-            if (matches.Capacity > 0 && settings.EnableItemSpacer) tree.Items.Add(settings.ItemSpacer);
+            if (matches.Count > 0)
+            {
+                tree.Items.AddRange(matches.ToArray());
+                if (settings.EnableItemSpacer) tree.Items.Add(settings.ItemSpacer);
+            }
             matches = (from it in recentFiles where !openedFiles.Contains(it) select it).ToList();
             if (search.Length > 0) matches = SearchUtil.Matches(matches, search, separator, maxItems, wholeWord, matchCase);
-            tree.Items.AddRange(matches.ToArray());
+            if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
         }
 
         void Navigate()
