@@ -162,11 +162,20 @@ namespace QuickNavigate.Forms
             {   
                 bool wholeWord = Settings.TypeFormWholeWord;
                 bool matchCase = Settings.TypeFormMatchCase;
-                var matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
-                if (matches.Count > 0) tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
-                if (Settings.EnableItemSpacer && matches.Capacity > 0) tree.Nodes.Add(Settings.ItemSpacer);
-                matches = SearchUtil.Matches(projectTypes, search, ".", Settings.MaxItems, wholeWord, matchCase);
-                if (matches.Count > 0) tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
+                if (openedTypes.Count > 0)
+                {
+                    var matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
+                    if (matches.Count > 0)
+                    {
+                        tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
+                        if (Settings.EnableItemSpacer) tree.Nodes.Add(Settings.ItemSpacer);
+                    }
+                }
+                if (projectTypes.Count > 0)
+                {
+                    var matches = SearchUtil.Matches(projectTypes, search, ".", Settings.MaxItems, wholeWord, matchCase);
+                    if (matches.Count > 0) tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
+                }
             }
             if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
         }
@@ -265,19 +274,7 @@ namespace QuickNavigate.Forms
                     break;
             }
         }
-
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
-        protected override void OnKeyPress(KeyPressEventArgs e)
-        {
-            int keyCode = e.KeyChar;
-            e.Handled = keyCode == (int) Keys.Space
-                        || keyCode == 5 //Ctrl+E
-                        || keyCode == 12; //Ctrl+L
-        }
-
+        
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
         /// </summary>
@@ -317,11 +314,18 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control || e.Shift || tree.SelectedNode == null) return;
+            if (e.Shift) return;
             TreeNode node;
             int visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
             {
+                case Keys.Space:
+                    e.Handled = true;
+                    return;
+                case Keys.E:
+                case Keys.L:
+                    e.Handled = e.Control;
+                    return;
                 case Keys.Down:
                     if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
                     else if (Settings.WrapList) tree.SelectedNode = tree.Nodes[0];

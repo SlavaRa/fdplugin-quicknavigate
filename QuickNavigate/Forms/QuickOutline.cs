@@ -78,7 +78,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         void CreateContextMenu()
         {
-            contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy);
+            contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy);
         }
 
         /// <summary>
@@ -258,17 +258,6 @@ namespace QuickNavigate.Forms
         }
 
         /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
-        protected override void OnKeyPress(KeyPressEventArgs e)
-        {
-            int keyCode = e.KeyChar;
-            e.Handled = keyCode == (int) Keys.Space
-                        || keyCode == 12; //Ctrl+L
-        }
-
-        /// <summary>
         /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
         /// </summary>
         /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
@@ -298,11 +287,16 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control || e.Shift || tree.SelectedNode == null) return;
             TreeNode node;
             int visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
             {
+                case Keys.Space:
+                    e.Handled = true;
+                    return;
+                case Keys.L:
+                    e.Handled = e.Control;
+                    return;
                 case Keys.Down:
                     if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
                     else if (settings.WrapList) tree.SelectedNode = tree.Nodes[0];
@@ -406,7 +400,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnShowInClassHiearachy(object sender, EventArgs e) => ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
+        void OnShowInClassHierarchy(object sender, EventArgs e) => ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
 
         #endregion
     }

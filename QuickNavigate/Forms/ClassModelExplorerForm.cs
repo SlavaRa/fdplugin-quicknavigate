@@ -23,9 +23,9 @@ namespace QuickNavigate.Forms
         public event ShowInHandler ShowInClassHierarchy;
         public event ShowInHandler ShowInProjectManager;
         public event ShowInHandler ShowInFileExplorer;
-        readonly protected Settings Settings;
-        readonly protected ContextMenu InputEmptyContextMenu = new ContextMenu();
-        readonly protected Brush SelectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
+        protected readonly Settings Settings;
+        protected readonly ContextMenu InputEmptyContextMenu = new ContextMenu();
+        protected readonly Brush SelectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
 
         public ClassModelExplorerForm(Settings settings)
         {

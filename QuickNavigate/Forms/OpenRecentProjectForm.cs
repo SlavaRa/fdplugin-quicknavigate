@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using PluginCore;
-using PluginCore.Managers;
 
 namespace QuickNavigate.Forms
 {
@@ -23,34 +22,32 @@ namespace QuickNavigate.Forms
             RefrestTree();
         }
 
+        public string SelectedItem => tree?.SelectedItem.ToString();
+
         void RefrestTree()
         {
             tree.BeginUpdate();
             tree.Items.Clear();
             FillTree();
             if (tree.Items.Count > 0) tree.SelectedIndex = 0;
+            else open.Enabled = false;
             tree.EndUpdate();
         }
 
         void FillTree()
         {
-            List<string> matches = ProjectManager.PluginMain.Settings.RecentProjects;
+            List<string> matches = ProjectManager.PluginMain.Settings.RecentProjects
+                        .Where(File.Exists)
+                        .ToList();
+            if (matches.Count == 0) return;
             string search = input.Text;
             if (search.Length > 0) matches = SearchUtil.Matches(matches, search, Path.PathSeparator.ToString(), settings.MaxItems, settings.RecentProjectsWholeWord, settings.RecentProjectsMatchCase);
-            foreach (string file in matches.Where(File.Exists))
-                tree.Items.Add(file);
+            if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
         }
 
         void Navigate()
         {
-            if (tree.SelectedItem == null) return;
-            string file = PluginBase.CurrentProject.GetAbsolutePath((string)tree.SelectedItem);
-            ((Form)PluginBase.MainForm).BeginInvoke((MethodInvoker)delegate
-            {
-                ProjectManager.PluginMain plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-                plugin.OpenFile(file);
-            });
-            Close();
+            if (SelectedItem != null) DialogResult = DialogResult.OK;
         }
 
         /// <summary>
@@ -61,9 +58,6 @@ namespace QuickNavigate.Forms
         {
             switch (e.KeyCode)
             {
-                case Keys.Escape:
-                    Close();
-                    break;
                 case Keys.Enter:
                     e.Handled = true;
                     Navigate();
@@ -76,16 +70,6 @@ namespace QuickNavigate.Forms
                     }
                     break;
             }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyPress"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyPressEventArgs"/> that contains the event data. </param>
-        protected override void OnKeyPress(KeyPressEventArgs e)
-        {
-            int keyCode = e.KeyChar;
-            e.Handled = keyCode == 12; //Ctrl+L
         }
 
         /// <summary>
@@ -105,25 +89,26 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control || e.Shift || tree.SelectedItem == null) return;
-            int count = tree.Items.Count - 1;
-            if (count <= 1) return;
+            int lastIndex = tree.Items.Count - 1;
             int index = tree.SelectedIndex;
             switch (e.KeyCode)
             {
+                case Keys.L:
+                    e.Handled = e.Control;
+                    return;
                 case Keys.Down:
-                    if (index < count) tree.SelectedItem = tree.Items[index + 1];
-                    else if (settings.WrapList) tree.SelectedItem = tree.Items[0];
-                    break;
-                case Keys.Home:
-                    tree.SelectedItem = tree.Items[0];
+                    if (index < lastIndex) tree.SetSelected(index + 1, true);
+                    else if (settings.WrapList) tree.SetSelected(0, true);
                     break;
                 case Keys.Up:
-                    if (index > 0) tree.SelectedItem = tree.Items[index - 1];
-                    else if (settings.WrapList) tree.SelectedItem = tree.Items[count];
+                    if (index > 0) tree.SetSelected(index - 1, true);
+                    else if (settings.WrapList) tree.SetSelected(lastIndex, true);
+                    break;
+                case Keys.Home:
+                    tree.SetSelected(0, true);
                     break;
                 case Keys.End:
-                    tree.SelectedItem = tree.Items[count];
+                    tree.SetSelected(lastIndex, true);
                     break;
                 default: return;
             }
@@ -131,5 +116,7 @@ namespace QuickNavigate.Forms
         }
 
         void OnTreeMouseDoubleClick(object sender, MouseEventArgs e) => Navigate();
+
+        void OnTreeSelectedIndexChanged(object sender, EventArgs e) => open.Enabled = SelectedItem != null;
     }
 }
