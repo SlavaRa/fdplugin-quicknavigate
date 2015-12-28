@@ -30,6 +30,7 @@ namespace QuickNavigate.Forms
             tree.Items.Clear();
             FillTree();
             if (tree.Items.Count > 0) tree.SelectedIndex = 0;
+            else open.Enabled = false;
             tree.EndUpdate();
         }
 
@@ -56,9 +57,6 @@ namespace QuickNavigate.Forms
         {
             switch (e.KeyCode)
             {
-                case Keys.Escape:
-                    Close();
-                    break;
                 case Keys.Enter:
                     e.Handled = true;
                     Navigate();
@@ -117,5 +115,7 @@ namespace QuickNavigate.Forms
         }
 
         void OnTreeMouseDoubleClick(object sender, MouseEventArgs e) => Navigate();
+
+        void OnTreeSelectedIndexChanged(object sender, EventArgs e) => open.Enabled = SelectedItem != null;
     }
 }

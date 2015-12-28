@@ -92,9 +92,6 @@ namespace QuickNavigate.Forms
         {
             switch (e.KeyCode)
             {
-                case Keys.Escape:
-                    Close();
-                    break;
                 case Keys.Enter:
                     e.Handled = true;
                     Navigate();
