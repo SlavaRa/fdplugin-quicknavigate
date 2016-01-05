@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Model;
+using JetBrains.Annotations;
 using PluginCore;
 using ScintillaNet;
 
@@ -30,7 +31,7 @@ namespace QuickNavigate.Forms
         public ClassModelExplorerForm(Settings settings)
         {
             Settings = settings;
-            Font = PluginBase.Settings.ConsoleFont;
+            Font = PluginBase.Settings.DefaultFont;
             CreateContextMenu();
         }
 
@@ -97,9 +98,8 @@ namespace QuickNavigate.Forms
 
         /// <summary>
         /// </summary>
-        protected void Navigate(TypeNode node)
+        protected void Navigate([NotNull] TypeNode node)
         {
-            if (node == null) return;
             ClassModel classModel = node.Model;
             FileModel file = ModelsExplorer.Instance.OpenFile(classModel.InFile.FileName);
             if (file != null)

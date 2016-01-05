@@ -1,6 +1,6 @@
 ﻿namespace QuickNavigate.Forms
 {
-    partial class TypeExplorer
+    sealed partial class TypeExplorer
     {
         /// <summary>
         /// Required designer variable.

@@ -7,14 +7,16 @@ using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
+using JetBrains.Annotations;
 using PluginCore;
 using QuickNavigate.Collections;
+using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
     /// <summary>
     /// </summary>
-    public partial class TypeExplorer : ClassModelExplorerForm
+    public sealed partial class TypeExplorer : ClassModelExplorerForm
     {
         readonly List<string> projectTypes = new List<string>();
         readonly List<string> openedTypes = new List<string>();
@@ -35,6 +37,9 @@ namespace QuickNavigate.Forms
             InitTree();
             RefreshTree();
         }
+
+        [CanBeNull]
+        public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -94,52 +99,11 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        static bool IsFileOpened(string fileName) => PluginBase.MainForm.Documents.Any(doc => doc.FileName == fileName);
+        static bool IsFileOpened(string fileName) => PluginBase.MainForm.Documents.Any(it => it.FileName == fileName);
 
         /// <summary>
         /// </summary>
-        protected override void InitTree()
-        {
-            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
-            icons.Images.AddRange(new Image[] {
-                new Bitmap(PluginUI.GetStream("FilePlain.png")),
-                new Bitmap(PluginUI.GetStream("FolderClosed.png")),
-                new Bitmap(PluginUI.GetStream("FolderOpen.png")),
-                new Bitmap(PluginUI.GetStream("CheckAS.png")),
-                new Bitmap(PluginUI.GetStream("QuickBuild.png")),
-                new Bitmap(PluginUI.GetStream("Package.png")),
-                new Bitmap(PluginUI.GetStream("Interface.png")),
-                new Bitmap(PluginUI.GetStream("Intrinsic.png")),
-                new Bitmap(PluginUI.GetStream("Class.png")),
-                new Bitmap(PluginUI.GetStream("Variable.png")),
-                new Bitmap(PluginUI.GetStream("VariableProtected.png")),
-                new Bitmap(PluginUI.GetStream("VariablePrivate.png")),
-                new Bitmap(PluginUI.GetStream("VariableStatic.png")),
-                new Bitmap(PluginUI.GetStream("VariableStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("VariableStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Const.png")),
-                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
-                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Const.png")),
-                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
-                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Method.png")),
-                new Bitmap(PluginUI.GetStream("MethodProtected.png")),
-                new Bitmap(PluginUI.GetStream("MethodPrivate.png")),
-                new Bitmap(PluginUI.GetStream("MethodStatic.png")),
-                new Bitmap(PluginUI.GetStream("MethodStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("MethodStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Property.png")),
-                new Bitmap(PluginUI.GetStream("PropertyProtected.png")),
-                new Bitmap(PluginUI.GetStream("PropertyPrivate.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStatic.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Template.png")),
-                new Bitmap(PluginUI.GetStream("Declaration.png"))
-            });
-            tree.ImageList = icons;
-        }
+        protected override void InitTree() => tree.ImageList = FormHelper.GetTreeIcons();
 
         /// <summary>
         /// </summary>
@@ -194,7 +158,10 @@ namespace QuickNavigate.Forms
         static TypeNode CreateNode(string type)
         {
             ClassModel aClass = TypeToClassModel[type];
-            return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access));
+            return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access))
+            {
+                Tag = "class"
+            };
         }
 
         /// <summary>
@@ -226,9 +193,8 @@ namespace QuickNavigate.Forms
         /// </summary>
         protected override void ShowContextMenu()
         {
-            TypeNode node = tree.SelectedNode as TypeNode;
-            if (node == null) return;
-            ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+            if (SelectedNode == null) return;
+            ShowContextMenu(new Point(SelectedNode.Bounds.X, SelectedNode.Bounds.Y + SelectedNode.Bounds.Height));
         }
 
         /// <summary>
@@ -236,17 +202,15 @@ namespace QuickNavigate.Forms
         /// </summary>
         protected override void ShowContextMenu(Point position)
         {
-            TypeNode node = tree.SelectedNode as TypeNode;
-            if (node == null) return;
-            ContextMenuStrip.Items[4].Enabled = File.Exists(node.Model.InFile.FileName);
+            if (SelectedNode == null) return;
+            ContextMenuStrip.Items[4].Enabled = File.Exists(SelectedNode.Model.InFile.FileName);
             ContextMenuStrip.Show(tree, position);
         }
 
         protected override void Navigate()
         {
-            TypeNode node = tree.SelectedNode as TypeNode;
-            if (node == null) return;
-            base.Navigate(node);
+            if (SelectedNode == null) return;
+            DialogResult = DialogResult.OK;
         }
 
         #region Event Handlers
@@ -305,7 +269,7 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null ? InputEmptyContextMenu : null;
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? InputEmptyContextMenu : null;
         }
 
         /// <summary>

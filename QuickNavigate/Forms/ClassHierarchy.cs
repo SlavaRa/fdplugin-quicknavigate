@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
+using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
@@ -90,48 +91,7 @@ namespace QuickNavigate.Forms
 
         /// <summary>
         /// </summary>
-        protected override void InitTree()
-        {
-            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
-            icons.Images.AddRange(new Image[] {
-                new Bitmap(PluginUI.GetStream("FilePlain.png")),
-                new Bitmap(PluginUI.GetStream("FolderClosed.png")),
-                new Bitmap(PluginUI.GetStream("FolderOpen.png")),
-                new Bitmap(PluginUI.GetStream("CheckAS.png")),
-                new Bitmap(PluginUI.GetStream("QuickBuild.png")),
-                new Bitmap(PluginUI.GetStream("Package.png")),
-                new Bitmap(PluginUI.GetStream("Interface.png")),
-                new Bitmap(PluginUI.GetStream("Intrinsic.png")),
-                new Bitmap(PluginUI.GetStream("Class.png")),
-                new Bitmap(PluginUI.GetStream("Variable.png")),
-                new Bitmap(PluginUI.GetStream("VariableProtected.png")),
-                new Bitmap(PluginUI.GetStream("VariablePrivate.png")),
-                new Bitmap(PluginUI.GetStream("VariableStatic.png")),
-                new Bitmap(PluginUI.GetStream("VariableStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("VariableStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Const.png")),
-                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
-                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Const.png")),
-                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
-                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Method.png")),
-                new Bitmap(PluginUI.GetStream("MethodProtected.png")),
-                new Bitmap(PluginUI.GetStream("MethodPrivate.png")),
-                new Bitmap(PluginUI.GetStream("MethodStatic.png")),
-                new Bitmap(PluginUI.GetStream("MethodStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("MethodStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Property.png")),
-                new Bitmap(PluginUI.GetStream("PropertyProtected.png")),
-                new Bitmap(PluginUI.GetStream("PropertyPrivate.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStatic.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Template.png")),
-                new Bitmap(PluginUI.GetStream("Declaration.png"))
-            });
-            tree.ImageList = icons;
-        }
+        protected override void InitTree() => tree.ImageList = FormHelper.GetTreeIcons();
 
         /// <summary>
         /// </summary>

@@ -14,10 +14,10 @@ namespace QuickNavigate.Forms
         readonly List<string> recentFiles;
         readonly List<string> openedFiles;
 
-        static List<string> GetOpenedFiles(ICollection<string> documents)
+        static List<string> GetOpenedFiles(ICollection<string> filenames)
         {
             return (from document in PluginBase.MainForm.Documents
-                    where documents.Contains(document.FileName)
+                    where filenames.Contains(document.FileName)
                     select document.FileName).ToList();
         }
 
@@ -30,6 +30,7 @@ namespace QuickNavigate.Forms
             if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(File.Exists).ToList();
             openedFiles = GetOpenedFiles(recentFiles);
+            recentFiles.RemoveAll(openedFiles.Contains);
             RefreshTree();
         }
 
@@ -79,9 +80,7 @@ namespace QuickNavigate.Forms
             }
             if (recentFiles.Count > 0)
             {
-                List<string> matches = (from it in recentFiles
-                                        where !openedFiles.Contains(it)
-                                        select it).ToList();
+                List<string> matches = recentFiles;
                 if (search.Length > 0) matches = SearchUtil.Matches(matches, search, separator, maxItems, wholeWord, matchCase);
                 if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
             }

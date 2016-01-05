@@ -1,36 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
-using ASCompletion.Context;
 using ASCompletion.Model;
+using JetBrains.Annotations;
 using PluginCore;
+using QuickNavigate.Helpers;
 using SmartMemberComparer = QuickNavigate.Collections.SmartMemberComparer;
 
 namespace QuickNavigate.Forms
 {
     /// <summary>
     /// </summary>
-    public partial class QuickOutline : Form
+    public sealed partial class QuickOutline : Form
     {
-        public event ShowInHandler ShowInClassHierarchy;
-        readonly ClassModel inClass;
-        readonly FileModel inFile;
+        [CanBeNull] public event ShowInHandler ShowInClassHierarchy;
         readonly Settings settings;
         readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly Brush defaultNodeBrush;
-        readonly MemberList tmpMembers = new MemberList();
         readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
         readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
+        readonly List<Button> filters = new List<Button>();
+        readonly Dictionary<Keys, Button> keysToFilter = new Dictionary<Keys, Button>();
+        readonly Dictionary<Button, string> filterToEnabledTip = new Dictionary<Button, string>();
+        readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
         /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        public QuickOutline(ClassModel inClass, Settings settings) : this(null, inClass, settings)
-        {   
+        public QuickOutline([NotNull] ClassModel inClass, [NotNull] Settings settings) : this(null, inClass, settings)
+        {
         }
 
         /// <summary>
@@ -38,25 +41,60 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="inFile"></param>
         /// <param name="settings"></param>
-        public QuickOutline(FileModel inFile, Settings settings) : this(inFile, null, settings)
+        public QuickOutline([NotNull] FileModel inFile, [NotNull] Settings settings) : this(inFile, null, settings)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
+        /// <param name="inFile"></param>
+        /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        QuickOutline(FileModel inFile, ClassModel inClass, Settings settings)
+        QuickOutline([CanBeNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings)
         {
-            this.inFile = inFile;
-            this.inClass = inClass;
+            InFile = inFile;
+            InClass = inClass;
             this.settings = settings;
             InitializeComponent();
             if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             CreateContextMenu();
-            InitTree();
+            InitializeTree();
+            InitializeFilters();
             RefreshTree();
+        }
+
+        [CanBeNull] ToolTip filterToolTip;
+        [CanBeNull] public ClassModel InClass { get; }
+        [CanBeNull] public FileModel InFile { get; }
+        [CanBeNull] public TreeNode SelectedNode => tree.SelectedNode;
+
+        [CanBeNull] Button currentFilter;
+        [CanBeNull] Button CurrentFilter
+        {
+            get { return currentFilter; }
+            set
+            {
+                if (currentFilter != null)
+                {
+                    currentFilter.FlatStyle = FlatStyle.Popup;
+                    currentFilter.BackColor = tree.BackColor;
+                }
+                if (value == CurrentFilter) currentFilter = null;
+                else
+                {
+                    currentFilter = value;
+                    if (currentFilter != null)
+                    {
+                        currentFilter.FlatStyle = FlatStyle.Standard;
+                        currentFilter.BackColor = SystemColors.ControlDarkDark;
+                    }
+                }
+                RefreshTree();
+                if (value != null && filterToolTip != null) RefreshFilterTip(value);
+                input.Select();
+            }
         }
 
         /// <summary>
@@ -83,47 +121,39 @@ namespace QuickNavigate.Forms
 
         /// <summary>
         /// </summary>
-        void InitTree()
+        void InitializeTree() => tree.ImageList = FormHelper.GetTreeIcons();
+
+        void InitializeFilters()
         {
-            ImageList icons = new ImageList {TransparentColor = Color.Transparent};
-            icons.Images.AddRange(new Image[] {
-                new Bitmap(PluginUI.GetStream("FilePlain.png")),
-                new Bitmap(PluginUI.GetStream("FolderClosed.png")),
-                new Bitmap(PluginUI.GetStream("FolderOpen.png")),
-                new Bitmap(PluginUI.GetStream("CheckAS.png")),
-                new Bitmap(PluginUI.GetStream("QuickBuild.png")),
-                new Bitmap(PluginUI.GetStream("Package.png")),
-                new Bitmap(PluginUI.GetStream("Interface.png")),
-                new Bitmap(PluginUI.GetStream("Intrinsic.png")),
-                new Bitmap(PluginUI.GetStream("Class.png")),
-                new Bitmap(PluginUI.GetStream("Variable.png")),
-                new Bitmap(PluginUI.GetStream("VariableProtected.png")),
-                new Bitmap(PluginUI.GetStream("VariablePrivate.png")),
-                new Bitmap(PluginUI.GetStream("VariableStatic.png")),
-                new Bitmap(PluginUI.GetStream("VariableStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("VariableStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Const.png")),
-                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
-                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Const.png")),
-                new Bitmap(PluginUI.GetStream("ConstProtected.png")),
-                new Bitmap(PluginUI.GetStream("ConstPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Method.png")),
-                new Bitmap(PluginUI.GetStream("MethodProtected.png")),
-                new Bitmap(PluginUI.GetStream("MethodPrivate.png")),
-                new Bitmap(PluginUI.GetStream("MethodStatic.png")),
-                new Bitmap(PluginUI.GetStream("MethodStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("MethodStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Property.png")),
-                new Bitmap(PluginUI.GetStream("PropertyProtected.png")),
-                new Bitmap(PluginUI.GetStream("PropertyPrivate.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStatic.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStaticProtected.png")),
-                new Bitmap(PluginUI.GetStream("PropertyStaticPrivate.png")),
-                new Bitmap(PluginUI.GetStream("Template.png")),
-                new Bitmap(PluginUI.GetStream("Declaration.png"))
-            });
-            tree.ImageList = icons;
+            ImageList imageList = tree.ImageList;
+            classes.ImageList = imageList;
+            classes.ImageIndex = PluginUI.ICON_TYPE;
+            classes.Tag = FlagType.Class;
+            filterToEnabledTip[classes] = "Show only classes(Alt+C or left click)";
+            filterToDisabledTip[classes] = "Show all(Alt+C or left click)";
+            keysToFilter[Keys.C] = classes;
+            filters.Add(classes);
+            fields.ImageList = imageList;
+            fields.ImageIndex = PluginUI.ICON_VAR;
+            fields.Tag = FlagType.Variable;
+            filterToEnabledTip[fields] = "Show only fields(Alt+F or left click)";
+            filterToDisabledTip[fields] = "Show all(Alt+F or left click)";
+            keysToFilter[Keys.F] = fields;
+            filters.Add(fields);
+            properties.ImageList = imageList;
+            properties.ImageIndex = PluginUI.ICON_PROPERTY;
+            properties.Tag = FlagType.Getter | FlagType.Setter;
+            filterToEnabledTip[properties] = "Show only properties(Alt+P or left click)";
+            filterToDisabledTip[properties] = "Show all(Alt+P or left click)";
+            keysToFilter[Keys.P] = properties;
+            filters.Add(properties);
+            methods.ImageList = imageList;
+            methods.ImageIndex = PluginUI.ICON_FUNCTION;
+            methods.Tag = FlagType.Function;
+            filterToEnabledTip[methods] = "Show only methods(Alt+M or left click)";
+            filterToDisabledTip[methods] = "Show all(Alt+M or left click)";
+            keysToFilter[Keys.M] = methods;
+            filters.Add(methods);
         }
 
         /// <summary>
@@ -143,17 +173,17 @@ namespace QuickNavigate.Forms
         {
             bool isHaxe;
             List<ClassModel> classes;
-            if (inFile != null)
+            if (InFile != null)
             {
-                if (inFile == FileModel.Ignore) return;
-                isHaxe = inFile.haXe;
-                if (inFile.Members.Count > 0) AddMembers(tree.Nodes, inFile.Members, isHaxe);
-                classes = inFile.Classes;
+                if (InFile == FileModel.Ignore) return;
+                isHaxe = InFile.haXe;
+                if (InFile.Members.Count > 0) AddMembers(tree.Nodes, InFile.Members, isHaxe);
+                classes = InFile.Classes;
             } 
-            else if (inClass != null)
+            else if (InClass != null)
             {
-                isHaxe = inClass.InFile.haXe;
-                classes = new List<ClassModel> {inClass};
+                isHaxe = InClass.InFile.haXe;
+                classes = new List<ClassModel> {InClass};
             }
             else return;
             foreach (ClassModel aClass in classes)
@@ -163,6 +193,7 @@ namespace QuickNavigate.Forms
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, aClass.Members, isHaxe);
             }
+            if (SelectedNode == null && tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
         }
 
         /// <summary>
@@ -172,16 +203,19 @@ namespace QuickNavigate.Forms
         /// <param name="isHaxe"></param>
         void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
         {
+            List<MemberModel> items = members.Items.ToList();
+            if (CurrentFilter != null)
+            {
+                FlagType flags = (FlagType) CurrentFilter.Tag;
+                items.RemoveAll(it => (it.Flags & flags) == 0);
+            }
             bool noCase = !settings.OutlineFormMatchCase;
             string search = input.Text.Trim();
-            bool searchIsNotEmpty = !string.IsNullOrEmpty(search);
+            bool searchIsNotEmpty = search.Length > 0;
             if (searchIsNotEmpty && noCase) search = search.ToLower();
-            tmpMembers.Clear();
-            tmpMembers.Add(members);
-            tmpMembers.Sort(new SmartMemberComparer(search, noCase));
-            members = tmpMembers;
+            items.Sort(new SmartMemberComparer(search, noCase));
             bool wholeWord = settings.OutlineFormWholeWord;
-            foreach (MemberModel member in members)
+            foreach (MemberModel member in items)
             {
                 string fullName = member.FullName;
                 if (searchIsNotEmpty)
@@ -192,20 +226,25 @@ namespace QuickNavigate.Forms
                 }
                 FlagType flags = member.Flags;
                 int icon = PluginUI.GetIcon(flags, member.Access);
-                string constrDeclName = (isHaxe && (flags & FlagType.Constructor) > 0) ? "new" : fullName;
-                nodes.Add(new TreeNode(member.ToString(), icon, icon) {Tag = $"{constrDeclName}@{member.LineFrom}"});
+                string constrDeclName = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : fullName;
+                string tag = $"{constrDeclName}@{member.LineFrom}";
+                nodes.Add(new TreeNode(member.ToString(), icon, icon) {Tag = tag});
             }
-            if (tree.SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
+            if (SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
+        }
+
+        void RefreshFilterTip(Button filter)
+        {
+            string text = filter == CurrentFilter ? filterToDisabledTip[filter] : filterToEnabledTip[filter];
+            if (filterToolTip == null) filterToolTip = new ToolTip();
+            filterToolTip.Show(text, filter, filter.Width, filter.Height);
         }
 
         /// <summary>
         /// </summary>
         void Navigate()
         {
-            if (tree.SelectedNode == null) return;
-            if (inFile == null) ModelsExplorer.Instance.OpenFile(inClass.InFile.FileName);
-            ASContext.Context.OnSelectOutlineNode(tree.SelectedNode);
-            Close();
+            if (SelectedNode != null) DialogResult = DialogResult.OK;
         }
 
         /// <summary>
@@ -213,8 +252,8 @@ namespace QuickNavigate.Forms
         /// </summary>
         void ShowContextMenu()
         {
-            TreeNode node = tree.SelectedNode as TypeNode;
-            if (node != null && (string) node.Tag == "class") ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Y + node.Bounds.Height));
+            TreeNode node = SelectedNode as TypeNode;
+            if (node != null && (string) node.Tag == "class") ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Bottom));
         }
 
         /// <summary>
@@ -222,7 +261,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         void ShowContextMenu(Point position)
         {
-            TreeNode node = tree.SelectedNode as TypeNode;
+            TreeNode node = SelectedNode as TypeNode;
             if (node != null && (string) node.Tag == "class") contextMenu.Show(tree, position);
         }
 
@@ -234,7 +273,13 @@ namespace QuickNavigate.Forms
         /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            switch (e.KeyCode)
+            Keys keyCode = e.KeyCode;
+            if (keysToFilter.ContainsKey(keyCode))
+            {
+                CurrentFilter = keysToFilter[keyCode];
+                return;
+            }
+            switch (keyCode)
             {
                 case Keys.Escape:
                     Close();
@@ -278,7 +323,7 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            if (e.KeyCode == Keys.Apps) input.ContextMenu = tree.SelectedNode != null && (string) tree.SelectedNode.Tag == "class" ? inputEmptyContextMenu : null;
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null && (string) SelectedNode.Tag == "class" ? inputEmptyContextMenu : null;
         }
 
         /// <summary>
@@ -287,9 +332,15 @@ namespace QuickNavigate.Forms
         /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
+            Keys keyCode = e.KeyCode;
+            if (keysToFilter.ContainsKey(keyCode))
+            {
+                e.Handled = e.Alt;
+                return;
+            }
             TreeNode node;
             int visibleCount = tree.VisibleCount - 1;
-            switch (e.KeyCode)
+            switch (keyCode)
             {
                 case Keys.Space:
                     e.Handled = true;
@@ -351,7 +402,7 @@ namespace QuickNavigate.Forms
             TreeNode node = e.Node as TypeNode;
             if (node == null || (string) node.Tag != "class") return;
             tree.SelectedNode = node;
-            ShowContextMenu(new Point(e.Location.X, node.Bounds.Y + node.Bounds.Height));
+            ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
         }
 
         /// <summary>
@@ -400,7 +451,18 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnShowInClassHierarchy(object sender, EventArgs e) => ShowInClassHierarchy(this, ((TypeNode)tree.SelectedNode).Model);
+        void OnShowInClassHierarchy(object sender, EventArgs e) => ShowInClassHierarchy(this, ((TypeNode)SelectedNode).Model);
+
+        void OnFilterMouseHover(object sender, EventArgs e) => RefreshFilterTip((Button) sender);
+
+        void OnFilterMouseLeave(object sender, EventArgs e)
+        {
+            if (filterToolTip == null) return;
+            filterToolTip.Hide((Button) sender);
+            filterToolTip = null;
+        }
+
+        void OnFilterMouseClick(object sender, EventArgs e) => CurrentFilter = filters.First(sender.Equals);
 
         #endregion
     }

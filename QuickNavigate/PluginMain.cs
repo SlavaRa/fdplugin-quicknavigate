@@ -8,6 +8,7 @@ using ASCompletion;
 using ASCompletion.Completion;
 using ASCompletion.Context;
 using ASCompletion.Model;
+using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
@@ -110,12 +111,12 @@ namespace QuickNavigate
                     if (controlClickManager != null) controlClickManager.Sci = PluginBase.MainForm.CurrentDocument.SciControl;
                     break;
                 case EventType.Command:
-                    DataEvent da = (DataEvent)e;
-                    switch (da.Action)
+                    if (((DataEvent)e).Action == ProjectManagerEvents.Project)
                     {
-                        case ProjectManagerEvents.Project:
-                            UpdateMenuItems();
-                            break;
+                        #region TODO slavara: ModelExplorer.current not updated after the change of the current project
+                        ModelsExplorer.Instance.UpdateTree();
+                        UpdateMenuItems();
+                        #endregion
                     }
                     break;
             }
@@ -221,16 +222,25 @@ namespace QuickNavigate
         void ShowTypeForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
-            using (TypeExplorer form = new TypeExplorer((Settings) Settings))
-            {
-                form.GotoPositionOrLine += OnGotoPositionOrLine;
-                form.ShowInQuickOutline += ShowQuickOutline;
-                form.ShowInClassHierarchy += ShowClassHierarchy;
-                form.ShowInProjectManager += ShowInProjectManager;
-                form.ShowInFileExplorer += ShowInFileExplorer;
-                form.ShowDialog();
-            }
+            TypeExplorer form = new TypeExplorer((Settings) Settings);
+            form.GotoPositionOrLine += OnGotoPositionOrLine;
+            form.ShowInQuickOutline += ShowQuickOutline;
+            form.ShowInClassHierarchy += ShowClassHierarchy;
+            form.ShowInProjectManager += ShowInProjectManager;
+            form.ShowInFileExplorer += ShowInFileExplorer;
+            if (form.ShowDialog() != DialogResult.OK) return;
+            TypeNode node = form.SelectedNode;
+            if (node == null) return;
+            Navigate(node.Model.InFile.FileName, node);
         }
+
+        static void Navigate([NotNull] string fileName, [NotNull] TreeNode node)
+        {
+            ModelsExplorer.Instance.OpenFile(fileName);
+            Navigate(node);
+        }
+
+        static void Navigate([NotNull] TreeNode node) => ASContext.Context.OnSelectOutlineNode(node);
 
         static void OnGotoPositionOrLine(Form sender, ClassModel model)
         {
@@ -249,11 +259,11 @@ namespace QuickNavigate
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
-            using (QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings) Settings))
-            {
-                form.ShowInClassHierarchy += ShowClassHierarchy;
-                form.ShowDialog();
-            }
+            QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings) Settings);
+            form.ShowInClassHierarchy += ShowClassHierarchy;
+            if (form.ShowDialog() != DialogResult.OK) return;
+            if (form.InFile == null) Navigate(form.InClass.InFile.FileName, form.SelectedNode);
+            else Navigate(form.SelectedNode);
         }
 
         /// <summary>
@@ -265,11 +275,11 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                using (QuickOutline form = new QuickOutline(model, (Settings) Settings))
-                {
-                    form.ShowInClassHierarchy += ShowClassHierarchy;
-                    form.ShowDialog();
-                }
+                QuickOutline form = new QuickOutline(model, (Settings) Settings);
+                form.ShowInClassHierarchy += ShowClassHierarchy;
+                if (form.ShowDialog() != DialogResult.OK) return;
+                if (form.InFile == null) Navigate(form.InClass.InFile.FileName, form.SelectedNode);
+                else Navigate(form.SelectedNode);
             });
         }
 
