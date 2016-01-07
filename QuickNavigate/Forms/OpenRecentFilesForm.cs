@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using PluginCore;
+using QuickNavigate.Helpers;
 using static System.Windows.Forms.ListBox;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class OpenRecentFileForm : Form
+    public sealed partial class OpenRecentFilesForm : Form
     {
+        [NotNull]
         readonly Settings settings;
+
+        [NotNull]
         readonly List<string> recentFiles;
+
+        [NotNull]
         readonly List<string> openedFiles;
 
-        static List<string> GetOpenedFiles(ICollection<string> filenames)
-        {
-            return (from document in PluginBase.MainForm.Documents
-                    where filenames.Contains(document.FileName)
-                    select document.FileName).ToList();
-        }
-
-        public OpenRecentFileForm(Settings settings)
+        public OpenRecentFilesForm([NotNull] Settings settings)
         {
             this.settings = settings;
             InitializeComponent();
@@ -29,13 +29,14 @@ namespace QuickNavigate.Forms
             tree.ItemHeight = tree.Font.Height;
             if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(File.Exists).ToList();
-            openedFiles = GetOpenedFiles(recentFiles);
+            openedFiles = FormHelper.FilterOpenedFiles(recentFiles);
             recentFiles.RemoveAll(openedFiles.Contains);
             RefreshTree();
         }
 
         int selectedIndex;
 
+        [NotNull]
         public List<string> SelectedItems
         {
             get
@@ -88,13 +89,10 @@ namespace QuickNavigate.Forms
 
         void Navigate()
         {
-            if (tree.SelectedItems.Count > 0) DialogResult = DialogResult.OK;
+            if (SelectedItems.Count == 0) return;
+            DialogResult = DialogResult.OK;
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -113,18 +111,10 @@ namespace QuickNavigate.Forms
             }
         }
         
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e) => settings.RecentFilesSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             int prevSelectedIndex = selectedIndex;

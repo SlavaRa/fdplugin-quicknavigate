@@ -65,48 +65,48 @@ namespace QuickNavigate
 
         [Browsable(false)]
         [Category("Type Explorer")]
-        public Size TypeFormSize { get; set; }
+        public Size TypeExplorerSize { get; set; }
 
-        bool searchExternalClassPath = true;
+        bool typeExplorerSearchExternalClassPath = true;
 
         [Browsable(false)]
         [Category("Type Explorer")]
         [DisplayName("Search in external classpath")]
         [Description("Enable searching types in external classpath")]
         [DefaultValue(true)]
-        public bool SearchExternalClassPath
+        public bool TypeExplorerSearchExternalClassPath
         {
-            get { return searchExternalClassPath; }
-            set { searchExternalClassPath = value; }
+            get { return typeExplorerSearchExternalClassPath; }
+            set { typeExplorerSearchExternalClassPath = value; }
         }
 
         [Category("Type Explorer")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
-        public bool TypeFormWholeWord { get; set; }
+        public bool TypeExplorerWholeWord { get; set; }
 
         [Category("Type Explorer")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
-        public bool TypeFormMatchCase { get; set; }
-
-        #region Outline Form
+        public bool TypeExplorerMatchCase { get; set; }
 
         #endregion
 
-        [Browsable(false)]
-        [Category("Outline Form")]
-        public Size OutlineFormSize { get; set; }
+        #region Quick Outline
 
-        [Category("Outline Form")]
+        [Browsable(false)]
+        [Category("Quick Outline")]
+        public Size QuickOutlineSize { get; set; }
+
+        [Category("Quick Outline")]
         [DisplayName("Whole word")]
         [DefaultValue(false)]
-        public bool OutlineFormWholeWord { get; set; }
+        public bool QuickOutlineWholeWord { get; set; }
 
-        [Category("Outline Form")]
+        [Category("Quick Outline")]
         [DisplayName("Match case")]
         [DefaultValue(false)]
-        public bool OutlineFormMatchCase { get; set; }
+        public bool QuickOutlineMatchCase { get; set; }
 
         #endregion
 
@@ -114,7 +114,7 @@ namespace QuickNavigate
 
         [Browsable(false)]
         [Category("Hierarchy Explorer")]
-        public Size HierarchyExplorerSize;
+        public Size HierarchyExplorerSize { get; set; }
 
         [Category("Hierarchy Explorer")]
         [DisplayName("Whole word")]

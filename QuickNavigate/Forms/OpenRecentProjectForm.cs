@@ -4,15 +4,17 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using PluginCore;
 
 namespace QuickNavigate.Forms
 {
     public sealed partial class OpenRecentProjectForm : Form
     {
+        [NotNull]
         readonly Settings settings;
 
-        public OpenRecentProjectForm(Settings settings)
+        public OpenRecentProjectForm([NotNull] Settings settings)
         {
             this.settings = settings;
             InitializeComponent();
@@ -47,13 +49,10 @@ namespace QuickNavigate.Forms
 
         void Navigate()
         {
-            if (SelectedItem != null) DialogResult = DialogResult.OK;
+            if (SelectedItem == null) return;
+            DialogResult = DialogResult.OK;
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -72,21 +71,13 @@ namespace QuickNavigate.Forms
             }
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            settings.RecentProjectsSize = new Size(Size.Width, Size.Height);
+            settings.RecentProjectsSize = Size;
         }
 
         void OnInputTextChanged(object sender, EventArgs e) => RefrestTree();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             int lastIndex = tree.Items.Count - 1;

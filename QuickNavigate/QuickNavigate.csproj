@@ -96,11 +96,11 @@
     <Compile Include="Forms\OpenRecentProjectForm.Designer.cs">
       <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\OpenRecentFileForm.cs">
+    <Compile Include="Forms\OpenRecentFilesForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\OpenRecentFileForm.Designer.cs">
-      <DependentUpon>OpenRecentFileForm.cs</DependentUpon>
+    <Compile Include="Forms\OpenRecentFilesForm.Designer.cs">
+      <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\TypeExplorer.cs">
       <SubType>Form</SubType>
@@ -127,8 +127,8 @@
     <EmbeddedResource Include="Forms\OpenRecentProjectForm.resx">
       <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\OpenRecentFileForm.resx">
-      <DependentUpon>OpenRecentFileForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\OpenRecentFilesForm.resx">
+      <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TypeExplorer.resx">
       <DependentUpon>TypeExplorer.cs</DependentUpon>

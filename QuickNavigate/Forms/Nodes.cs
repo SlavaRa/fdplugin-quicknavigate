@@ -5,11 +5,9 @@ using ASCompletion.Model;
 
 namespace QuickNavigate.Forms
 {
-    /// <summary>
-    /// </summary>
     public class TypeNode : TreeNode
     {
-        public readonly ClassModel Model;
+        public ClassModel Model;
         public new string Name;
         public string In;
         public string NameInLowercase;
@@ -17,19 +15,10 @@ namespace QuickNavigate.Forms
         public string Module;
         public bool IsPrivate;
 
-        /// <summary>
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="icon"></param>
         public TypeNode(ClassModel model, int icon) : this(model, icon, icon)
         {
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="imageIndex"></param>
-        /// <param name="selectedImageIndex"></param>
         public TypeNode(ClassModel model, int imageIndex, int selectedImageIndex)
         {
             Model = model;
@@ -38,6 +27,7 @@ namespace QuickNavigate.Forms
             Package = inFile != null ? inFile.Package : string.Empty;
             IsPrivate = (model.Access & Visibility.Private) > 0;
             Text = Name;
+            Tag = "class";
             In = Package;
             if (!string.IsNullOrEmpty(Package))
             {
@@ -52,21 +42,14 @@ namespace QuickNavigate.Forms
         }
     }
 
-    /// <summary>
-    /// </summary>
     class ClassHierarchyNode : TypeNode
     {
-        /// <summary>
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="imageIndex"></param>
-        /// <param name="selectedImageIndex"></param>
         public ClassHierarchyNode(ClassModel model, int imageIndex, int selectedImageIndex)
             : base(model, imageIndex, selectedImageIndex)
         {
-            Tag = "enabled";
-            Name = model.Name;
             Text = model.Type;
         }
+
+        public bool Enabled = true;
     }
 }

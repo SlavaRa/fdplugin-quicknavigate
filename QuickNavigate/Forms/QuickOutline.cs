@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -12,14 +13,15 @@ using SmartMemberComparer = QuickNavigate.Collections.SmartMemberComparer;
 
 namespace QuickNavigate.Forms
 {
-    /// <summary>
-    /// </summary>
     public sealed partial class QuickOutline : Form
     {
-        [CanBeNull] public event ShowInHandler ShowInClassHierarchy;
+        [NotNull]
         readonly Settings settings;
-        readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
+
+        [NotNull]
         readonly Brush defaultNodeBrush;
+
+        readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
         readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
         readonly List<Button> filters = new List<Button>();
@@ -57,21 +59,34 @@ namespace QuickNavigate.Forms
             InClass = inClass;
             this.settings = settings;
             InitializeComponent();
-            if (settings.OutlineFormSize.Width > MinimumSize.Width) Size = settings.OutlineFormSize;
+            if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
             defaultNodeBrush = new SolidBrush(tree.BackColor);
-            CreateContextMenu();
+            InitializeContextMenu();
             InitializeTree();
             InitializeFilters();
             RefreshTree();
         }
 
-        [CanBeNull] ToolTip filterToolTip;
-        [CanBeNull] public ClassModel InClass { get; }
-        [CanBeNull] public FileModel InFile { get; }
-        [CanBeNull] public TreeNode SelectedNode => tree.SelectedNode;
+        [CanBeNull]
+        public event ShowInHandler ShowInClassHierarchy;
 
-        [CanBeNull] Button currentFilter;
-        [CanBeNull] Button CurrentFilter
+        [CanBeNull]
+        ToolTip filterToolTip;
+
+        [CanBeNull]
+        public ClassModel InClass { get; }
+
+        [CanBeNull]
+        public FileModel InFile { get; }
+
+        [CanBeNull]
+        public TreeNode SelectedNode => tree.SelectedNode;
+
+        [CanBeNull]
+        Button currentFilter;
+
+        [CanBeNull]
+        Button CurrentFilter
         {
             get { return currentFilter; }
             set
@@ -97,10 +112,6 @@ namespace QuickNavigate.Forms
             }
         }
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -112,15 +123,11 @@ namespace QuickNavigate.Forms
             base.Dispose(disposing);
         }
 
-        /// <summary>
-        /// </summary>
-        void CreateContextMenu()
+        void InitializeContextMenu()
         {
             contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy);
         }
 
-        /// <summary>
-        /// </summary>
         void InitializeTree() => tree.ImageList = FormHelper.GetTreeIcons();
 
         void InitializeFilters()
@@ -156,8 +163,6 @@ namespace QuickNavigate.Forms
             filters.Add(methods);
         }
 
-        /// <summary>
-        /// </summary>
         void RefreshTree()
         {
             tree.BeginUpdate();
@@ -167,8 +172,6 @@ namespace QuickNavigate.Forms
             tree.EndUpdate();
         }
 
-        /// <summary>
-        /// </summary>
         void FillTree()
         {
             bool isHaxe;
@@ -189,18 +192,13 @@ namespace QuickNavigate.Forms
             foreach (ClassModel aClass in classes)
             {
                 int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                TreeNode node = new TypeNode(aClass, icon) { Tag = "class" };
+                TreeNode node = new TypeNode(aClass, icon);
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, aClass.Members, isHaxe);
             }
             if (SelectedNode == null && tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="members"></param>
-        /// <param name="isHaxe"></param>
         void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
         {
             List<MemberModel> items = members.Items.ToList();
@@ -209,12 +207,12 @@ namespace QuickNavigate.Forms
                 FlagType flags = (FlagType) CurrentFilter.Tag;
                 items.RemoveAll(it => (it.Flags & flags) == 0);
             }
-            bool noCase = !settings.OutlineFormMatchCase;
+            bool noCase = !settings.QuickOutlineMatchCase;
             string search = input.Text.Trim();
             bool searchIsNotEmpty = search.Length > 0;
             if (searchIsNotEmpty && noCase) search = search.ToLower();
             items.Sort(new SmartMemberComparer(search, noCase));
-            bool wholeWord = settings.OutlineFormWholeWord;
+            bool wholeWord = settings.QuickOutlineWholeWord;
             foreach (MemberModel member in items)
             {
                 string fullName = member.FullName;
@@ -240,37 +238,24 @@ namespace QuickNavigate.Forms
             filterToolTip.Show(text, filter, filter.Width, filter.Height);
         }
 
-        /// <summary>
-        /// </summary>
         void Navigate()
         {
             if (SelectedNode != null) DialogResult = DialogResult.OK;
         }
 
-        /// <summary>
-        /// Displays the shortcut menu.
-        /// </summary>
         void ShowContextMenu()
         {
-            TreeNode node = SelectedNode as TypeNode;
-            if (node != null && (string) node.Tag == "class") ShowContextMenu(new Point(node.Bounds.X, node.Bounds.Bottom));
+            if (!(SelectedNode is TypeNode)) return;
+            ShowContextMenu(new Point(SelectedNode.Bounds.X, SelectedNode.Bounds.Bottom));
         }
 
-        /// <summary>
-        /// Displays the shortcut menu.
-        /// </summary>
         void ShowContextMenu(Point position)
         {
-            TreeNode node = SelectedNode as TypeNode;
-            if (node != null && (string) node.Tag == "class") contextMenu.Show(tree, position);
+            if (SelectedNode is TypeNode) contextMenu.Show(tree, position);
         }
 
         #region Event Handlers
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             Keys keyCode = e.KeyCode;
@@ -302,34 +287,18 @@ namespace QuickNavigate.Forms
             }
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            settings.OutlineFormSize = Size;
+            settings.QuickOutlineSize = Size;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null && (string) SelectedNode.Tag == "class" ? inputEmptyContextMenu : null;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             Keys keyCode = e.KeyCode;
@@ -392,10 +361,6 @@ namespace QuickNavigate.Forms
             e.Handled = true;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
@@ -405,16 +370,8 @@ namespace QuickNavigate.Forms
             ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) => Navigate();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             Brush fillBrush = defaultNodeBrush;
@@ -447,11 +404,11 @@ namespace QuickNavigate.Forms
             graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnShowInClassHierarchy(object sender, EventArgs e) => ShowInClassHierarchy(this, ((TypeNode)SelectedNode).Model);
+        void OnShowInClassHierarchy(object sender, EventArgs e)
+        {
+            Debug.Assert(ShowInClassHierarchy != null, "ShowInClassHierarchy != null");
+            ShowInClassHierarchy(this, ((TypeNode) SelectedNode).Model);
+        }
 
         void OnFilterMouseHover(object sender, EventArgs e) => RefreshFilterTip((Button) sender);
 

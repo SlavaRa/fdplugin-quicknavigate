@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace QuickNavigate.Forms
 {
-    sealed partial class OpenRecentFileForm
+    sealed partial class OpenRecentFilesForm
     {
         /// <summary>
         /// Required designer variable.
@@ -89,7 +89,7 @@ namespace QuickNavigate.Forms
             this.open.Text = "Open";
             this.open.UseVisualStyleBackColor = true;
             // 
-            // OpenRecentFileForm
+            // OpenRecentFilesForm
             // 
             this.AcceptButton = this.open;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -104,7 +104,7 @@ namespace QuickNavigate.Forms
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(320, 200);
-            this.Name = "OpenRecentFileForm";
+            this.Name = "OpenRecentFilesForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

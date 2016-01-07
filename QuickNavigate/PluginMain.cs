@@ -15,6 +15,7 @@ using PluginCore.Managers;
 using PluginCore.Utilities;
 using ProjectManager;
 using QuickNavigate.Forms;
+using QuickNavigate.Helpers;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace QuickNavigate
@@ -82,7 +83,7 @@ namespace QuickNavigate
             AddEventHandlers();
             CreateMenuItems();
             UpdateMenuItems();
-            if (((Settings)Settings).CtrlClickEnabled) controlClickManager = new ControlClickManager();
+            if (((Settings) Settings).CtrlClickEnabled) controlClickManager = new ControlClickManager();
         }
 		
 		/// <summary>
@@ -178,26 +179,6 @@ namespace QuickNavigate
             menu.DropDownItems.Add(item);
         }
 
-        void ShowRecentFiles(object sender, EventArgs e)
-        {
-            OpenRecentFileForm form = new OpenRecentFileForm((Settings) Settings);
-            if (form.ShowDialog() != DialogResult.OK) return;
-            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-            foreach (string it in form.SelectedItems)
-            {
-                plugin.OpenFile(it);
-            }
-        }
-
-        void ShowRecentProjets(object sender, EventArgs e)
-        {
-            OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
-            if (form.ShowDialog() != DialogResult.OK) return;
-            string file = PluginBase.CurrentProject.GetAbsolutePath(form.SelectedItem);
-            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-            plugin.OpenFile(file);
-        }
-
         /// <summary>
         /// Updates the state of the menu items
         /// </summary>
@@ -215,10 +196,26 @@ namespace QuickNavigate
         /// </summary>
         void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        void ShowRecentFiles(object sender, EventArgs e)
+        {
+            OpenRecentFilesForm form = new OpenRecentFilesForm((Settings) Settings);
+            if (form.ShowDialog() != DialogResult.OK) return;
+            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            foreach (string it in form.SelectedItems)
+            {
+                plugin.OpenFile(it);
+            }
+        }
+
+        void ShowRecentProjets(object sender, EventArgs e)
+        {
+            OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
+            if (form.ShowDialog() != DialogResult.OK) return;
+            string file = PluginBase.CurrentProject.GetAbsolutePath(form.SelectedItem);
+            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            plugin.OpenFile(file);
+        }
+
         void ShowTypeForm(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
@@ -231,16 +228,8 @@ namespace QuickNavigate
             if (form.ShowDialog() != DialogResult.OK) return;
             TypeNode node = form.SelectedNode;
             if (node == null) return;
-            Navigate(node.Model.InFile.FileName, node);
+            FormHelper.Navigate(node.Model.InFile.FileName, node);
         }
-
-        static void Navigate([NotNull] string fileName, [NotNull] TreeNode node)
-        {
-            ModelsExplorer.Instance.OpenFile(fileName);
-            Navigate(node);
-        }
-
-        static void Navigate([NotNull] TreeNode node) => ASContext.Context.OnSelectOutlineNode(node);
 
         static void OnGotoPositionOrLine(Form sender, ClassModel model)
         {
@@ -252,24 +241,16 @@ namespace QuickNavigate
             });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void ShowQuickOutline(object sender, EventArgs e)
         {
             if (ASContext.Context.CurrentModel == null) return;
             QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings) Settings);
             form.ShowInClassHierarchy += ShowClassHierarchy;
             if (form.ShowDialog() != DialogResult.OK) return;
-            if (form.InFile == null) Navigate(form.InClass.InFile.FileName, form.SelectedNode);
-            else Navigate(form.SelectedNode);
+            if (form.InFile == null) FormHelper.Navigate(form.InClass.InFile.FileName, form.SelectedNode);
+            else FormHelper.Navigate(form.SelectedNode);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
         void ShowQuickOutline(Form sender, ClassModel model)
         {
             sender.Close();
@@ -278,15 +259,11 @@ namespace QuickNavigate
                 QuickOutline form = new QuickOutline(model, (Settings) Settings);
                 form.ShowInClassHierarchy += ShowClassHierarchy;
                 if (form.ShowDialog() != DialogResult.OK) return;
-                if (form.InFile == null) Navigate(form.InClass.InFile.FileName, form.SelectedNode);
-                else Navigate(form.SelectedNode);
+                if (form.InFile == null) FormHelper.Navigate(form.InClass.InFile.FileName, form.SelectedNode);
+                else FormHelper.Navigate(form.SelectedNode);
             });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void ShowClassHierarchy(object sender, EventArgs e)
         {
             if (!GetCanShowClassHierarchy()) return;
@@ -294,35 +271,29 @@ namespace QuickNavigate
             ShowClassHierarchy(!curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
         void ShowClassHierarchy(Form sender, ClassModel model)
         {
             sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate { ShowClassHierarchy(model); });
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            {
+                ShowClassHierarchy(model);
+            });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="model"></param>
         void ShowClassHierarchy(ClassModel model)
         {
-            using (ClassHierarchy form = new ClassHierarchy(model, (Settings) Settings))
-            {
-                form.GotoPositionOrLine += OnGotoPositionOrLine;
-                form.ShowInQuickOutline += ShowQuickOutline;
-                form.ShowInClassHierarchy += ShowClassHierarchy;
-                form.ShowInProjectManager += ShowInProjectManager;
-                form.ShowInFileExplorer += ShowInFileExplorer;
-                form.ShowDialog();
-            }
+            ClassHierarchy form = new ClassHierarchy(model, (Settings) Settings);
+            form.GotoPositionOrLine += OnGotoPositionOrLine;
+            form.ShowInQuickOutline += ShowQuickOutline;
+            form.ShowInClassHierarchy += ShowClassHierarchy;
+            form.ShowInProjectManager += ShowInProjectManager;
+            form.ShowInFileExplorer += ShowInFileExplorer;
+            if (form.ShowDialog() != DialogResult.OK) return;
+            TypeNode node = form.SelectedNode;
+            if (node == null) return;
+            FormHelper.Navigate(node.Model.InFile.FileName, new TreeNode(node.Name) { Tag = node.Tag });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         static bool GetCanShowClassHierarchy()
         {
             if (PluginBase.CurrentProject == null) return false;
@@ -332,10 +303,6 @@ namespace QuickNavigate
             return context != null && context.Features.hasExtends && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
         static void ShowInProjectManager(Form sender, ClassModel model)
         {
             sender.Close();
@@ -357,10 +324,6 @@ namespace QuickNavigate
             });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
         static void ShowInFileExplorer(Form sender, ClassModel model)
         {
             sender.Close();
