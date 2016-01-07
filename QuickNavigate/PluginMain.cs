@@ -8,7 +8,6 @@ using ASCompletion;
 using ASCompletion.Completion;
 using ASCompletion.Context;
 using ASCompletion.Model;
-using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
@@ -20,13 +19,11 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace QuickNavigate
 {
-    /// <summary>
-    /// </summary>
     public class PluginMain : IPlugin
 	{
         string settingFilename;
 	    ControlClickManager controlClickManager;
-	    ToolStripMenuItem typeExploreItem;
+	    ToolStripMenuItem typeExplorerItem;
 	    ToolStripMenuItem quickOutlineItem;
         ToolStripMenuItem classHierarchyItem;
         ToolStripMenuItem editorClassHierarchyItem;
@@ -159,9 +156,9 @@ namespace QuickNavigate
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             Image image = PluginBase.MainForm.FindImage("99|16|0|0");
-            typeExploreItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
-            PluginBase.MainForm.RegisterShortcutItem($"{Name}.TypeExplorer", typeExploreItem);
-            menu.DropDownItems.Add(typeExploreItem);
+            typeExplorerItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeExplorer, Keys.Control | Keys.Shift | Keys.R);
+            PluginBase.MainForm.RegisterShortcutItem($"{Name}.TypeExplorer", typeExplorerItem);
+            menu.DropDownItems.Add(typeExplorerItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
             quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem($"{Name}.Outline", quickOutlineItem);
@@ -184,7 +181,7 @@ namespace QuickNavigate
         /// </summary>
         void UpdateMenuItems()
         {
-            typeExploreItem.Enabled = PluginBase.CurrentProject != null;
+            typeExplorerItem.Enabled = PluginBase.CurrentProject != null;
             quickOutlineItem.Enabled = ASContext.Context.CurrentModel != null;
             bool canShowClassHierarchy = GetCanShowClassHierarchy();
             classHierarchyItem.Enabled = canShowClassHierarchy;
@@ -216,7 +213,7 @@ namespace QuickNavigate
             plugin.OpenFile(file);
         }
 
-        void ShowTypeForm(object sender, EventArgs e)
+        void ShowTypeExplorer(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
             TypeExplorer form = new TypeExplorer((Settings) Settings);
@@ -229,16 +226,6 @@ namespace QuickNavigate
             TypeNode node = form.SelectedNode;
             if (node == null) return;
             FormHelper.Navigate(node.Model.InFile.FileName, node);
-        }
-
-        static void OnGotoPositionOrLine(Form sender, ClassModel model)
-        {
-            sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
-            {
-                ModelsExplorer.Instance.OpenFile(model.InFile.FileName);
-                PluginBase.MainForm.CallCommand("GoTo", null);
-            });
         }
 
         void ShowQuickOutline(object sender, EventArgs e)
@@ -301,6 +288,16 @@ namespace QuickNavigate
             if (document == null || !document.IsEditable) return false;
             IASContext context = ASContext.Context;
             return context != null && context.Features.hasExtends && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
+        }
+
+        static void OnGotoPositionOrLine(Form sender, ClassModel model)
+        {
+            sender.Close();
+            ((Control)PluginBase.MainForm).BeginInvoke((MethodInvoker)delegate
+            {
+                ModelsExplorer.Instance.OpenFile(model.InFile.FileName);
+                PluginBase.MainForm.CallCommand("GoTo", null);
+            });
         }
 
         static void ShowInProjectManager(Form sender, ClassModel model)
