@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ASCompletion.Model;
+using JetBrains.Annotations;
 
 namespace QuickNavigate.Forms
 {
@@ -15,11 +16,11 @@ namespace QuickNavigate.Forms
         public string Module;
         public bool IsPrivate;
 
-        public TypeNode(ClassModel model, int icon) : this(model, icon, icon)
+        public TypeNode([NotNull] ClassModel model, int icon) : this(model, icon, icon)
         {
         }
 
-        public TypeNode(ClassModel model, int imageIndex, int selectedImageIndex)
+        public TypeNode([NotNull] ClassModel model, int imageIndex, int selectedImageIndex)
         {
             Model = model;
             Name = model.Name;

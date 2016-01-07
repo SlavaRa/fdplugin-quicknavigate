@@ -5,17 +5,11 @@ using QuickNavigate.Forms;
 
 namespace QuickNavigate.Collections
 {
-    /// <summary>
-    /// </summary>
     public class SmartMemberComparer : IComparer<MemberModel>
     {
         readonly string search;
         readonly bool noCase;
 
-        /// <summary>
-        /// </summary>
-        /// <param name="search"></param>
-        /// <param name="noCase"></param>
         public SmartMemberComparer(string search, bool noCase)
         {
             if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
@@ -37,10 +31,6 @@ namespace QuickNavigate.Collections
             return cmp != 0 ? cmp : StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         int GetPriority(string name)
         {
             if (noCase) name = name.ToLower();
@@ -50,25 +40,14 @@ namespace QuickNavigate.Collections
         }
     }
 
-    /// <summary>
-    /// </summary>
     public class NodeNameComparer : IComparer<TypeNode>
     {
-        /// <summary>
-        /// </summary>
         public readonly bool IgnoreCase;
 
-        /// <summary>
-        /// </summary>
-        /// <param name="search"></param>
         public NodeNameComparer() : this(false)
         {
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="search"></param>
-        /// <param name="ignoreCase"></param>
         public NodeNameComparer(bool ignoreCase)
         {
             IgnoreCase = ignoreCase;
@@ -95,8 +74,6 @@ namespace QuickNavigate.Collections
         }
     }
 
-    /// <summary>
-    /// </summary>
     public class NodePackageComparer : IComparer<TypeNode>
     {
         /// <summary>
@@ -115,8 +92,6 @@ namespace QuickNavigate.Collections
         }
     }
 
-    /// <summary>
-    /// </summary>
     public class NodeNamePackageComparer : IComparer<TypeNode>
     {
         /// <summary>
@@ -130,20 +105,10 @@ namespace QuickNavigate.Collections
         public int Compare(TypeNode x, TypeNode y) => StringComparer.OrdinalIgnoreCase.Compare($"{x.Name}{x.Package}", $"{y.Name}{y.Package}");
     }
 
-    /// <summary>
-    /// </summary>
     public static class TypeExplorerNodeComparer
     {
-        /// <summary>
-        /// </summary>
         public static NodeNameComparer NameIgnoreCase = new NodeNameComparer(true);
-
-        /// <summary>
-        /// </summary>
         public static NodePackageComparer Package = new NodePackageComparer();
-
-        /// <summary>
-        /// </summary>
         public static NodeNamePackageComparer NamePackageIgnoreCase = new NodeNamePackageComparer();
     }
 }
