@@ -29,6 +29,7 @@ namespace QuickNavigate.Forms
         /// <param name="settings"></param>
         public TypeExplorer(Settings settings) : base(settings)
         {
+            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.TypeExplorerSize.Width > MinimumSize.Width) Size = settings.TypeExplorerSize;
             searchingInExternalClasspaths.Checked = settings.TypeExplorerSearchExternalClassPath;
@@ -189,8 +190,16 @@ namespace QuickNavigate.Forms
                         input.SelectAll();
                     }
                     break;
-                default:
-                    base.OnKeyDown(e);
+                case Keys.Escape:
+                    Close();
+                    break;
+                case Keys.Enter:
+                    e.Handled = true;
+                    Navigate();
+                    break;
+                case Keys.Apps:
+                    e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }

@@ -58,6 +58,7 @@ namespace QuickNavigate.Forms
             InFile = inFile;
             InClass = inClass;
             this.settings = settings;
+            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
             defaultNodeBrush = new SolidBrush(tree.BackColor);
@@ -266,13 +267,6 @@ namespace QuickNavigate.Forms
             }
             switch (keyCode)
             {
-                case Keys.Escape:
-                    Close();
-                    break;
-                case Keys.Enter:
-                    e.Handled = true;
-                    Navigate();
-                    break;
                 case Keys.L:
                     if (e.Control)
                     {
@@ -280,9 +274,16 @@ namespace QuickNavigate.Forms
                         input.SelectAll();
                     }
                     break;
-                case Keys.Apps:
-                    ShowContextMenu();
+                case Keys.Escape:
+                    Close();
+                    break;
+                case Keys.Enter:
                     e.Handled = true;
+                    Navigate();
+                    break;
+                case Keys.Apps:
+                    e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }

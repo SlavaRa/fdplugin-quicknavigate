@@ -8,6 +8,7 @@ using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
+using PluginCore;
 using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
@@ -62,6 +63,7 @@ namespace QuickNavigate.Forms
         public ClassHierarchy([NotNull] ClassModel model, [NotNull] Settings settings) : base(settings)
         {
             curClass = model;
+            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
             defaultNodeBrush = new SolidBrush(tree.BackColor);
@@ -216,8 +218,16 @@ namespace QuickNavigate.Forms
                         input.SelectAll();
                     }
                     break;
-                default:
-                    base.OnKeyDown(e);
+                case Keys.Escape:
+                    Close();
+                    break;
+                case Keys.Enter:
+                    e.Handled = true;
+                    Navigate();
+                    break;
+                case Keys.Apps:
+                    e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }

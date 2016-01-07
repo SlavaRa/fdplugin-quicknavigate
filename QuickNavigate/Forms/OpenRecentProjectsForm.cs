@@ -9,16 +9,16 @@ using PluginCore;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class OpenRecentProjectForm : Form
+    public sealed partial class OpenRecentProjectsForm : Form
     {
         [NotNull]
         readonly Settings settings;
 
-        public OpenRecentProjectForm([NotNull] Settings settings)
+        public OpenRecentProjectsForm([NotNull] Settings settings)
         {
             this.settings = settings;
-            InitializeComponent();
             Font = PluginBase.Settings.DefaultFont;
+            InitializeComponent();
             tree.ItemHeight = tree.Font.Height;
             if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
             RefrestTree();

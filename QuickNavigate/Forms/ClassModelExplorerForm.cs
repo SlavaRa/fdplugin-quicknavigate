@@ -24,7 +24,6 @@ namespace QuickNavigate.Forms
         public ClassModelExplorerForm(Settings settings)
         {
             Settings = settings;
-            Font = PluginBase.Settings.DefaultFont;
             InitializeContextMenu();
         }
 
@@ -125,25 +124,7 @@ namespace QuickNavigate.Forms
         ClassModel GetModelFromSelectedNode() => ((TypeNode) GetTreeView().SelectedNode).Model;
 
         #region Event Handlers
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-                case Keys.Escape:
-                    Close();
-                    break;
-                case Keys.Enter:
-                    e.Handled = true;
-                    Navigate();
-                    break;
-                case Keys.Apps:
-                    e.Handled = true;
-                    ShowContextMenu();
-                    break;
-            }
-        }
-
+        
         protected virtual void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;

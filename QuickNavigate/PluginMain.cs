@@ -206,7 +206,7 @@ namespace QuickNavigate
 
         void ShowRecentProjets(object sender, EventArgs e)
         {
-            OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
+            OpenRecentProjectsForm form = new OpenRecentProjectsForm((Settings) Settings);
             if (form.ShowDialog() != DialogResult.OK) return;
             string file = PluginBase.CurrentProject.GetAbsolutePath(form.SelectedItem);
             ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");

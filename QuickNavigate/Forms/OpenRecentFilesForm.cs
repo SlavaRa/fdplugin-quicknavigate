@@ -24,8 +24,8 @@ namespace QuickNavigate.Forms
         public OpenRecentFilesForm([NotNull] Settings settings)
         {
             this.settings = settings;
-            InitializeComponent();
             Font = PluginBase.Settings.DefaultFont;
+            InitializeComponent();
             tree.ItemHeight = tree.Font.Height;
             if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(File.Exists).ToList();
