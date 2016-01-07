@@ -90,11 +90,11 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Nodes.cs" />
-    <Compile Include="Forms\OpenRecentProjectForm.cs">
+    <Compile Include="Forms\OpenRecentProjectsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\OpenRecentProjectForm.Designer.cs">
-      <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
+    <Compile Include="Forms\OpenRecentProjectsForm.Designer.cs">
+      <DependentUpon>OpenRecentProjectsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\OpenRecentFilesForm.cs">
       <SubType>Form</SubType>
@@ -124,8 +124,8 @@
     <EmbeddedResource Include="Forms\ClassHierarchy.resx">
       <DependentUpon>ClassHierarchy.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\OpenRecentProjectForm.resx">
-      <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\OpenRecentProjectsForm.resx">
+      <DependentUpon>OpenRecentProjectsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\OpenRecentFilesForm.resx">
       <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
