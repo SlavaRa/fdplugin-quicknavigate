@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using JetBrains.Annotations;
 using PluginCore;
 using QuickNavigate.Helpers;
-using static System.Windows.Forms.ListBox;
 
 namespace QuickNavigate.Forms
 {
@@ -64,10 +63,8 @@ namespace QuickNavigate.Forms
 
         void FillTree()
         {
-            var search = input.Text;
-            if (search.Length == 0) return;
             var separator = Path.PathSeparator;
-            search = search.Replace('\\', separator).Replace('/', separator);
+            var search = input.Text.Replace('\\', separator).Replace('/', separator);
             if (openedFiles.Count > 0)
             {
                 var matches = openedFiles;

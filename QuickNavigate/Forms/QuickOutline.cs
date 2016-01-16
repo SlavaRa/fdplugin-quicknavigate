@@ -216,7 +216,7 @@ namespace QuickNavigate.Forms
             var search = input.Text.Trim();
             var searchIsNotEmpty = search.Length > 0;
             if (searchIsNotEmpty) search = search.ToLower();
-            items.Sort(new SmartMemberComparer(search, true));
+            items.Sort(new SmartMemberComparer(search));
             foreach (var member in items)
             {
                 var fullName = member.FullName;

@@ -8,13 +8,11 @@ namespace QuickNavigate.Collections
     public class SmartMemberComparer : IComparer<MemberModel>
     {
         readonly string search;
-        readonly bool noCase;
 
-        public SmartMemberComparer(string search, bool noCase)
+        public SmartMemberComparer(string search)
         {
-            if (noCase && !string.IsNullOrEmpty(search)) search = search.ToLower();
+            if (!string.IsNullOrEmpty(search)) search = search.ToLower();
             this.search = search;
-            this.noCase = noCase;
         }
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace QuickNavigate.Collections
 
         int GetPriority(string name)
         {
-            if (noCase) name = name.ToLower();
+            if (true) name = name.ToLower();
             if (name == search) return -100;
             if (name.StartsWith(search)) return -90;
             return 0;
@@ -42,17 +40,6 @@ namespace QuickNavigate.Collections
 
     public class NodeNameComparer : IComparer<TypeNode>
     {
-        public readonly bool IgnoreCase;
-
-        public NodeNameComparer() : this(false)
-        {
-        }
-
-        public NodeNameComparer(bool ignoreCase)
-        {
-            IgnoreCase = ignoreCase;
-        }
-
         /// <summary>
         /// Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
         /// </summary>
@@ -63,14 +50,7 @@ namespace QuickNavigate.Collections
         /// <param name="x">The first object to compare.</param><param name="y">The second object to compare.</param>
         public int Compare(TypeNode x, TypeNode y)
         {
-            string xName = x.Name;
-            string yName = y.Name;
-            if (IgnoreCase)
-            {
-                xName = xName.ToLower();
-                yName = yName.ToLower();
-            }
-            return StringComparer.Ordinal.Compare(xName, yName);
+            return StringComparer.Ordinal.Compare(x.Name.ToLower(), y.Name.ToLower());
         }
     }
 
@@ -107,7 +87,7 @@ namespace QuickNavigate.Collections
 
     public static class TypeExplorerNodeComparer
     {
-        public static NodeNameComparer NameIgnoreCase = new NodeNameComparer(true);
+        public static NodeNameComparer NameIgnoreCase = new NodeNameComparer();
         public static NodePackageComparer Package = new NodePackageComparer();
         public static NodeNamePackageComparer NamePackageIgnoreCase = new NodeNamePackageComparer();
     }
