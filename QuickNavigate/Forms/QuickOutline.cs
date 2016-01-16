@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
+using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
@@ -129,11 +130,15 @@ namespace QuickNavigate.Forms
             contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy);
         }
 
-        void InitializeTree() => tree.ImageList = FormHelper.GetTreeIcons();
+        void InitializeTree()
+        {
+            tree.ImageList = ASContext.Panel.TreeIcons;
+            tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
 
         void InitializeFilters()
         {
-            ImageList imageList = tree.ImageList;
+            var imageList = tree.ImageList;
             classes.ImageList = imageList;
             classes.ImageIndex = PluginUI.ICON_TYPE;
             classes.Tag = FlagType.Class;
@@ -190,9 +195,9 @@ namespace QuickNavigate.Forms
                 classes = new List<ClassModel> {InClass};
             }
             else return;
-            foreach (ClassModel aClass in classes)
+            foreach (var aClass in classes)
             {
-                int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                var icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode node = new TypeNode(aClass, icon);
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, aClass.Members, isHaxe);
@@ -202,30 +207,28 @@ namespace QuickNavigate.Forms
 
         void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
         {
-            List<MemberModel> items = members.Items.ToList();
+            var items = members.Items.ToList();
             if (CurrentFilter != null)
             {
-                FlagType flags = (FlagType) CurrentFilter.Tag;
+                var flags = (FlagType) CurrentFilter.Tag;
                 items.RemoveAll(it => (it.Flags & flags) == 0);
             }
-            bool noCase = !settings.QuickOutlineMatchCase;
-            string search = input.Text.Trim();
-            bool searchIsNotEmpty = search.Length > 0;
-            if (searchIsNotEmpty && noCase) search = search.ToLower();
-            items.Sort(new SmartMemberComparer(search, noCase));
-            bool wholeWord = settings.QuickOutlineWholeWord;
-            foreach (MemberModel member in items)
+            var search = input.Text.Trim();
+            var searchIsNotEmpty = search.Length > 0;
+            if (searchIsNotEmpty) search = search.ToLower();
+            items.Sort(new SmartMemberComparer(search, true));
+            foreach (var member in items)
             {
-                string fullName = member.FullName;
+                var fullName = member.FullName;
                 if (searchIsNotEmpty)
                 {
-                    string name = noCase ? fullName.ToLower() : fullName;
-                    if (wholeWord && !name.StartsWith(search) || !name.Contains(search))
+                    var name = fullName.ToLower();
+                    if (!name.Contains(search))
                         continue;
                 }
-                FlagType flags = member.Flags;
-                int icon = PluginUI.GetIcon(flags, member.Access);
-                string constrDeclName = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : fullName;
+                var flags = member.Flags;
+                var icon = PluginUI.GetIcon(flags, member.Access);
+                var constrDeclName = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : fullName;
                 string tag = $"{constrDeclName}@{member.LineFrom}";
                 nodes.Add(new TreeNode(member.ToString(), icon, icon) {Tag = tag});
             }
@@ -234,7 +237,7 @@ namespace QuickNavigate.Forms
 
         void RefreshFilterTip(Button filter)
         {
-            string text = filter == CurrentFilter ? filterToDisabledTip[filter] : filterToEnabledTip[filter];
+            var text = filter == CurrentFilter ? filterToDisabledTip[filter] : filterToEnabledTip[filter];
             if (filterToolTip == null) filterToolTip = new ToolTip();
             filterToolTip.Show(text, filter, filter.Width, filter.Height);
         }
@@ -259,8 +262,8 @@ namespace QuickNavigate.Forms
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            Keys keyCode = e.KeyCode;
-            if (keysToFilter.ContainsKey(keyCode))
+            var keyCode = e.KeyCode;
+            if (keysToFilter.ContainsKey(keyCode) && e.Alt)
             {
                 CurrentFilter = keysToFilter[keyCode];
                 return;
@@ -302,14 +305,14 @@ namespace QuickNavigate.Forms
 
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            Keys keyCode = e.KeyCode;
+            var keyCode = e.KeyCode;
             if (keysToFilter.ContainsKey(keyCode))
             {
                 e.Handled = e.Alt;
                 return;
             }
             TreeNode node;
-            int visibleCount = tree.VisibleCount - 1;
+            var visibleCount = tree.VisibleCount - 1;
             switch (keyCode)
             {
                 case Keys.Space:
@@ -341,7 +344,7 @@ namespace QuickNavigate.Forms
                     break;
                 case Keys.PageUp:
                     node = tree.SelectedNode;
-                    for (int i = 0; i < visibleCount; i++)
+                    for (var i = 0; i < visibleCount; i++)
                     {
                         if (node.PrevVisibleNode == null) break;
                         node = node.PrevVisibleNode;
@@ -350,7 +353,7 @@ namespace QuickNavigate.Forms
                     break;
                 case Keys.PageDown:
                     node = tree.SelectedNode;
-                    for (int i = 0; i < visibleCount; i++)
+                    for (var i = 0; i < visibleCount; i++)
                     {
                         if (node.NextVisibleNode == null) break;
                         node = node.NextVisibleNode;
@@ -375,24 +378,24 @@ namespace QuickNavigate.Forms
 
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            Brush fillBrush = defaultNodeBrush;
-            Brush drawBrush = Brushes.Black;
-            Brush moduleBrush = Brushes.DimGray;
+            var fillBrush = defaultNodeBrush;
+            var drawBrush = Brushes.Black;
+            var moduleBrush = Brushes.DimGray;
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
                 fillBrush = selectedNodeBrush;
                 drawBrush = Brushes.White;
                 moduleBrush = Brushes.LightGray;
             }
-            Rectangle bounds = e.Bounds;
-            Font font = tree.Font;
+            var bounds = e.Bounds;
+            var font = tree.Font;
             float x = bounds.X;
-            float itemWidth = tree.Width - x;
-            Graphics graphics = e.Graphics;
+            var itemWidth = tree.Width - x;
+            var graphics = e.Graphics;
             graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
-            string text = e.Node.Text;
+            var text = e.Node.Text;
             graphics.DrawString(text, font, drawBrush, bounds.Left, bounds.Top, StringFormat.GenericDefault);
-            TypeNode node = e.Node as TypeNode;
+            var node = e.Node as TypeNode;
             if (node == null) return;
             if (!string.IsNullOrEmpty(node.In))
             {

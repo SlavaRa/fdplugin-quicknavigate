@@ -24,7 +24,7 @@ namespace QuickNavigate.Forms
         {
             Model = model;
             Name = model.Name;
-            FileModel inFile = model.InFile;
+            var inFile = model.InFile;
             Package = inFile != null ? inFile.Package : string.Empty;
             IsPrivate = (model.Access & Visibility.Private) > 0;
             Text = Name;
@@ -38,7 +38,7 @@ namespace QuickNavigate.Forms
             ImageIndex = imageIndex;
             SelectedImageIndex = selectedImageIndex;
             if (inFile == null) return;
-            Match match = Regex.Match(inFile.FileName, @"\S*.swc", RegexOptions.Compiled);
+            var match = Regex.Match(inFile.FileName, @"\S*.swc", RegexOptions.Compiled);
             if (match.Success) Module = Path.GetFileName(match.Value);
         }
     }

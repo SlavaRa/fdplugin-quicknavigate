@@ -117,7 +117,7 @@ namespace QuickNavigate.Forms
 
         TreeView GetTreeView()
         {
-            TreeView tree = ContextMenuStrip.SourceControl as TreeView;
+            var tree = ContextMenuStrip.SourceControl as TreeView;
             return tree ?? ContextMenuStrip.SourceControl.Controls.OfType<TreeView>().FirstOrDefault();
         }
 
@@ -128,7 +128,7 @@ namespace QuickNavigate.Forms
         protected virtual void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            TypeNode node = e.Node as TypeNode;
+            var node = e.Node as TypeNode;
             if (node == null) return;
             ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
         }

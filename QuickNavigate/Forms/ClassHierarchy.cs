@@ -23,14 +23,14 @@ namespace QuickNavigate.Forms
         [NotNull]
         static Dictionary<string, List<ClassModel>> GetAllProjectExtendsClasses()
         {
-            Dictionary<string, List<ClassModel>> result = new Dictionary<string, List<ClassModel>>();
-            foreach (PathModel path in ASContext.Context.Classpath)
+            var result = new Dictionary<string, List<ClassModel>>();
+            foreach (var path in ASContext.Context.Classpath)
             {
                 path.ForeachFile(aFile =>
                 {
-                    foreach (ClassModel aClass in aFile.Classes)
+                    foreach (var aClass in aFile.Classes)
                     {
-                        string extendsType = aClass.ExtendsType;
+                        var extendsType = aClass.ExtendsType;
                         if (string.IsNullOrEmpty(extendsType)) continue;
                         if (!result.ContainsKey(extendsType)) result[extendsType] = new List<ClassModel>();
                         result[extendsType].Add(aClass);
@@ -44,8 +44,8 @@ namespace QuickNavigate.Forms
         [NotNull]
         static IEnumerable<ClassModel> GetExtends([NotNull] ClassModel theClass)
         {
-            List<ClassModel> result = new List<ClassModel>();
-            ClassModel aClass = theClass.Extends;
+            var result = new List<ClassModel>();
+            var aClass = theClass.Extends;
             while (!aClass.IsVoid())
             {
                 result.Add(aClass);
@@ -85,7 +85,11 @@ namespace QuickNavigate.Forms
             base.Dispose(disposing);
         }
 
-        void InitializeTree() => tree.ImageList = FormHelper.GetTreeIcons();
+        void InitializeTree()
+        {
+            tree.ImageList = ASContext.Panel.TreeIcons;
+            tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
 
         void RefreshTree()
         {
@@ -102,7 +106,7 @@ namespace QuickNavigate.Forms
             if (curClass.IsVoid()) return;
             TreeNode parent = null;
             int icon;
-            foreach (ClassModel aClass in GetExtends(curClass))
+            foreach (var aClass in GetExtends(curClass))
             {
                 icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode child = new ClassHierarchyNode(aClass, icon, icon);
@@ -124,11 +128,11 @@ namespace QuickNavigate.Forms
         void FillNode([NotNull] TreeNode node)
         {
             if (!extendsToClasses.ContainsKey(node.Name)) return;
-            foreach (ClassModel aClass in extendsToClasses[node.Name])
+            foreach (var aClass in extendsToClasses[node.Name])
             {
-                ClassModel extends = aClass.InFile.Context.ResolveType(aClass.ExtendsType, aClass.InFile);
+                var extends = aClass.InFile.Context.ResolveType(aClass.ExtendsType, aClass.InFile);
                 if (extends.Type != node.Text) continue;
-                int icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
+                var icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode child = new ClassHierarchyNode(aClass, icon, icon);
                 node.Nodes.Add(child);
                 typeToNode[aClass.Type] = child;
@@ -139,7 +143,7 @@ namespace QuickNavigate.Forms
         [CanBeNull]
         TreeNode GetNextEnabledNode()
         {
-            TreeNode node = tree.SelectedNode;
+            var node = tree.SelectedNode;
             while (node.NextVisibleNode != null)
             {
                 node = node.NextVisibleNode;
@@ -151,7 +155,7 @@ namespace QuickNavigate.Forms
         [CanBeNull]
         TreeNode GetPrevEnabledNode()
         {
-            TreeNode node = tree.SelectedNode;
+            var node = tree.SelectedNode;
             while (node.PrevVisibleNode != null)
             {
                 node = node.PrevVisibleNode;
@@ -164,7 +168,7 @@ namespace QuickNavigate.Forms
         TreeNode GetUpEnabledNode()
         {
             TreeNode result = null;
-            TreeNode node = tree.SelectedNode;
+            var node = tree.SelectedNode;
             while (node.PrevVisibleNode != null)
             {
                 node = node.PrevVisibleNode;
@@ -177,7 +181,7 @@ namespace QuickNavigate.Forms
         TreeNode GetLastEnabledNode()
         {
             TreeNode result = null;
-            TreeNode node = tree.SelectedNode;
+            var node = tree.SelectedNode;
             while (node.NextVisibleNode != null)
             {
                 node = node.NextVisibleNode;
@@ -239,7 +243,7 @@ namespace QuickNavigate.Forms
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            TypeNode node = e.Node as TypeNode;
+            var node = e.Node as TypeNode;
             if (node == null) return;
             tree.SelectedNode = node;
             base.OnTreeNodeMouseClick(sender, e);
@@ -249,9 +253,9 @@ namespace QuickNavigate.Forms
 
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            ClassHierarchyNode node = (ClassHierarchyNode) e.Node;
-            Brush fillBrush = defaultNodeBrush;
-            Brush drawBrush = Brushes.Black;
+            var node = (ClassHierarchyNode) e.Node;
+            var fillBrush = defaultNodeBrush;
+            var drawBrush = Brushes.Black;
             if (node.Enabled)
             {
                 if ((e.State & TreeNodeStates.Selected) > 0)
@@ -261,7 +265,7 @@ namespace QuickNavigate.Forms
                 }
             }
             else drawBrush = Brushes.DimGray;
-            Rectangle bounds = e.Bounds;
+            var bounds = e.Bounds;
             e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
             e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
         }
@@ -269,9 +273,9 @@ namespace QuickNavigate.Forms
         void OnInputTextChanged(object sender, EventArgs e)
         {
             if (tree.Nodes.Count == 0) return;
-            List<string> matches = SearchUtil.Matches(typeToNode.Keys.ToList(), input.Text, ".", Settings.MaxItems, Settings.HierarchyExplorerWholeWord, Settings.HierarchyExplorerMatchCase);
-            bool mathesIsEmpty = matches.Count == 0;
-            foreach (KeyValuePair<string, TreeNode> k in typeToNode)
+            var matches = SearchUtil.Matches(typeToNode.Keys.ToList(), input.Text);
+            var mathesIsEmpty = matches.Count == 0;
+            foreach (var k in typeToNode)
             {
                 ((ClassHierarchyNode) k.Value).Enabled = mathesIsEmpty || matches.Contains(k.Key);
             }
@@ -293,7 +297,7 @@ namespace QuickNavigate.Forms
         {
             TreeNode node;
             TreeNode enabledNode = null;
-            int lastVisibleIndex = tree.VisibleCount - 1;
+            var lastVisibleIndex = tree.VisibleCount - 1;
             switch (e.KeyCode)
             {
                 case Keys.Space:
@@ -330,7 +334,7 @@ namespace QuickNavigate.Forms
                     break;
                 case Keys.PageUp:
                     node = tree.SelectedNode;
-                    for (int i = 0; i < lastVisibleIndex; i++)
+                    for (var i = 0; i < lastVisibleIndex; i++)
                     {
                         if (node.PrevVisibleNode == null) break;
                         node = node.PrevVisibleNode;
@@ -340,7 +344,7 @@ namespace QuickNavigate.Forms
                     break;
                 case Keys.PageDown:
                     node = tree.SelectedNode;
-                    for (int i = 0; i < lastVisibleIndex; i++)
+                    for (var i = 0; i < lastVisibleIndex; i++)
                     {
                         if (node.NextVisibleNode == null) break;
                         node = node.NextVisibleNode;

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -38,12 +36,12 @@ namespace QuickNavigate.Forms
 
         void FillTree()
         {
-            List<string> matches = ProjectManager.PluginMain.Settings.RecentProjects
+            var matches = ProjectManager.PluginMain.Settings.RecentProjects
                         .Where(File.Exists)
                         .ToList();
             if (matches.Count == 0) return;
-            string search = input.Text;
-            if (search.Length > 0) matches = SearchUtil.Matches(matches, search, Path.PathSeparator.ToString(), settings.MaxItems, settings.RecentProjectsWholeWord, settings.RecentProjectsMatchCase);
+            var search = input.Text;
+            if (search.Length > 0) matches = SearchUtil.Matches(matches, search);
             if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
         }
 
@@ -80,8 +78,8 @@ namespace QuickNavigate.Forms
 
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            int lastIndex = tree.Items.Count - 1;
-            int index = tree.SelectedIndex;
+            var lastIndex = tree.Items.Count - 1;
+            var index = tree.SelectedIndex;
             switch (e.KeyCode)
             {
                 case Keys.L:
