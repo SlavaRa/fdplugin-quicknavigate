@@ -110,7 +110,7 @@ namespace QuickNavigate.Forms
             else
             {
                 var maxItems = Settings.MaxItems;
-                var openedMatches = openedCount > 0 ? SearchUtil.Matches(openedTypes, search) : new List<string>();
+                var openedMatches = openedCount > 0 ? SearchUtil.FindAll(openedTypes, search) : new List<string>();
                 var closedMatches = new List<string>();
                 if (maxItems > 0)
                 {
@@ -118,11 +118,11 @@ namespace QuickNavigate.Forms
                     maxItems -= openedMatches.Count;
                     if (maxItems > 0)
                     {
-                        closedMatches = SearchUtil.Matches(closedTypes, search);
+                        closedMatches = SearchUtil.FindAll(closedTypes, search);
                         if (closedMatches.Count >= maxItems) closedMatches = closedMatches.GetRange(0, maxItems);
                     }
                 }
-                else closedMatches = SearchUtil.Matches(closedTypes, search);
+                else closedMatches = SearchUtil.FindAll(closedTypes, search);
                 var hasOpenedMatches = openedMatches.Count > 0;
                 var hasClosedMatches = closedMatches.Count > 0;
                 if (hasOpenedMatches) tree.Nodes.AddRange(CreateNodes(openedMatches, search).ToArray());

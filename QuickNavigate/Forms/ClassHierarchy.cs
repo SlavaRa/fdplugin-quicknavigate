@@ -9,7 +9,6 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
-using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
@@ -273,7 +272,7 @@ namespace QuickNavigate.Forms
         void OnInputTextChanged(object sender, EventArgs e)
         {
             if (tree.Nodes.Count == 0) return;
-            var matches = SearchUtil.Matches(typeToNode.Keys.ToList(), input.Text);
+            var matches = SearchUtil.FindAll(typeToNode.Keys.ToList(), input.Text);
             var mathesIsEmpty = matches.Count == 0;
             foreach (var k in typeToNode)
             {

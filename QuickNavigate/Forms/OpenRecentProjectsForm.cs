@@ -41,7 +41,7 @@ namespace QuickNavigate.Forms
                         .ToList();
             if (matches.Count == 0) return;
             var search = input.Text;
-            if (search.Length > 0) matches = SearchUtil.Matches(matches, search);
+            if (search.Length > 0) matches = SearchUtil.FindAll(matches, search);
             if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
         }
 

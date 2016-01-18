@@ -68,7 +68,7 @@ namespace QuickNavigate.Forms
             if (openedFiles.Count > 0)
             {
                 var matches = openedFiles;
-                if (search.Length > 0) matches = SearchUtil.Matches(openedFiles, search);
+                if (search.Length > 0) matches = SearchUtil.FindAll(openedFiles, search);
                 if (matches.Count > 0)
                 {
                     tree.Items.AddRange(matches.ToArray());
@@ -78,7 +78,7 @@ namespace QuickNavigate.Forms
             if (recentFiles.Count > 0)
             {
                 var matches = recentFiles;
-                if (search.Length > 0) matches = SearchUtil.Matches(matches, search);
+                if (search.Length > 0) matches = SearchUtil.FindAll(matches, search);
                 if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
             }
         }

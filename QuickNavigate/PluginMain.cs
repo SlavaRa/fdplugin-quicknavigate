@@ -107,6 +107,7 @@ namespace QuickNavigate
                     break;
                 case EventType.FileSwitch:
                     if (controlClickManager != null) controlClickManager.Sci = PluginBase.MainForm.CurrentDocument.SciControl;
+                    UpdateMenuItems();
                     break;
                 case EventType.Command:
                     if (((DataEvent)e).Action == ProjectManagerEvents.Project)
@@ -230,25 +231,25 @@ namespace QuickNavigate
 
         void ShowQuickOutline(object sender, EventArgs e)
         {
-            if (ASContext.Context.CurrentModel == null) return;
-            QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings) Settings);
-            form.ShowInClassHierarchy += ShowClassHierarchy;
-            if (form.ShowDialog() != DialogResult.OK) return;
-            if (form.InFile == null) FormHelper.Navigate(form.InClass.InFile.FileName, form.SelectedNode);
-            else FormHelper.Navigate(form.SelectedNode);
+            var context = ASContext.Context;
+            ShowOutlineForm(context.CurrentModel, context.CurrentClass);
         }
 
-        void ShowQuickOutline(Form sender, ClassModel model)
+        void ShowQuickOutline(Form sender, ClassModel inClass)
         {
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                QuickOutline form = new QuickOutline(model, (Settings) Settings);
-                form.ShowInClassHierarchy += ShowClassHierarchy;
-                if (form.ShowDialog() != DialogResult.OK) return;
-                if (form.InFile == null) FormHelper.Navigate(form.InClass.InFile.FileName, form.SelectedNode);
-                else FormHelper.Navigate(form.SelectedNode);
+                ShowOutlineForm(inClass.InFile, inClass);
             });
+        }
+
+        void ShowOutlineForm(FileModel inFile, ClassModel inClass)
+        {
+            var form = new QuickOutline(inFile, inClass, (Settings) Settings);
+            form.ShowInClassHierarchy += ShowClassHierarchy;
+            if (form.ShowDialog() != DialogResult.OK) return;
+            FormHelper.Navigate(inFile.FileName, form.SelectedNode);
         }
 
         void ShowClassHierarchy(object sender, EventArgs e)

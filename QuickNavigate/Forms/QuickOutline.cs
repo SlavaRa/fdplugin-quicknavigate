@@ -9,8 +9,7 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
-using QuickNavigate.Helpers;
-using SmartMemberComparer = QuickNavigate.Collections.SmartMemberComparer;
+using PluginCore.Managers;
 
 namespace QuickNavigate.Forms
 {
@@ -33,31 +32,13 @@ namespace QuickNavigate.Forms
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
         /// </summary>
-        /// <param name="inClass"></param>
-        /// <param name="settings"></param>
-        public QuickOutline([NotNull] ClassModel inClass, [NotNull] Settings settings) : this(null, inClass, settings)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
-        /// </summary>
-        /// <param name="inFile"></param>
-        /// <param name="settings"></param>
-        public QuickOutline([NotNull] FileModel inFile, [NotNull] Settings settings) : this(inFile, null, settings)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
-        /// </summary>
         /// <param name="inFile"></param>
         /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        QuickOutline([CanBeNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings)
+        public QuickOutline([NotNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings)
         {
             InFile = inFile;
-            InClass = inClass;
+            InClass = inClass ?? ClassModel.VoidClass;
             this.settings = settings;
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
@@ -75,11 +56,11 @@ namespace QuickNavigate.Forms
         [CanBeNull]
         ToolTip filterToolTip;
 
-        [CanBeNull]
-        public ClassModel InClass { get; }
-
-        [CanBeNull]
+        [NotNull]
         public FileModel InFile { get; }
+
+        [NotNull]
+        public ClassModel InClass { get; }
 
         [CanBeNull]
         public TreeNode SelectedNode => tree.SelectedNode;
@@ -180,32 +161,39 @@ namespace QuickNavigate.Forms
 
         void FillTree()
         {
-            bool isHaxe;
-            List<ClassModel> classes;
-            if (InFile != null)
-            {
-                if (InFile == FileModel.Ignore) return;
-                isHaxe = InFile.haXe;
-                if (InFile.Members.Count > 0) AddMembers(tree.Nodes, InFile.Members, isHaxe);
-                classes = InFile.Classes;
-            } 
-            else if (InClass != null)
-            {
-                isHaxe = InClass.InFile.haXe;
-                classes = new List<ClassModel> {InClass};
-            }
-            else return;
-            foreach (var aClass in classes)
+            var isHaxe = InFile.haXe;
+            if (InFile.Members.Count > 0) AddMembers(tree.Nodes, InFile.Members, isHaxe);
+            foreach (var aClass in InFile.Classes)
             {
                 var icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
                 TreeNode node = new TypeNode(aClass, icon);
                 tree.Nodes.Add(node);
-                AddMembers(node.Nodes, aClass.Members, isHaxe);
+                AddMembers(node.Nodes, aClass.Members, isHaxe, aClass.Equals(InClass));
             }
-            if (SelectedNode == null && tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
+            if (SelectedNode != null || tree.Nodes.Count == 0) return;
+            var search = input.Text.Trim();
+            if (search.Length == 0)
+                tree.SelectedNode = tree.Nodes.OfType<TypeNode>().First(it => it.Model.Equals(InClass));
+            else
+            {
+                var nodes = tree.Nodes.OfType<TreeNode>().ToList().FindAll(it =>
+                {
+                    var word = ((TypeNode) it).Model.QualifiedName;
+                    var score = PluginCore.Controls.CompletionList.SmartMatch(word, search, search.Length);
+                    return score > 0 && score < 6;
+                });
+                tree.Nodes.Clear();
+                if (nodes.Count == 0) return;
+                tree.Nodes.AddRange(nodes.ToArray());
+                tree.SelectedNode = tree.Nodes[0];
+            }
         }
 
         void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
+        {
+            AddMembers(nodes, members, isHaxe, true);
+        }
+        void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe, bool currentClass)
         {
             var items = members.Items.ToList();
             if (CurrentFilter != null)
@@ -215,24 +203,17 @@ namespace QuickNavigate.Forms
             }
             var search = input.Text.Trim();
             var searchIsNotEmpty = search.Length > 0;
-            if (searchIsNotEmpty) search = search.ToLower();
-            items.Sort(new SmartMemberComparer(search));
-            foreach (var member in items)
+            if (searchIsNotEmpty) items = SearchUtil.FindAll(items, search);
+            foreach (var it in items)
             {
-                var fullName = member.FullName;
-                if (searchIsNotEmpty)
-                {
-                    var name = fullName.ToLower();
-                    if (!name.Contains(search))
-                        continue;
-                }
-                var flags = member.Flags;
-                var icon = PluginUI.GetIcon(flags, member.Access);
-                var constrDeclName = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : fullName;
-                string tag = $"{constrDeclName}@{member.LineFrom}";
-                nodes.Add(new TreeNode(member.ToString(), icon, icon) {Tag = tag});
+                var flags = it.Flags;
+                var icon = PluginUI.GetIcon(flags, it.Access);
+                var constrDecl = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : it.FullName;
+                var node = new TreeNode(it.ToString(), icon, icon) {Tag = $"{constrDecl}@{it.LineFrom}"};
+                nodes.Add(node);
             }
-            if (SelectedNode == null && nodes.Count > 0) tree.SelectedNode = nodes[0];
+            if ((searchIsNotEmpty && SelectedNode == null || currentClass) && nodes.Count > 0)
+                tree.SelectedNode = nodes[0];
         }
 
         void RefreshFilterTip(Button filter)
@@ -305,6 +286,7 @@ namespace QuickNavigate.Forms
 
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
+            if (tree.Nodes.Count == 0) return;
             var keyCode = e.KeyCode;
             if (keysToFilter.ContainsKey(keyCode))
             {
