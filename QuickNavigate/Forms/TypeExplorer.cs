@@ -19,6 +19,11 @@ namespace QuickNavigate.Forms
         readonly List<string> closedTypes = new List<string>();
         readonly List<string> openedTypes = new List<string>();
         static readonly Dictionary<string, ClassModel> TypeToClassModel = new Dictionary<string, ClassModel>();
+        readonly List<Button> filters = new List<Button>();
+        readonly Dictionary<Keys, Button> keysToFilter = new Dictionary<Keys, Button>();
+        readonly Dictionary<Button, string> filterToEnabledTip = new Dictionary<Button, string>();
+        readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
+        readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
 
         [CanBeNull]
         readonly Brush defaultNodeBrush;
@@ -37,6 +42,39 @@ namespace QuickNavigate.Forms
             CreateItemsList();
             InitializeTree();
             RefreshTree();
+        }
+
+        [CanBeNull]
+        ToolTip filterToolTip;
+
+        [CanBeNull]
+        Button currentFilter;
+
+        [CanBeNull]
+        Button CurrentFilter
+        {
+            get { return currentFilter; }
+            set
+            {
+                if (currentFilter != null)
+                {
+                    currentFilter.FlatStyle = FlatStyle.Popup;
+                    currentFilter.BackColor = tree.BackColor;
+                }
+                if (value == CurrentFilter) currentFilter = null;
+                else
+                {
+                    currentFilter = value;
+                    if (currentFilter != null)
+                    {
+                        currentFilter.FlatStyle = FlatStyle.Standard;
+                        currentFilter.BackColor = SystemColors.ControlDarkDark;
+                    }
+                }
+                RefreshTree();
+                if (value != null && filterToolTip != null) RefreshFilterTip(value);
+                input.Select();
+            }
         }
 
         [CanBeNull]
@@ -102,6 +140,14 @@ namespace QuickNavigate.Forms
         void FillTree()
         {
             var search = input.Text.Trim();
+            var openedTypes = this.openedTypes.ToList();
+            var closedTypes = this.closedTypes.ToList();
+            if (CurrentFilter != null)
+            {
+                var flags = (FlagType)CurrentFilter.Tag;
+                openedTypes.RemoveAll(it => (TypeToClassModel[it].Flags & flags) == 0);
+                closedTypes.RemoveAll(it => (TypeToClassModel[it].Flags & flags) == 0);
+            }
             var openedCount = openedTypes.Count;
             if (search.Length == 0)
             {
@@ -186,10 +232,57 @@ namespace QuickNavigate.Forms
             DialogResult = DialogResult.OK;
         }
 
+        public void AddFilter(int imageIndex, FlagType flag, Keys shortcut, string enabledTip, string disabledTip)
+        {
+            if (flagToFilter.ContainsKey(flag)) return;
+            var button = new Button
+            {
+                Anchor = AnchorStyles.Bottom,
+                FlatStyle = FlatStyle.Popup,
+                ImageList = tree.ImageList,
+                ImageIndex = imageIndex,
+                Size = new Size(24, 24),
+                Tag = flag,
+                UseVisualStyleBackColor = true
+            };
+            button.MouseClick += OnFilterMouseClick;
+            button.MouseLeave += OnFilterMouseLeave;
+            button.MouseHover += OnFilterMouseHover;
+            flagToFilter[flag] = button;
+            filterToEnabledTip[button] = enabledTip;
+            filterToDisabledTip[button] = disabledTip;
+            keysToFilter[shortcut] = button;
+            filters.Add(button);
+            filters.ForEach(Controls.Remove);
+            const int spacing = 6;
+            var width = filters[0].Width * filters.Count + spacing * (filters.Count - 1);
+            var x = tree.Location.X + (tree.Width - width) / 2;
+            for (var i = 0; i < filters.Count; i++)
+            {
+                button = filters[i];
+                button.Location = new Point(x + (button.Size.Width + spacing) * i, tree.Bottom + spacing);
+                button.TabIndex = tree.TabIndex + i;
+                Controls.Add(button);
+            }
+        }
+
+        void RefreshFilterTip(Button filter)
+        {
+            var text = filter == CurrentFilter ? filterToDisabledTip[filter] : filterToEnabledTip[filter];
+            if (filterToolTip == null) filterToolTip = new ToolTip();
+            filterToolTip.Show(text, filter, filter.Width, filter.Height);
+        }
+
         #region Event Handlers
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
+            var keyCode = e.KeyCode;
+            if (keysToFilter.ContainsKey(keyCode) && e.Alt)
+            {
+                CurrentFilter = keysToFilter[keyCode];
+                return;
+            }
             switch (e.KeyCode)
             {
                 case Keys.E:
@@ -282,6 +375,13 @@ namespace QuickNavigate.Forms
 
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
+            if (tree.Nodes.Count == 0) return;
+            var keyCode = e.KeyCode;
+            if (keysToFilter.ContainsKey(keyCode))
+            {
+                e.Handled = e.Alt;
+                return;
+            }
             if (e.Shift) return;
             TreeNode node;
             var visibleCount = tree.VisibleCount - 1;
@@ -343,6 +443,17 @@ namespace QuickNavigate.Forms
             CreateItemsList();
             RefreshTree();
         }
+
+        void OnFilterMouseHover(object sender, EventArgs e) => RefreshFilterTip((Button)sender);
+
+        void OnFilterMouseLeave(object sender, EventArgs e)
+        {
+            if (filterToolTip == null) return;
+            filterToolTip.Hide((Button)sender);
+            filterToolTip = null;
+        }
+
+        void OnFilterMouseClick(object sender, EventArgs e) => CurrentFilter = filters.First(sender.Equals);
 
         #endregion
     }

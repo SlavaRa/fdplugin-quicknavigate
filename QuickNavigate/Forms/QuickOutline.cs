@@ -27,7 +27,7 @@ namespace QuickNavigate.Forms
         readonly Dictionary<Keys, Button> keysToFilter = new Dictionary<Keys, Button>();
         readonly Dictionary<Button, string> filterToEnabledTip = new Dictionary<Button, string>();
         readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
-        readonly Dictionary<FlagType, Button> flagToButton = new Dictionary<FlagType, Button>(); 
+        readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>(); 
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
@@ -116,40 +116,6 @@ namespace QuickNavigate.Forms
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
         }
 
-        public void AddFilter(int imageIndex, FlagType flag, Keys shortcut, string enabledTip, string disabledTip)
-        {
-            if (flagToButton.ContainsKey(flag)) return;
-            var button = new Button
-            {
-                Anchor = AnchorStyles.Bottom,
-                FlatStyle = FlatStyle.Popup,
-                ImageList = tree.ImageList,
-                ImageIndex = imageIndex,
-                Size = new Size(24, 24),
-                Tag = flag,
-                UseVisualStyleBackColor = true
-            };
-            button.MouseClick += OnFilterMouseClick;
-            button.MouseLeave += OnFilterMouseLeave;
-            button.MouseHover += OnFilterMouseHover;
-            flagToButton[flag] = button;
-            filterToEnabledTip[button] = enabledTip;
-            filterToDisabledTip[button] = disabledTip;
-            keysToFilter[shortcut] = button;
-            filters.Add(button);
-            filters.ForEach(Controls.Remove);
-            const int spacing = 6;
-            var width = filters[0].Width * filters.Count + spacing * (filters.Count - 1);
-            var x = tree.Location.X + (tree.Width - width) / 2;
-            for (var i = 0; i < filters.Count; i++)
-            {
-                button = filters[i];
-                button.Location = new Point(x + (button.Size.Width + spacing) * i, tree.Bottom + spacing);
-                button.TabIndex = tree.TabIndex + i;
-                Controls.Add(button);
-            }
-        }
-
         void RefreshTree()
         {
             tree.BeginUpdate();
@@ -193,6 +159,7 @@ namespace QuickNavigate.Forms
         {
             AddMembers(nodes, members, isHaxe, true);
         }
+
         void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe, bool currentClass)
         {
             var items = members.Items.ToList();
@@ -216,13 +183,6 @@ namespace QuickNavigate.Forms
                 tree.SelectedNode = nodes[0];
         }
 
-        void RefreshFilterTip(Button filter)
-        {
-            var text = filter == CurrentFilter ? filterToDisabledTip[filter] : filterToEnabledTip[filter];
-            if (filterToolTip == null) filterToolTip = new ToolTip();
-            filterToolTip.Show(text, filter, filter.Width, filter.Height);
-        }
-
         void Navigate()
         {
             if (SelectedNode != null) DialogResult = DialogResult.OK;
@@ -237,6 +197,47 @@ namespace QuickNavigate.Forms
         void ShowContextMenu(Point position)
         {
             if (SelectedNode is TypeNode) contextMenu.Show(tree, position);
+        }
+
+        public void AddFilter(int imageIndex, FlagType flag, Keys shortcut, string enabledTip, string disabledTip)
+        {
+            if (flagToFilter.ContainsKey(flag)) return;
+            var button = new Button
+            {
+                Anchor = AnchorStyles.Bottom,
+                FlatStyle = FlatStyle.Popup,
+                ImageList = tree.ImageList,
+                ImageIndex = imageIndex,
+                Size = new Size(24, 24),
+                Tag = flag,
+                UseVisualStyleBackColor = true
+            };
+            button.MouseClick += OnFilterMouseClick;
+            button.MouseLeave += OnFilterMouseLeave;
+            button.MouseHover += OnFilterMouseHover;
+            flagToFilter[flag] = button;
+            filterToEnabledTip[button] = enabledTip;
+            filterToDisabledTip[button] = disabledTip;
+            keysToFilter[shortcut] = button;
+            filters.Add(button);
+            filters.ForEach(Controls.Remove);
+            const int spacing = 6;
+            var width = filters[0].Width * filters.Count + spacing * (filters.Count - 1);
+            var x = tree.Location.X + (tree.Width - width) / 2;
+            for (var i = 0; i < filters.Count; i++)
+            {
+                button = filters[i];
+                button.Location = new Point(x + (button.Size.Width + spacing) * i, tree.Bottom + spacing);
+                button.TabIndex = tree.TabIndex + i;
+                Controls.Add(button);
+            }
+        }
+
+        void RefreshFilterTip(Button filter)
+        {
+            var text = filter == CurrentFilter ? filterToDisabledTip[filter] : filterToEnabledTip[filter];
+            if (filterToolTip == null) filterToolTip = new ToolTip();
+            filterToolTip.Show(text, filter, filter.Width, filter.Height);
         }
 
         #region Event Handlers

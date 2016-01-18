@@ -218,7 +218,35 @@ namespace QuickNavigate
         void ShowTypeExplorer(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
-            TypeExplorer form = new TypeExplorer((Settings) Settings);
+            var form = new TypeExplorer((Settings) Settings);
+            string enabledTip;
+            string disabledTip;
+            var features = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language).Features;
+            if (features.hasClasses)
+            {
+                enabledTip = "Show only classes(Alt+C or left click)";
+                disabledTip = "Show all(Alt+C or left click)";
+                form.AddFilter(PluginUI.ICON_TYPE, FlagType.Class, Keys.C, enabledTip, disabledTip);
+            }
+            if (features.hasInterfaces)
+            {
+                enabledTip = "Show only interfaces(Alt+I or left click)";
+                disabledTip = "Show all(Alt+I or left click)";
+                form.AddFilter(PluginUI.ICON_INTERFACE, FlagType.Interface, Keys.I, enabledTip, disabledTip);
+            }
+            // Abstracts
+            if (features.hasTypeDefs)
+            {
+                enabledTip = "Show only typedefs(Alt+T or left click)";
+                disabledTip = "Show all(Alt+T or left click)";
+                form.AddFilter(PluginUI.ICON_TEMPLATE, FlagType.TypeDef, Keys.T, enabledTip, disabledTip);
+            }
+            if (features.hasEnums)
+            {
+                enabledTip = "Show only enums(Alt+E or left click)";
+                disabledTip = "Show all(Alt+E or left click)";
+                form.AddFilter(PluginUI.ICON_TYPE, FlagType.Enum, Keys.E, enabledTip, disabledTip);
+            }
             form.GotoPositionOrLine += OnGotoPositionOrLine;
             form.ShowInQuickOutline += ShowQuickOutline;
             form.ShowInClassHierarchy += ShowClassHierarchy;
