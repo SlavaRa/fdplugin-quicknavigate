@@ -7,8 +7,6 @@ namespace QuickNavigate
     [Serializable]
     public class Settings
     {
-        #region General
-
         bool ctrlClickEnabled = true;
 
         [Category("General")]
@@ -59,109 +57,19 @@ namespace QuickNavigate
         [DefaultValue(false)]
         public bool WrapList { get; set; }
 
-        #endregion
-
-        #region Type Explorer
+        bool typeExplorerSearchExternalClassPath = true;
 
         [Browsable(false)]
-        [Category("Type Explorer")]
-        public Size TypeFormSize { get; set; }
-
-        bool searchExternalClassPath = true;
-
-        [Browsable(false)]
-        [Category("Type Explorer")]
-        [DisplayName("Search in external classpath")]
-        [Description("Enable searching types in external classpath")]
-        [DefaultValue(true)]
-        public bool SearchExternalClassPath
+        public bool TypeExplorerSearchExternalClassPath
         {
-            get { return searchExternalClassPath; }
-            set { searchExternalClassPath = value; }
+            get { return typeExplorerSearchExternalClassPath; }
+            set { typeExplorerSearchExternalClassPath = value; }
         }
 
-        [Category("Type Explorer")]
-        [DisplayName("Whole word")]
-        [DefaultValue(false)]
-        public bool TypeFormWholeWord { get; set; }
-
-        [Category("Type Explorer")]
-        [DisplayName("Match case")]
-        [DefaultValue(false)]
-        public bool TypeFormMatchCase { get; set; }
-
-        #region Outline Form
-
-        #endregion
-
-        [Browsable(false)]
-        [Category("Outline Form")]
-        public Size OutlineFormSize { get; set; }
-
-        [Category("Outline Form")]
-        [DisplayName("Whole word")]
-        [DefaultValue(false)]
-        public bool OutlineFormWholeWord { get; set; }
-
-        [Category("Outline Form")]
-        [DisplayName("Match case")]
-        [DefaultValue(false)]
-        public bool OutlineFormMatchCase { get; set; }
-
-        #endregion
-
-        #region Hierarchy Explorer
-
-        [Browsable(false)]
-        [Category("Hierarchy Explorer")]
-        public Size HierarchyExplorerSize;
-
-        [Category("Hierarchy Explorer")]
-        [DisplayName("Whole word")]
-        [DefaultValue(false)]
-        public bool HierarchyExplorerWholeWord { get; set; }
-
-        [Category("Hierarchy Explorer")]
-        [DisplayName("Match case")]
-        [DefaultValue(false)]
-        public bool HierarchyExplorerMatchCase { get; set; }
-
-        #endregion
-
-        #region Resent Files
-
-        [Browsable(false)]
-        [Category("Recent Files")]
-        public Size RecentFilesSize { get; set; }
-
-        [Category("Recent Files")]
-        [DisplayName("Whole word")]
-        [DefaultValue(false)]
-        public bool RecentFilesWholeWord { get; set; }
-
-        [Category("Recent Files")]
-        [DisplayName("Match case")]
-        [DefaultValue(false)]
-        public bool RecentFilesMatchCase { get; set; }
-
-        #endregion
-
-        #region Resent Projects
-
-        [Browsable(false)]
-        [Category("Recent Projects")]
-        public Size RecentProjectsSize { get; set; }
-
-        [Category("Recent Projects")]
-        [DisplayName("Whole word")]
-        [DefaultValue(false)]
-        public bool RecentProjectsWholeWord { get; set; }
-
-        [Category("Recent Projects")]
-        [DisplayName("Match case")]
-        [DefaultValue(false)]
-        public bool RecentProjectsMatchCase { get; set; }
-
-        #endregion
+        [Browsable(false)] public Size TypeExplorerSize { get; set; }
+        [Browsable(false)] public Size QuickOutlineSize { get; set; }
+        [Browsable(false)] public Size HierarchyExplorerSize { get; set; }
+        [Browsable(false)] public Size RecentFilesSize { get; set; }
+        [Browsable(false)] public Size RecentProjectsSize { get; set; }
     }
 }

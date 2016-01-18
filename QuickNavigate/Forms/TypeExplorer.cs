@@ -14,13 +14,13 @@ using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
-    /// <summary>
-    /// </summary>
     public sealed partial class TypeExplorer : ClassModelExplorerForm
     {
-        readonly List<string> projectTypes = new List<string>();
+        readonly List<string> closedTypes = new List<string>();
         readonly List<string> openedTypes = new List<string>();
         static readonly Dictionary<string, ClassModel> TypeToClassModel = new Dictionary<string, ClassModel>();
+
+        [CanBeNull]
         readonly Brush defaultNodeBrush;
 
         /// <summary>
@@ -29,22 +29,19 @@ namespace QuickNavigate.Forms
         /// <param name="settings"></param>
         public TypeExplorer(Settings settings) : base(settings)
         {
+            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            if (settings.TypeFormSize.Width > MinimumSize.Width) Size = settings.TypeFormSize;
-            searchingInExternalClasspaths.Checked = settings.SearchExternalClassPath;
+            if (settings.TypeExplorerSize.Width > MinimumSize.Width) Size = settings.TypeExplorerSize;
+            searchingInExternalClasspaths.Checked = settings.TypeExplorerSearchExternalClassPath;
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             CreateItemsList();
-            InitTree();
+            InitializeTree();
             RefreshTree();
         }
 
         [CanBeNull]
         public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -55,59 +52,45 @@ namespace QuickNavigate.Forms
             base.Dispose(disposing);
         }
 
-        /// <summary>
-        /// </summary>
         void CreateItemsList()
         {
-            projectTypes.Clear();
+            closedTypes.Clear();
             openedTypes.Clear();
             TypeToClassModel.Clear();
-            IASContext context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
+            var context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
             if (context == null) return;
-            string projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
-            bool onlyProjectTypes = !searchingInExternalClasspaths.Checked;
-            foreach (PathModel classpath in context.Classpath)
+            var projectFolder = Path.GetDirectoryName(PluginBase.CurrentProject.ProjectPath);
+            var onlyProjectTypes = !searchingInExternalClasspaths.Checked;
+            foreach (var classpath in context.Classpath)
             {
                 if (onlyProjectTypes)
                 {
-                    string path = classpath.Path;
+                    var path = classpath.Path;
                     if (!Path.IsPathRooted(classpath.Path)) path = Path.GetFullPath(Path.Combine(projectFolder, classpath.Path));
                     if (!path.StartsWith(projectFolder)) continue;
                 }
-                classpath.ForeachFile(FileModelDelegate);
+                classpath.ForeachFile(model =>
+                {
+                    foreach (var aClass in model.Classes)
+                    {
+                        var type = aClass.Type;
+                        if (TypeToClassModel.ContainsKey(type)) continue;
+                        if (FormHelper.IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
+                        else closedTypes.Add(type);
+                        TypeToClassModel.Add(type, aClass);
+                    }
+                    return true;
+                });
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>true</returns>
-        bool FileModelDelegate(FileModel model)
+        void InitializeTree()
         {
-            foreach (ClassModel aClass in model.Classes)
-            {
-                string type = aClass.Type;
-                if (TypeToClassModel.ContainsKey(type)) continue;
-                if (IsFileOpened(aClass.InFile.FileName)) openedTypes.Add(type);
-                else projectTypes.Add(type);
-                TypeToClassModel.Add(type, aClass);
-            }
-            return true;
+            tree.ImageList = ASContext.Panel.TreeIcons;
+            tree.ItemHeight = tree.ImageList.ImageSize.Height;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        static bool IsFileOpened(string fileName) => PluginBase.MainForm.Documents.Any(it => it.FileName == fileName);
-
-        /// <summary>
-        /// </summary>
-        protected override void InitTree() => tree.ImageList = FormHelper.GetTreeIcons();
-
-        /// <summary>
-        /// </summary>
-        protected override void RefreshTree()
+        void RefreshTree()
         {
             tree.BeginUpdate();
             tree.Nodes.Clear();
@@ -116,68 +99,64 @@ namespace QuickNavigate.Forms
             tree.EndUpdate();
         }
 
-        /// <summary>
-        /// </summary>
-        protected override void FillTree()
+        void FillTree()
         {
-            string search = input.Text.Trim();
-            if (string.IsNullOrEmpty(search) && openedTypes.Count > 0) tree.Nodes.AddRange(CreateNodes(openedTypes, string.Empty).ToArray());
+            var search = input.Text.Trim();
+            var openedCount = openedTypes.Count;
+            if (search.Length == 0)
+            {
+                if (openedCount > 0) tree.Nodes.AddRange(CreateNodes(openedTypes, string.Empty).ToArray());
+            }
             else
-            {   
-                bool wholeWord = Settings.TypeFormWholeWord;
-                bool matchCase = Settings.TypeFormMatchCase;
-                if (openedTypes.Count > 0)
+            {
+                var maxItems = Settings.MaxItems;
+                var openedMatches = openedCount > 0 ? SearchUtil.FindAll(openedTypes, search) : new List<string>();
+                var closedMatches = new List<string>();
+                if (maxItems > 0)
                 {
-                    var matches = SearchUtil.Matches(openedTypes, search, ".", 0, wholeWord, matchCase);
-                    if (matches.Count > 0)
+                    if (openedMatches.Count >= maxItems) openedMatches = openedMatches.GetRange(0, maxItems);
+                    maxItems -= openedMatches.Count;
+                    if (maxItems > 0)
                     {
-                        tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
-                        if (Settings.EnableItemSpacer) tree.Nodes.Add(Settings.ItemSpacer);
+                        closedMatches = SearchUtil.FindAll(closedTypes, search);
+                        if (closedMatches.Count >= maxItems) closedMatches = closedMatches.GetRange(0, maxItems);
                     }
                 }
-                if (projectTypes.Count > 0)
-                {
-                    var matches = SearchUtil.Matches(projectTypes, search, ".", Settings.MaxItems, wholeWord, matchCase);
-                    if (matches.Count > 0) tree.Nodes.AddRange(CreateNodes(matches, search).ToArray());
-                }
+                else closedMatches = SearchUtil.FindAll(closedTypes, search);
+                var hasOpenedMatches = openedMatches.Count > 0;
+                var hasClosedMatches = closedMatches.Count > 0;
+                if (hasOpenedMatches) tree.Nodes.AddRange(CreateNodes(openedMatches, search).ToArray());
+                if (Settings.EnableItemSpacer && hasOpenedMatches && hasClosedMatches)
+                    tree.Nodes.Add(Settings.ItemSpacer);
+                if (hasClosedMatches) tree.Nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
             }
             if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="matches"></param>
-        /// <param name="search"></param>
-        /// <returns></returns>
-        static IEnumerable<TypeNode> CreateNodes(IEnumerable<string> matches, string search) => SortNodes(matches.Select(CreateNode), search);
-
-        /// <summary>
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        static TypeNode CreateNode(string type)
+        [NotNull]
+        static IEnumerable<TypeNode> CreateNodes([NotNull] IEnumerable<string> matches, [NotNull] string search)
         {
-            ClassModel aClass = TypeToClassModel[type];
-            return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access))
-            {
-                Tag = "class"
-            };
+            var nodes = matches.Select(CreateNode);
+            return SortNodes(nodes, search);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="search"></param>
-        /// <returns></returns>
+        [NotNull]
+        static TypeNode CreateNode(string type)
+        {
+            var aClass = TypeToClassModel[type];
+            return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access));
+        }
+
+        [NotNull]
         static IEnumerable<TypeNode> SortNodes(IEnumerable<TypeNode> nodes, string search)
         {
             search = search.ToLower();
-            List<TypeNode> nodes0 = new List<TypeNode>();
-            List<TypeNode> nodes1 = new List<TypeNode>();
-            List<TypeNode> nodes2 = new List<TypeNode>();
-            foreach (TypeNode node in nodes)
+            var nodes0 = new List<TypeNode>();
+            var nodes1 = new List<TypeNode>();
+            var nodes2 = new List<TypeNode>();
+            foreach (var node in nodes)
             {
-                string name = node.Name.ToLower();
+                var name = node.Name.ToLower();
                 if (name == search) nodes0.Add(node);
                 else if (name.StartsWith(search)) nodes1.Add(node);
                 else nodes2.Add(node);
@@ -188,18 +167,12 @@ namespace QuickNavigate.Forms
             return nodes0.Concat(nodes1).Concat(nodes2);
         }
 
-        /// <summary>
-        /// Displays the shortcut menu.
-        /// </summary>
         protected override void ShowContextMenu()
         {
             if (SelectedNode == null) return;
-            ShowContextMenu(new Point(SelectedNode.Bounds.X, SelectedNode.Bounds.Y + SelectedNode.Bounds.Height));
+            ShowContextMenu(new Point(SelectedNode.Bounds.X, SelectedNode.Bounds.Bottom));
         }
 
-        /// <summary>
-        /// Displays the shortcut menu.
-        /// </summary>
         protected override void ShowContextMenu(Point position)
         {
             if (SelectedNode == null) return;
@@ -215,10 +188,6 @@ namespace QuickNavigate.Forms
 
         #region Event Handlers
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -233,54 +202,89 @@ namespace QuickNavigate.Forms
                         input.SelectAll();
                     }
                     break;
-                default:
-                    base.OnKeyDown(e);
+                case Keys.Escape:
+                    Close();
+                    break;
+                case Keys.Enter:
+                    e.Handled = true;
+                    Navigate();
+                    break;
+                case Keys.Apps:
+                    e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }
         
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            Settings.TypeFormSize = Size;
-            Settings.SearchExternalClassPath = searchingInExternalClasspaths.Checked;
+            Settings.TypeExplorerSize = Size;
+            Settings.TypeExplorerSearchExternalClassPath = searchingInExternalClasspaths.Checked;
         }
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            TypeNode node = e.Node as TypeNode;
+            var node = e.Node as TypeNode;
             if (node == null) return;
             tree.SelectedNode = node;
             base.OnTreeNodeMouseClick(sender, e);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) => Navigate();
+
+        void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            var fillBrush = defaultNodeBrush;
+            var textBrush = Brushes.Black;
+            var moduleBrush = Brushes.DimGray;
+            if ((e.State & TreeNodeStates.Selected) > 0)
+            {
+                fillBrush = SelectedNodeBrush;
+                textBrush = Brushes.White;
+                moduleBrush = Brushes.LightGray;
+            }
+            var bounds = e.Bounds;
+            var text = e.Node.Text;
+            float x = text == Settings.ItemSpacer ? 0 : bounds.X;
+            var itemWidth = tree.Width - x;
+            var graphics = e.Graphics;
+            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
+            var font = tree.Font;
+            graphics.DrawString(text, font, textBrush, x, bounds.Top, StringFormat.GenericDefault);
+            var node = e.Node as TypeNode;
+            if (node == null) return;
+            if (!string.IsNullOrEmpty(node.In))
+            {
+                x += graphics.MeasureString(text, font).Width;
+                graphics.DrawString($"({node.In})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+            }
+            x = itemWidth;
+            var module = node.Module;
+            if (!string.IsNullOrEmpty(module))
+            {
+                x -= graphics.MeasureString(module, font).Width;
+                graphics.DrawString(module, font, moduleBrush, x, bounds.Y, StringFormat.GenericDefault);
+            }
+            if (node.IsPrivate)
+            {
+                font = new Font(font, FontStyle.Underline);
+                x -= graphics.MeasureString("(private)", font).Width;
+                graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
+            }
+        }
+
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? InputEmptyContextMenu : null;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Shift) return;
             TreeNode node;
-            int visibleCount = tree.VisibleCount - 1;
+            var visibleCount = tree.VisibleCount - 1;
             switch (e.KeyCode)
             {
                 case Keys.Space:
@@ -313,7 +317,7 @@ namespace QuickNavigate.Forms
                     break;
                 case Keys.PageUp:
                     node = tree.SelectedNode;
-                    for (int i = 0; i < visibleCount; i++)
+                    for (var i = 0; i < visibleCount; i++)
                     {
                         if (node.PrevVisibleNode == null) break;
                         node = node.PrevVisibleNode;
@@ -322,7 +326,7 @@ namespace QuickNavigate.Forms
                     break;
                 case Keys.PageDown:
                     node = tree.SelectedNode;
-                    for (int i = 0; i < visibleCount; i++)
+                    for (var i = 0; i < visibleCount; i++)
                     {
                         if (node.NextVisibleNode == null) break;
                         node = node.NextVisibleNode;
@@ -334,59 +338,10 @@ namespace QuickNavigate.Forms
             e.Handled = true;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnSearchingModeCheckStateChanged(object sender, EventArgs e)
         {
             CreateItemsList();
             RefreshTree();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
-        {
-            Brush fillBrush = defaultNodeBrush;
-            Brush textBrush = Brushes.Black;
-            Brush moduleBrush = Brushes.DimGray;
-            if ((e.State & TreeNodeStates.Selected) > 0)
-            {
-                fillBrush = SelectedNodeBrush;
-                textBrush = Brushes.White;
-                moduleBrush = Brushes.LightGray;
-            }
-            Rectangle bounds = e.Bounds;
-            string text = e.Node.Text;
-            float x = text == Settings.ItemSpacer ? 0 : bounds.X;
-            float itemWidth = tree.Width - x;
-            Graphics graphics = e.Graphics;
-            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
-            Font font = tree.Font;
-            graphics.DrawString(text, font, textBrush, x, bounds.Top, StringFormat.GenericDefault);
-            TypeNode node = e.Node as TypeNode;
-            if (node == null) return;
-            if (!string.IsNullOrEmpty(node.In))
-            {
-                x += graphics.MeasureString(text, font).Width;
-                graphics.DrawString($"({node.In})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
-            }
-            x = itemWidth;
-            string module = node.Module;
-            if (!string.IsNullOrEmpty(module))
-            {
-                x -= graphics.MeasureString(module, font).Width;
-                graphics.DrawString(module, font, moduleBrush, x, bounds.Y, StringFormat.GenericDefault);
-            }
-            if (node.IsPrivate)
-            {
-                font = new Font(font, FontStyle.Underline);
-                x -= graphics.MeasureString("(private)", font).Width;
-                graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
-            }
         }
 
         #endregion

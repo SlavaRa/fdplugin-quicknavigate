@@ -1,6 +1,6 @@
 ﻿namespace QuickNavigate.Forms
 {
-    partial class ClassHierarchy
+    sealed partial class ClassHierarchy
     {
         /// <summary>
         /// Required designer variable.

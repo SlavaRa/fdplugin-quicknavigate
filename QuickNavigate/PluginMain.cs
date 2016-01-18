@@ -8,24 +8,22 @@ using ASCompletion;
 using ASCompletion.Completion;
 using ASCompletion.Context;
 using ASCompletion.Model;
-using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
 using PluginCore.Utilities;
 using ProjectManager;
 using QuickNavigate.Forms;
+using QuickNavigate.Helpers;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace QuickNavigate
 {
-    /// <summary>
-    /// </summary>
     public class PluginMain : IPlugin
 	{
         string settingFilename;
 	    ControlClickManager controlClickManager;
-	    ToolStripMenuItem typeExploreItem;
+	    ToolStripMenuItem typeExplorerItem;
 	    ToolStripMenuItem quickOutlineItem;
         ToolStripMenuItem classHierarchyItem;
         ToolStripMenuItem editorClassHierarchyItem;
@@ -82,7 +80,7 @@ namespace QuickNavigate
             AddEventHandlers();
             CreateMenuItems();
             UpdateMenuItems();
-            if (((Settings)Settings).CtrlClickEnabled) controlClickManager = new ControlClickManager();
+            if (((Settings) Settings).CtrlClickEnabled) controlClickManager = new ControlClickManager();
         }
 		
 		/// <summary>
@@ -109,6 +107,7 @@ namespace QuickNavigate
                     break;
                 case EventType.FileSwitch:
                     if (controlClickManager != null) controlClickManager.Sci = PluginBase.MainForm.CurrentDocument.SciControl;
+                    UpdateMenuItems();
                     break;
                 case EventType.Command:
                     if (((DataEvent)e).Action == ProjectManagerEvents.Project)
@@ -158,9 +157,9 @@ namespace QuickNavigate
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             Image image = PluginBase.MainForm.FindImage("99|16|0|0");
-            typeExploreItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeForm, Keys.Control | Keys.Shift | Keys.R);
-            PluginBase.MainForm.RegisterShortcutItem($"{Name}.TypeExplorer", typeExploreItem);
-            menu.DropDownItems.Add(typeExploreItem);
+            typeExplorerItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeExplorer, Keys.Control | Keys.Shift | Keys.R);
+            PluginBase.MainForm.RegisterShortcutItem($"{Name}.TypeExplorer", typeExplorerItem);
+            menu.DropDownItems.Add(typeExplorerItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
             quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline, Keys.Control | Keys.Shift | Keys.O);
             PluginBase.MainForm.RegisterShortcutItem($"{Name}.Outline", quickOutlineItem);
@@ -178,32 +177,12 @@ namespace QuickNavigate
             menu.DropDownItems.Add(item);
         }
 
-        void ShowRecentFiles(object sender, EventArgs e)
-        {
-            OpenRecentFileForm form = new OpenRecentFileForm((Settings) Settings);
-            if (form.ShowDialog() != DialogResult.OK) return;
-            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-            foreach (string it in form.SelectedItems)
-            {
-                plugin.OpenFile(it);
-            }
-        }
-
-        void ShowRecentProjets(object sender, EventArgs e)
-        {
-            OpenRecentProjectForm form = new OpenRecentProjectForm((Settings) Settings);
-            if (form.ShowDialog() != DialogResult.OK) return;
-            string file = PluginBase.CurrentProject.GetAbsolutePath(form.SelectedItem);
-            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-            plugin.OpenFile(file);
-        }
-
         /// <summary>
         /// Updates the state of the menu items
         /// </summary>
         void UpdateMenuItems()
         {
-            typeExploreItem.Enabled = PluginBase.CurrentProject != null;
+            typeExplorerItem.Enabled = PluginBase.CurrentProject != null;
             quickOutlineItem.Enabled = ASContext.Context.CurrentModel != null;
             bool canShowClassHierarchy = GetCanShowClassHierarchy();
             classHierarchyItem.Enabled = canShowClassHierarchy;
@@ -215,11 +194,27 @@ namespace QuickNavigate
         /// </summary>
         void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void ShowTypeForm(object sender, EventArgs e)
+        void ShowRecentFiles(object sender, EventArgs e)
+        {
+            OpenRecentFilesForm form = new OpenRecentFilesForm((Settings) Settings);
+            if (form.ShowDialog() != DialogResult.OK) return;
+            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            foreach (string it in form.SelectedItems)
+            {
+                plugin.OpenFile(it);
+            }
+        }
+
+        void ShowRecentProjets(object sender, EventArgs e)
+        {
+            OpenRecentProjectsForm form = new OpenRecentProjectsForm((Settings) Settings);
+            if (form.ShowDialog() != DialogResult.OK) return;
+            string file = PluginBase.CurrentProject.GetAbsolutePath(form.SelectedItem);
+            ProjectManager.PluginMain plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            plugin.OpenFile(file);
+        }
+
+        void ShowTypeExplorer(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
             TypeExplorer form = new TypeExplorer((Settings) Settings);
@@ -231,62 +226,32 @@ namespace QuickNavigate
             if (form.ShowDialog() != DialogResult.OK) return;
             TypeNode node = form.SelectedNode;
             if (node == null) return;
-            Navigate(node.Model.InFile.FileName, node);
+            FormHelper.Navigate(node.Model.InFile.FileName, node);
         }
 
-        static void Navigate([NotNull] string fileName, [NotNull] TreeNode node)
-        {
-            ModelsExplorer.Instance.OpenFile(fileName);
-            Navigate(node);
-        }
-
-        static void Navigate([NotNull] TreeNode node) => ASContext.Context.OnSelectOutlineNode(node);
-
-        static void OnGotoPositionOrLine(Form sender, ClassModel model)
-        {
-            sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
-            {
-                ModelsExplorer.Instance.OpenFile(model.InFile.FileName);
-                PluginBase.MainForm.CallCommand("GoTo", null);
-            });
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void ShowQuickOutline(object sender, EventArgs e)
         {
-            if (ASContext.Context.CurrentModel == null) return;
-            QuickOutline form = new QuickOutline(ASContext.Context.CurrentModel, (Settings) Settings);
-            form.ShowInClassHierarchy += ShowClassHierarchy;
-            if (form.ShowDialog() != DialogResult.OK) return;
-            if (form.InFile == null) Navigate(form.InClass.InFile.FileName, form.SelectedNode);
-            else Navigate(form.SelectedNode);
+            var context = ASContext.Context;
+            ShowOutlineForm(context.CurrentModel, context.CurrentClass);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
-        void ShowQuickOutline(Form sender, ClassModel model)
+        void ShowQuickOutline(Form sender, ClassModel inClass)
         {
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
             {
-                QuickOutline form = new QuickOutline(model, (Settings) Settings);
-                form.ShowInClassHierarchy += ShowClassHierarchy;
-                if (form.ShowDialog() != DialogResult.OK) return;
-                if (form.InFile == null) Navigate(form.InClass.InFile.FileName, form.SelectedNode);
-                else Navigate(form.SelectedNode);
+                ShowOutlineForm(inClass.InFile, inClass);
             });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        void ShowOutlineForm(FileModel inFile, ClassModel inClass)
+        {
+            var form = new QuickOutline(inFile, inClass, (Settings) Settings);
+            form.ShowInClassHierarchy += ShowClassHierarchy;
+            if (form.ShowDialog() != DialogResult.OK) return;
+            FormHelper.Navigate(inFile.FileName, form.SelectedNode);
+        }
+
         void ShowClassHierarchy(object sender, EventArgs e)
         {
             if (!GetCanShowClassHierarchy()) return;
@@ -294,35 +259,29 @@ namespace QuickNavigate
             ShowClassHierarchy(!curClass.IsVoid() ? curClass : ASContext.Context.CurrentModel.GetPublicClass());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
         void ShowClassHierarchy(Form sender, ClassModel model)
         {
             sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate { ShowClassHierarchy(model); });
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            {
+                ShowClassHierarchy(model);
+            });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="model"></param>
         void ShowClassHierarchy(ClassModel model)
         {
-            using (ClassHierarchy form = new ClassHierarchy(model, (Settings) Settings))
-            {
-                form.GotoPositionOrLine += OnGotoPositionOrLine;
-                form.ShowInQuickOutline += ShowQuickOutline;
-                form.ShowInClassHierarchy += ShowClassHierarchy;
-                form.ShowInProjectManager += ShowInProjectManager;
-                form.ShowInFileExplorer += ShowInFileExplorer;
-                form.ShowDialog();
-            }
+            ClassHierarchy form = new ClassHierarchy(model, (Settings) Settings);
+            form.GotoPositionOrLine += OnGotoPositionOrLine;
+            form.ShowInQuickOutline += ShowQuickOutline;
+            form.ShowInClassHierarchy += ShowClassHierarchy;
+            form.ShowInProjectManager += ShowInProjectManager;
+            form.ShowInFileExplorer += ShowInFileExplorer;
+            if (form.ShowDialog() != DialogResult.OK) return;
+            TypeNode node = form.SelectedNode;
+            if (node == null) return;
+            FormHelper.Navigate(node.Model.InFile.FileName, new TreeNode(node.Name) { Tag = node.Tag });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         static bool GetCanShowClassHierarchy()
         {
             if (PluginBase.CurrentProject == null) return false;
@@ -332,10 +291,16 @@ namespace QuickNavigate
             return context != null && context.Features.hasExtends && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
+        static void OnGotoPositionOrLine(Form sender, ClassModel model)
+        {
+            sender.Close();
+            ((Control)PluginBase.MainForm).BeginInvoke((MethodInvoker)delegate
+            {
+                ModelsExplorer.Instance.OpenFile(model.InFile.FileName);
+                PluginBase.MainForm.CallCommand("GoTo", null);
+            });
+        }
+
         static void ShowInProjectManager(Form sender, ClassModel model)
         {
             sender.Close();
@@ -357,10 +322,6 @@ namespace QuickNavigate
             });
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="model"></param>
         static void ShowInFileExplorer(Form sender, ClassModel model)
         {
             sender.Close();

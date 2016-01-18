@@ -90,17 +90,17 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Nodes.cs" />
-    <Compile Include="Forms\OpenRecentProjectForm.cs">
+    <Compile Include="Forms\OpenRecentProjectsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\OpenRecentProjectForm.Designer.cs">
-      <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
+    <Compile Include="Forms\OpenRecentProjectsForm.Designer.cs">
+      <DependentUpon>OpenRecentProjectsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\OpenRecentFileForm.cs">
+    <Compile Include="Forms\OpenRecentFilesForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\OpenRecentFileForm.Designer.cs">
-      <DependentUpon>OpenRecentFileForm.cs</DependentUpon>
+    <Compile Include="Forms\OpenRecentFilesForm.Designer.cs">
+      <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\TypeExplorer.cs">
       <SubType>Form</SubType>
@@ -124,11 +124,11 @@
     <EmbeddedResource Include="Forms\ClassHierarchy.resx">
       <DependentUpon>ClassHierarchy.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\OpenRecentProjectForm.resx">
-      <DependentUpon>OpenRecentProjectForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\OpenRecentProjectsForm.resx">
+      <DependentUpon>OpenRecentProjectsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\OpenRecentFileForm.resx">
-      <DependentUpon>OpenRecentFileForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\OpenRecentFilesForm.resx">
+      <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TypeExplorer.resx">
       <DependentUpon>TypeExplorer.cs</DependentUpon>
@@ -141,6 +141,10 @@
     <ProjectReference Include="..\..\..\..\PluginCore\PluginCore.csproj">
       <Project>{61885f70-b4dc-4b44-852d-5d6d03f2a734}</Project>
       <Name>PluginCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ASClassWizard\ASClassWizard.csproj">
+      <Project>{A2C159C1-7D21-4483-AEB1-38D9FDC4C7F3}</Project>
+      <Name>ASClassWizard</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ASCompletion\ASCompletion.csproj">
       <Project>{4ebf2653-9654-4e40-880e-0046b3d6210e}</Project>

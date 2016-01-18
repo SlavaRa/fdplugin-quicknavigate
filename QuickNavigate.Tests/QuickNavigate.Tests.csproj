@@ -70,7 +70,6 @@
     <Compile Include="Forms\TypeExplorerTests.cs" />
     <Compile Include="PluginMainTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SearchUtilTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\PluginCore\PluginCore.csproj">
@@ -85,9 +84,6 @@
       <Project>{36B91299-9080-4052-839D-74166B18DD24}</Project>
       <Name>QuickNavigate</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
