@@ -9,7 +9,6 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
-using PluginCore.Managers;
 
 namespace QuickNavigate.Forms
 {
@@ -28,6 +27,7 @@ namespace QuickNavigate.Forms
         readonly Dictionary<Keys, Button> keysToFilter = new Dictionary<Keys, Button>();
         readonly Dictionary<Button, string> filterToEnabledTip = new Dictionary<Button, string>();
         readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
+        readonly Dictionary<FlagType, Button> flagToButton = new Dictionary<FlagType, Button>(); 
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
@@ -46,7 +46,6 @@ namespace QuickNavigate.Forms
             defaultNodeBrush = new SolidBrush(tree.BackColor);
             InitializeContextMenu();
             InitializeTree();
-            InitializeFilters();
             RefreshTree();
         }
 
@@ -117,37 +116,38 @@ namespace QuickNavigate.Forms
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
         }
 
-        void InitializeFilters()
+        public void AddFilter(int imageIndex, FlagType flag, Keys shortcut, string enabledTip, string disabledTip)
         {
-            var imageList = tree.ImageList;
-            classes.ImageList = imageList;
-            classes.ImageIndex = PluginUI.ICON_TYPE;
-            classes.Tag = FlagType.Class;
-            filterToEnabledTip[classes] = "Show only classes(Alt+C or left click)";
-            filterToDisabledTip[classes] = "Show all(Alt+C or left click)";
-            keysToFilter[Keys.C] = classes;
-            filters.Add(classes);
-            fields.ImageList = imageList;
-            fields.ImageIndex = PluginUI.ICON_VAR;
-            fields.Tag = FlagType.Variable;
-            filterToEnabledTip[fields] = "Show only fields(Alt+F or left click)";
-            filterToDisabledTip[fields] = "Show all(Alt+F or left click)";
-            keysToFilter[Keys.F] = fields;
-            filters.Add(fields);
-            properties.ImageList = imageList;
-            properties.ImageIndex = PluginUI.ICON_PROPERTY;
-            properties.Tag = FlagType.Getter | FlagType.Setter;
-            filterToEnabledTip[properties] = "Show only properties(Alt+P or left click)";
-            filterToDisabledTip[properties] = "Show all(Alt+P or left click)";
-            keysToFilter[Keys.P] = properties;
-            filters.Add(properties);
-            methods.ImageList = imageList;
-            methods.ImageIndex = PluginUI.ICON_FUNCTION;
-            methods.Tag = FlagType.Function;
-            filterToEnabledTip[methods] = "Show only methods(Alt+M or left click)";
-            filterToDisabledTip[methods] = "Show all(Alt+M or left click)";
-            keysToFilter[Keys.M] = methods;
-            filters.Add(methods);
+            if (flagToButton.ContainsKey(flag)) return;
+            var button = new Button
+            {
+                Anchor = AnchorStyles.Bottom,
+                FlatStyle = FlatStyle.Popup,
+                ImageList = tree.ImageList,
+                ImageIndex = imageIndex,
+                Size = new Size(24, 24),
+                Tag = flag,
+                UseVisualStyleBackColor = true
+            };
+            button.MouseClick += OnFilterMouseClick;
+            button.MouseLeave += OnFilterMouseLeave;
+            button.MouseHover += OnFilterMouseHover;
+            flagToButton[flag] = button;
+            filterToEnabledTip[button] = enabledTip;
+            filterToDisabledTip[button] = disabledTip;
+            keysToFilter[shortcut] = button;
+            filters.Add(button);
+            filters.ForEach(Controls.Remove);
+            const int spacing = 6;
+            var width = filters[0].Width * filters.Count + spacing * (filters.Count - 1);
+            var x = tree.Location.X + (tree.Width - width) / 2;
+            for (var i = 0; i < filters.Count; i++)
+            {
+                button = filters[i];
+                button.Location = new Point(x + (button.Size.Width + spacing) * i, tree.Bottom + spacing);
+                button.TabIndex = tree.TabIndex + i;
+                Controls.Add(button);
+            }
         }
 
         void RefreshTree()

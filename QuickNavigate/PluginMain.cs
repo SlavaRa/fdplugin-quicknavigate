@@ -16,6 +16,7 @@ using ProjectManager;
 using QuickNavigate.Forms;
 using QuickNavigate.Helpers;
 using WeifenLuo.WinFormsUI.Docking;
+using PluginUI = ASCompletion.PluginUI;
 
 namespace QuickNavigate
 {
@@ -248,6 +249,18 @@ namespace QuickNavigate
         {
             var form = new QuickOutline(inFile, inClass, (Settings) Settings);
             form.ShowInClassHierarchy += ShowClassHierarchy;
+            var enabledTip = "Show only classes(Alt+C or left click)";
+            var disabledTip = "Show all(Alt+C or left click)";
+            form.AddFilter(PluginUI.ICON_TYPE, FlagType.Class, Keys.C, enabledTip, disabledTip);
+            enabledTip = "Show only fields(Alt+F or left click)";
+            disabledTip = "Show all(Alt+F or left click)";
+            form.AddFilter(PluginUI.ICON_VAR, FlagType.Variable, Keys.F, enabledTip, disabledTip);
+            enabledTip = "Show only properties(Alt+P or left click)";
+            disabledTip = "Show all(Alt+P or left click)";
+            form.AddFilter(PluginUI.ICON_PROPERTY, FlagType.Getter | FlagType.Setter, Keys.P, enabledTip, disabledTip);
+            enabledTip = "Show only methods(Alt+M or left click)";
+            disabledTip = "Show all(Alt+M or left click)";
+            form.AddFilter(PluginUI.ICON_FUNCTION, FlagType.Function, Keys.M, enabledTip, disabledTip);
             if (form.ShowDialog() != DialogResult.OK) return;
             FormHelper.Navigate(inFile.FileName, form.SelectedNode);
         }
