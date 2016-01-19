@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace QuickNavigate.Forms
 {
-    sealed partial class QuickOutline
+    sealed partial class QuickOutlineForm
     {
         /// <summary>
         /// Required designer variable.

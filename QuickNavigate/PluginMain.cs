@@ -215,7 +215,7 @@ namespace QuickNavigate
         void ShowTypeExplorer(object sender, EventArgs e)
         {
             if (PluginBase.CurrentProject == null) return;
-            var form = new TypeExplorer((Settings) Settings);
+            var form = new TypeExplorerForm((Settings) Settings);
             string enabledTip;
             string disabledTip;
             var features = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language).Features;
@@ -272,7 +272,7 @@ namespace QuickNavigate
 
         void ShowOutlineForm(FileModel inFile, ClassModel inClass)
         {
-            var form = new QuickOutline(inFile, inClass, (Settings) Settings);
+            var form = new QuickOutlineForm(inFile, inClass, (Settings) Settings);
             form.ShowInClassHierarchy += ShowClassHierarchy;
             var enabledTip = "Show only classes(Alt+C or left click)";
             var disabledTip = "Show all(Alt+C or left click)";
@@ -309,7 +309,7 @@ namespace QuickNavigate
 
         void ShowClassHierarchy(ClassModel model)
         {
-            var form = new ClassHierarchy(model, (Settings) Settings);
+            var form = new ClassHierarchyForm(model, (Settings) Settings);
             form.GotoPositionOrLine += OnGotoPositionOrLine;
             form.ShowInQuickOutline += ShowQuickOutline;
             form.ShowInClassHierarchy += ShowClassHierarchy;

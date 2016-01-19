@@ -79,11 +79,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlClickManager.cs" />
-    <Compile Include="Forms\ClassHierarchy.cs">
+    <Compile Include="Forms\ClassHierarchyForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ClassHierarchy.Designer.cs">
-      <DependentUpon>ClassHierarchy.cs</DependentUpon>
+    <Compile Include="Forms\ClassHierarchyForm.Designer.cs">
+      <DependentUpon>ClassHierarchyForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Collections\Comparers.cs" />
     <Compile Include="Forms\ClassModelExplorerForm.cs">
@@ -102,27 +102,27 @@
     <Compile Include="Forms\OpenRecentFilesForm.Designer.cs">
       <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\TypeExplorer.cs">
+    <Compile Include="Forms\TypeExplorerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\TypeExplorer.Designer.cs">
-      <DependentUpon>TypeExplorer.cs</DependentUpon>
+    <Compile Include="Forms\TypeExplorerForm.Designer.cs">
+      <DependentUpon>TypeExplorerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\FormHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PluginMain.cs" />
-    <Compile Include="Forms\QuickOutline.cs">
+    <Compile Include="Forms\QuickOutlineForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\QuickOutline.Designer.cs">
-      <DependentUpon>QuickOutline.cs</DependentUpon>
+    <Compile Include="Forms\QuickOutlineForm.Designer.cs">
+      <DependentUpon>QuickOutlineForm.cs</DependentUpon>
     </Compile>
     <Compile Include="SearchUtil.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\ClassHierarchy.resx">
-      <DependentUpon>ClassHierarchy.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ClassHierarchyForm.resx">
+      <DependentUpon>ClassHierarchyForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\OpenRecentProjectsForm.resx">
       <DependentUpon>OpenRecentProjectsForm.cs</DependentUpon>
@@ -130,11 +130,11 @@
     <EmbeddedResource Include="Forms\OpenRecentFilesForm.resx">
       <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TypeExplorer.resx">
-      <DependentUpon>TypeExplorer.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\TypeExplorerForm.resx">
+      <DependentUpon>TypeExplorerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\QuickOutline.resx">
-      <DependentUpon>QuickOutline.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\QuickOutlineForm.resx">
+      <DependentUpon>QuickOutlineForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -14,7 +14,7 @@ using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class TypeExplorer : ClassModelExplorerForm
+    public sealed partial class TypeExplorerForm : ClassModelExplorerForm
     {
         readonly List<string> closedTypes = new List<string>();
         readonly List<string> openedTypes = new List<string>();
@@ -32,7 +32,7 @@ namespace QuickNavigate.Forms
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
         /// </summary>
         /// <param name="settings"></param>
-        public TypeExplorer(Settings settings) : base(settings)
+        public TypeExplorerForm(Settings settings) : base(settings)
         {
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
