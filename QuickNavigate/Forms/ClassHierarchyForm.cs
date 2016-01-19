@@ -12,7 +12,7 @@ using PluginCore;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class ClassHierarchy : ClassModelExplorerForm
+    public sealed partial class ClassHierarchyForm : ClassModelExplorerForm
     {
         readonly ClassModel curClass;
         readonly Brush defaultNodeBrush;
@@ -59,7 +59,7 @@ namespace QuickNavigate.Forms
         /// </summary>
         /// <param name="model"></param>
         /// <param name="settings"></param>
-        public ClassHierarchy([NotNull] ClassModel model, [NotNull] Settings settings) : base(settings)
+        public ClassHierarchyForm([NotNull] ClassModel model, [NotNull] Settings settings) : base(settings)
         {
             curClass = model;
             Font = PluginBase.Settings.DefaultFont;

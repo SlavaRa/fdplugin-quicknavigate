@@ -18,9 +18,10 @@ namespace QuickNavigate.Helpers
         [NotNull]
         public static List<string> FilterOpenedFiles([NotNull] ICollection<string> fileNames)
         {
-            List<string> result = (from document in PluginBase.MainForm.Documents
-                                   where fileNames.Contains(document.FileName)
-                                   select document.FileName).ToList();
+            var result = (from doc in PluginBase.MainForm.Documents
+                          let fileName = doc.FileName
+                          where fileNames.Contains(fileName)
+                          select fileName).ToList();
             return result;
         }
 

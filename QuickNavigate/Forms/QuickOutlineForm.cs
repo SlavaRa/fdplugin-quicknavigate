@@ -12,7 +12,7 @@ using PluginCore;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class QuickOutline : Form
+    public sealed partial class QuickOutlineForm : Form
     {
         [NotNull]
         readonly Settings settings;
@@ -35,7 +35,7 @@ namespace QuickNavigate.Forms
         /// <param name="inFile"></param>
         /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        public QuickOutline([NotNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings)
+        public QuickOutlineForm([NotNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings)
         {
             InFile = inFile;
             InClass = inClass ?? ClassModel.VoidClass;
