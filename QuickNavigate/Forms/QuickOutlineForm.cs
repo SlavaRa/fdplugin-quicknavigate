@@ -139,7 +139,7 @@ namespace QuickNavigate.Forms
             if (SelectedNode != null || tree.Nodes.Count == 0) return;
             var search = input.Text.Trim();
             if (search.Length == 0)
-                tree.SelectedNode = tree.Nodes.OfType<TypeNode>().First(it => it.Model.Equals(InClass));
+                tree.SelectedNode = tree.Nodes.OfType<TypeNode>().FirstOrDefault(it => it.Model.Equals(InClass));
             else
             {
                 var nodes = tree.Nodes.OfType<TreeNode>().ToList().FindAll(it =>
