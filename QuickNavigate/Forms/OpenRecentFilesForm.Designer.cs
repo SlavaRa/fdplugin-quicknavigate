@@ -1,8 +1,9 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace QuickNavigate.Forms
 {
-    sealed partial class OpenRecentProjectForm
+    sealed partial class OpenRecentFilesForm
     {
         /// <summary>
         /// Required designer variable.
@@ -32,8 +33,8 @@ namespace QuickNavigate.Forms
         {
             this.input = new System.Windows.Forms.TextBox();
             this.tree = new System.Windows.Forms.ListBox();
-            this.open = new System.Windows.Forms.Button();
             this.cancel = new System.Windows.Forms.Button();
+            this.open = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // input
@@ -60,40 +61,41 @@ namespace QuickNavigate.Forms
             this.tree.ItemHeight = 15;
             this.tree.Location = new System.Drawing.Point(12, 40);
             this.tree.Name = "tree";
-            this.tree.Size = new System.Drawing.Size(305, 182);
+            this.tree.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.tree.Size = new System.Drawing.Size(305, 152);
             this.tree.TabIndex = 2;
             this.tree.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.OnTreeMouseDoubleClick);
             this.tree.SelectedIndexChanged += new System.EventHandler(this.OnTreeSelectedIndexChanged);
-            // 
-            // open
-            // 
-            this.open.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.open.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.open.Location = new System.Drawing.Point(161, 225);
-            this.open.Name = "open";
-            this.open.Size = new System.Drawing.Size(75, 23);
-            this.open.TabIndex = 6;
-            this.open.Text = "Open";
-            this.open.UseVisualStyleBackColor = true;
             // 
             // cancel
             // 
             this.cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancel.Location = new System.Drawing.Point(242, 225);
+            this.cancel.Location = new System.Drawing.Point(242, 198);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(75, 23);
-            this.cancel.TabIndex = 5;
+            this.cancel.TabIndex = 3;
             this.cancel.Text = "Cancel";
             this.cancel.UseVisualStyleBackColor = true;
             // 
-            // OpenRecentProjectForm
+            // open
+            // 
+            this.open.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.open.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.open.Location = new System.Drawing.Point(161, 198);
+            this.open.Name = "open";
+            this.open.Size = new System.Drawing.Size(75, 23);
+            this.open.TabIndex = 4;
+            this.open.Text = "Open";
+            this.open.UseVisualStyleBackColor = true;
+            // 
+            // OpenRecentFilesForm
             // 
             this.AcceptButton = this.open;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancel;
-            this.ClientSize = new System.Drawing.Size(330, 251);
+            this.ClientSize = new System.Drawing.Size(330, 225);
             this.Controls.Add(this.open);
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.tree);
@@ -102,11 +104,11 @@ namespace QuickNavigate.Forms
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(320, 200);
-            this.Name = "OpenRecentProjectForm";
+            this.Name = "OpenRecentFilesForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Recent Projects";
+            this.Text = "Recent Files";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -116,7 +118,7 @@ namespace QuickNavigate.Forms
 
         private System.Windows.Forms.TextBox input;
         private System.Windows.Forms.ListBox tree;
-        private Button open;
         private Button cancel;
+        private Button open;
     }
 }

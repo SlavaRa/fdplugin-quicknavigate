@@ -3,17 +3,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using ASCompletion;
 using ASCompletion.Model;
 using PluginCore;
-using ScintillaNet;
 
 namespace QuickNavigate.Forms
 {
-    /// <summary>
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="model"></param>
     public delegate void ShowInHandler(Form sender, ClassModel model);
 
     public class ClassModelExplorerForm : Form
@@ -30,13 +24,11 @@ namespace QuickNavigate.Forms
         public ClassModelExplorerForm(Settings settings)
         {
             Settings = settings;
-            Font = PluginBase.Settings.ConsoleFont;
-            CreateContextMenu();
+            InitializeContextMenu();
         }
 
         protected override void Dispose(bool disposing)
         {
-
             if (disposing)
             {
                 SelectedNodeBrush.Dispose();
@@ -45,9 +37,7 @@ namespace QuickNavigate.Forms
             base.Dispose(disposing);
         }
 
-        /// <summary>
-        /// </summary>
-        protected void CreateContextMenu()
+        protected void InitializeContextMenu()
         {
             ContextMenuStrip = new ContextMenuStrip();
             ContextMenuStrip.Items.Add(new ToolStripMenuItem("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"),
@@ -61,7 +51,7 @@ namespace QuickNavigate.Forms
                 ShortcutKeyDisplayString = "O"
             });
             ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &Class Hierarchy",
-                PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHiearachy)
+                PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy)
             {
                 ShortcutKeyDisplayString = "C"
             });
@@ -76,44 +66,9 @@ namespace QuickNavigate.Forms
                 ShortcutKeyDisplayString = "F"
             });
         }
-
-        protected virtual void InitTree()
-        {
-        }
-
-        protected virtual void RefreshTree()
-        {
-        }
-
-        protected virtual void FillTree()
-        {
-        }
-
-        /// <summary>
-        /// </summary>
+        
         protected virtual void Navigate()
         {
-        }
-
-        /// <summary>
-        /// </summary>
-        protected void Navigate(TypeNode node)
-        {
-            if (node == null) return;
-            ClassModel classModel = node.Model;
-            FileModel file = ModelsExplorer.Instance.OpenFile(classModel.InFile.FileName);
-            if (file != null)
-            {
-                classModel = file.GetClassByName(classModel.Name);
-                if (!classModel.IsVoid())
-                {
-                    int line = classModel.LineFrom;
-                    ScintillaControl sci = PluginBase.MainForm.CurrentDocument.SciControl;
-                    if (sci != null && line > 0 && line < sci.LineCount)
-                        sci.GotoLine(line);
-                }
-            }
-            Close();
         }
 
         /// <summary>
@@ -130,49 +85,30 @@ namespace QuickNavigate.Forms
         {
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         protected void OnGotoLineOrPosition(object sender, EventArgs e)
         {
+            Debug.Assert(GotoPositionOrLine != null, "GotoPositionOrLine != null");
             GotoPositionOrLine(this, GetModelFromSelectedNode());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         protected void OnShowInQuickOutline(object sender, EventArgs e)
         {
             Debug.Assert(ShowInQuickOutline != null, "ShowInQuickOutline != null");
             ShowInQuickOutline(this, GetModelFromSelectedNode());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected void OnShowInClassHiearachy(object sender, EventArgs e)
+        protected void OnShowInClassHierarchy(object sender, EventArgs e)
         {
             Debug.Assert(ShowInClassHierarchy != null, "ShowInClassHierarchy != null");
             ShowInClassHierarchy(this, GetModelFromSelectedNode());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         protected void OnShowInProjectManager(object sender, EventArgs e)
         {
             Debug.Assert(ShowInProjectManager != null, "ShowInProjectManager != null");
             ShowInProjectManager(this, GetModelFromSelectedNode());
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         protected void OnShowInFileExplorer(object sender, EventArgs e)
         {
             Debug.Assert(ShowInFileExplorer != null, "ShowInFileExplorer != null");
@@ -181,54 +117,22 @@ namespace QuickNavigate.Forms
 
         TreeView GetTreeView()
         {
-            TreeView tree = ContextMenuStrip.SourceControl as TreeView;
+            var tree = ContextMenuStrip.SourceControl as TreeView;
             return tree ?? ContextMenuStrip.SourceControl.Controls.OfType<TreeView>().FirstOrDefault();
         }
 
         ClassModel GetModelFromSelectedNode() => ((TypeNode) GetTreeView().SelectedNode).Model;
 
         #region Event Handlers
-
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-                case Keys.Escape:
-                    Close();
-                    break;
-                case Keys.Enter:
-                    e.Handled = true;
-                    Navigate();
-                    break;
-                case Keys.Apps:
-                    e.Handled = true;
-                    ShowContextMenu();
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        
         protected virtual void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            TypeNode node = e.Node as TypeNode;
+            var node = e.Node as TypeNode;
             if (node == null) return;
-            ShowContextMenu(new Point(e.Location.X, node.Bounds.Y + node.Bounds.Height));
+            ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
         }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) => Navigate();
-
+        
         #endregion
     }
 }

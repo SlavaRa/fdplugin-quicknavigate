@@ -1,22 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using PluginCore;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class OpenRecentProjectForm : Form
+    public sealed partial class OpenRecentProjectsForm : Form
     {
+        [NotNull]
         readonly Settings settings;
 
-        public OpenRecentProjectForm(Settings settings)
+        public OpenRecentProjectsForm([NotNull] Settings settings)
         {
             this.settings = settings;
-            InitializeComponent();
             Font = PluginBase.Settings.DefaultFont;
+            InitializeComponent();
             tree.ItemHeight = tree.Font.Height;
             if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
             RefrestTree();
@@ -36,24 +36,21 @@ namespace QuickNavigate.Forms
 
         void FillTree()
         {
-            List<string> matches = ProjectManager.PluginMain.Settings.RecentProjects
+            var matches = ProjectManager.PluginMain.Settings.RecentProjects
                         .Where(File.Exists)
                         .ToList();
             if (matches.Count == 0) return;
-            string search = input.Text;
-            if (search.Length > 0) matches = SearchUtil.Matches(matches, search, Path.PathSeparator.ToString(), settings.MaxItems, settings.RecentProjectsWholeWord, settings.RecentProjectsMatchCase);
+            var search = input.Text;
+            if (search.Length > 0) matches = SearchUtil.FindAll(matches, search);
             if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
         }
 
         void Navigate()
         {
-            if (SelectedItem != null) DialogResult = DialogResult.OK;
+            if (SelectedItem == null) return;
+            DialogResult = DialogResult.OK;
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -72,25 +69,17 @@ namespace QuickNavigate.Forms
             }
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            settings.RecentProjectsSize = new Size(Size.Width, Size.Height);
+            settings.RecentProjectsSize = Size;
         }
 
         void OnInputTextChanged(object sender, EventArgs e) => RefrestTree();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            int lastIndex = tree.Items.Count - 1;
-            int index = tree.SelectedIndex;
+            var lastIndex = tree.Items.Count - 1;
+            var index = tree.SelectedIndex;
             switch (e.KeyCode)
             {
                 case Keys.L:

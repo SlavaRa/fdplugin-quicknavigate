@@ -3,43 +3,44 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using PluginCore;
-using static System.Windows.Forms.ListBox;
+using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class OpenRecentFileForm : Form
+    public sealed partial class OpenRecentFilesForm : Form
     {
+        [NotNull]
         readonly Settings settings;
+
+        [NotNull]
         readonly List<string> recentFiles;
+
+        [NotNull]
         readonly List<string> openedFiles;
 
-        static List<string> GetOpenedFiles(ICollection<string> documents)
-        {
-            return (from document in PluginBase.MainForm.Documents
-                    where documents.Contains(document.FileName)
-                    select document.FileName).ToList();
-        }
-
-        public OpenRecentFileForm(Settings settings)
+        public OpenRecentFilesForm([NotNull] Settings settings)
         {
             this.settings = settings;
-            InitializeComponent();
             Font = PluginBase.Settings.DefaultFont;
+            InitializeComponent();
             tree.ItemHeight = tree.Font.Height;
             if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(File.Exists).ToList();
-            openedFiles = GetOpenedFiles(recentFiles);
+            openedFiles = FormHelper.FilterOpenedFiles(recentFiles);
+            recentFiles.RemoveAll(openedFiles.Contains);
             RefreshTree();
         }
 
         int selectedIndex;
 
+        [NotNull]
         public List<string> SelectedItems
         {
             get
             {
-                List<string> result = (from object item in tree.SelectedItems
+                var result = (from object item in tree.SelectedItems
                                        where item.ToString() != settings.ItemSpacer
                                        select item.ToString()).ToList();
                 return result;
@@ -62,15 +63,12 @@ namespace QuickNavigate.Forms
 
         void FillTree()
         {
-            string separator = Path.PathSeparator.ToString();
-            int maxItems = settings.MaxItems;
-            bool wholeWord = settings.RecentFilesWholeWord;
-            bool matchCase = settings.RecentFilesMatchCase;
-            string search = input.Text;
+            var separator = Path.PathSeparator;
+            var search = input.Text.Replace('\\', separator).Replace('/', separator);
             if (openedFiles.Count > 0)
             {
-                List<string> matches = openedFiles;
-                if (search.Length > 0) matches = SearchUtil.Matches(openedFiles, search, separator, maxItems, wholeWord, matchCase);
+                var matches = openedFiles;
+                if (search.Length > 0) matches = SearchUtil.FindAll(openedFiles, search);
                 if (matches.Count > 0)
                 {
                     tree.Items.AddRange(matches.ToArray());
@@ -79,23 +77,18 @@ namespace QuickNavigate.Forms
             }
             if (recentFiles.Count > 0)
             {
-                List<string> matches = (from it in recentFiles
-                                        where !openedFiles.Contains(it)
-                                        select it).ToList();
-                if (search.Length > 0) matches = SearchUtil.Matches(matches, search, separator, maxItems, wholeWord, matchCase);
+                var matches = recentFiles;
+                if (search.Length > 0) matches = SearchUtil.FindAll(matches, search);
                 if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
             }
         }
 
         void Navigate()
         {
-            if (tree.SelectedItems.Count > 0) DialogResult = DialogResult.OK;
+            if (SelectedItems.Count == 0) return;
+            DialogResult = DialogResult.OK;
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.KeyEventArgs"/> that contains the event data. </param>
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -114,22 +107,14 @@ namespace QuickNavigate.Forms
             }
         }
         
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing"/> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs"/> that contains the event data. </param>
         protected override void OnFormClosing(FormClosingEventArgs e) => settings.RecentFilesSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            int prevSelectedIndex = selectedIndex;
-            int lastIndex = tree.Items.Count - 1;
+            var prevSelectedIndex = selectedIndex;
+            var lastIndex = tree.Items.Count - 1;
             switch (e.KeyCode)
             {
                 case Keys.L:
@@ -161,17 +146,17 @@ namespace QuickNavigate.Forms
                     break;
                 default: return;
             }
-            SelectedIndexCollection selectedIndices = tree.SelectedIndices;
+            var selectedIndices = tree.SelectedIndices;
             if (e.Shift)
             {
                 if (selectedIndices.Contains(selectedIndex) && selectedIndices.Count > 1)
                     tree.SetSelected(prevSelectedIndex, false);
                 else
                 {
-                    int index = selectedIndex;
-                    int delta = selectedIndex - prevSelectedIndex;
-                    int length = Math.Abs(delta);
-                    for (int i = 0; i < length; i++)
+                    var index = selectedIndex;
+                    var delta = selectedIndex - prevSelectedIndex;
+                    var length = Math.Abs(delta);
+                    for (var i = 0; i < length; i++)
                     {
                         tree.SetSelected(index, !selectedIndices.Contains(index));
                         if (delta > 0)

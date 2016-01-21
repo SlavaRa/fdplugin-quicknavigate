@@ -1,6 +1,6 @@
 ﻿namespace QuickNavigate.Forms
 {
-    partial class TypeExplorer
+    sealed partial class TypeExplorerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -73,7 +73,7 @@
             this.tree.ShowLines = false;
             this.tree.ShowPlusMinus = false;
             this.tree.ShowRootLines = false;
-            this.tree.Size = new System.Drawing.Size(365, 175);
+            this.tree.Size = new System.Drawing.Size(365, 143);
             this.tree.TabIndex = 2;
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
             this.tree.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.OnTreeNodeMouseClick);
