@@ -207,9 +207,8 @@ namespace QuickNavigate
         {
             var form = new OpenRecentProjectsForm((Settings) Settings);
             if (form.ShowDialog() != DialogResult.OK) return;
-            var file = PluginBase.CurrentProject.GetAbsolutePath(form.SelectedItem);
             var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-            plugin.OpenFile(file);
+            plugin.OpenFile(form.SelectedItem);
         }
 
         void ShowTypeExplorer(object sender, EventArgs e)
