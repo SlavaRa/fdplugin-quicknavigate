@@ -1,5 +1,6 @@
 init:
 - git clone -q https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
+- cd C:\projects\FlashDevelop
 - git checkout develop
 version: 2.8.{build}
 platform:
