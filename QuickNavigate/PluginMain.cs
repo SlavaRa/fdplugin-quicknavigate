@@ -158,19 +158,20 @@ namespace QuickNavigate
         {
             ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
             Image image = PluginBase.MainForm.FindImage("99|16|0|0");
-            typeExplorerItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeExplorer, Keys.Control | Keys.Shift | Keys.R);
+            typeExplorerItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeExplorer);
             PluginBase.MainForm.RegisterShortcutItem($"{Name}.TypeExplorer", typeExplorerItem);
             menu.DropDownItems.Add(typeExplorerItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
-            quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline, Keys.Control | Keys.Shift | Keys.O);
+            quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline);
             PluginBase.MainForm.RegisterShortcutItem($"{Name}.Outline", quickOutlineItem);
             menu.DropDownItems.Add(quickOutlineItem);
             image = PluginBase.MainForm.FindImage("99|16|0|0");
             classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             menu.DropDownItems.Add(classHierarchyItem);
+            PluginBase.MainForm.RegisterShortcutItem($"{Name}.ClassHierarchy", classHierarchyItem);
             editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
-            ToolStripMenuItem item = new ToolStripMenuItem("Recent Files", null, ShowRecentFiles, Keys.Control | Keys.E);
+            ToolStripMenuItem item = new ToolStripMenuItem("Recent Files", null, ShowRecentFiles);
             PluginBase.MainForm.RegisterShortcutItem($"{Name}.RecentFiles", item);
             menu.DropDownItems.Add(item);
             item = new ToolStripMenuItem("Recent Projects", null, ShowRecentProjets);
