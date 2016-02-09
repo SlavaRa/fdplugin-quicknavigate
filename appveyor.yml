@@ -10,6 +10,7 @@ skip_tags: true
 environment:
   PLUGIN_NAME: QuickNavigate
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
+  MD5_CHECKSUM: 
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 matrix:
@@ -26,7 +27,8 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
-- echo -n "checksum_md5" | md5sum %PLUGIN_NAME%.fdz
+- md5sum %PLUGIN_NAME%.fdz > %MD5_CHECKSUM%
+- echo -n %MD5_CHECKSUM%
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
