@@ -26,7 +26,7 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
-- echo -n "checksum_md5" | md5sum $(PLUGIN_NAME).fdz
+- echo -n "checksum_md5" | md5sum %PLUGIN_NAME%.fdz
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
