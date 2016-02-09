@@ -10,6 +10,7 @@ skip_tags: true
 environment:
   PLUGIN_NAME: QuickNavigate
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
+  FDZ_MD5_CHECKSUM:
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 matrix:
@@ -26,7 +27,7 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
-- md5sum %PLUGIN_NAME%.fdz
+- echo -n %FDZ_MD5_CHECKSUM% | md5sum %PLUGIN_NAME%.fdz
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
@@ -34,6 +35,7 @@ artifacts:
 deploy:
 - provider: GitHub
   release: $(appveyor_build_version)
+  description: $(FDZ_MD5_CHECKSUM)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
   artifact: /.*\.fdz/
