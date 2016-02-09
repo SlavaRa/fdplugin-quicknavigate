@@ -33,6 +33,7 @@ artifacts:
 deploy:
 - provider: GitHub
   release: $(appveyor_build_version)
+  description: echo -n "checksum_md5" | md5sum $(PLUGIN_NAME).fdz
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
   artifact: /.*\.fdz/
