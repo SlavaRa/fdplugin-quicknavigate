@@ -26,8 +26,9 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
-- for /f %%i in ('md5sum %PLUGIN_NAME%.fdz') do set VAR=%%i
-- echo %VAR%
+- set /p var=echo -n "to_md5" | md5sum%PLUGIN_NAME%.fdz 
+- echo var
+- echo %var%
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
