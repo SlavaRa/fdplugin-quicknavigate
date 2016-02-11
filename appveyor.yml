@@ -28,7 +28,7 @@ after_build:
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
 - md5sum -b %PLUGIN_NAME%.fdz > chechsum.md5
 - set /p CHECKSUM_MD5 =< chechsum.md5
-- echo %CHECKSUM_MD5%
+- echo -n %CHECKSUM_MD5%
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
