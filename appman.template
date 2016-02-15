@@ -4,7 +4,7 @@
 	<Version>_VERSION_</Version>
 	<Build>_BUILD_</Build>
 	<Checksum>_CHECHSUM_</Checksum>
-	<Desc>Quickly navigate through Types, Fields, Projects and more</Desc>
+	<Desc>_DESC_</Desc>
 	<Group>Plugins</Group>
 	<Info>http://www.flashdevelop.org/community/viewtopic.php?f=4&t=5961</Info>
 	<Urls>
