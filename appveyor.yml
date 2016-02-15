@@ -29,6 +29,8 @@ after_build:
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
 - cd %PLUGIN_PATH%
 - echo %build%
+- echo $(build)
+- echo {build}
 - mv %APPMAN_TEMPLATE% appmanconfig.txt
 - cat appmanconfig.txt
 - sed -i -e s/_BUILD_/'$build'/g appmanconfig.txt
