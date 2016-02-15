@@ -27,6 +27,7 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
+- cd %PLUGIN_PATH%
 - mv %APPMAN_TEMPLATE% appmanconfig.txt
 - awk '{gsub(/%BUILD%/,%build%);}' appmanconfig.txt
 - cat appmanconfig.txt
@@ -35,7 +36,7 @@ artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
   type: zip
-- path: c
+- path: appmanconfig.txt
   name: appmanconfig
   type: txt
 deploy:
