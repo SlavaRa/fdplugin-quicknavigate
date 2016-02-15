@@ -11,6 +11,8 @@ environment:
   PLUGIN_NAME: QuickNavigate
   PLUGIN_DESC: Quickly navigate through Types, Fields, Projects and more
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
+  PLUGIN_INFO: http://www.flashdevelop.org/community/viewtopic.php?f=4&t=5961
+  PLUGIN_GITHUB_RELEASES: https://github.com/SlavaRa/fdplugin-quicknavigate/releases
   APPMAN_TEMPLATE: appman.template
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
@@ -36,7 +38,8 @@ after_build:
 - sed -i -e "s/_DESC_/%PLUGIN_DESC%/g" appmanconfig.txt
 - sed -i -e "s/_VERSION_/2.7/g" appmanconfig.txt
 - sed -i -e "s/_BUILD_/%APPVEYOR_BUILD_NUMBER%/g" appmanconfig.txt
-- sed -i -e "s/_URL_/https:\/\/github.com\/SlavaRa\/fdplugin-quicknavigate\/releases\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" appmanconfig.txt
+- sed -i -e "s/_INFO_/%PLUGIN_INFO%/g" appmanconfig.txt
+- sed -i -e "s/_URL_/%PLUGIN_GITHUB_RELEASES%\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" appmanconfig.txt
 - cat appmanconfig.txt
 #- md5sum -b %PLUGIN_NAME%.fdz > checksum_md5.txt
 artifacts:
