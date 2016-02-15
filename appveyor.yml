@@ -29,7 +29,9 @@ after_build:
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
 - cd %PLUGIN_PATH%
 - mv %APPMAN_TEMPLATE% appmanconfig.txt
-- sed -i -e s/%BUILD%/10/g appmanconfig.txt && cat appmanconfig.txt
+- cat appmanconfig.txt
+- sed -i -e s/%BUILD%/10/g appmanconfig.txt
+- cat appmanconfig.txt
 - md5sum -b %PLUGIN_NAME%.fdz > checksum_md5.txt
 artifacts:
 - path: $(PLUGIN_NAME).fdz
