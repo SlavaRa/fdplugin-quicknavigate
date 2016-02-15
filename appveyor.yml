@@ -9,6 +9,7 @@ os: Visual Studio 2015
 skip_tags: true
 environment:
   PLUGIN_NAME: QuickNavigate
+  PLUGIN_DESC: Quickly navigate through Types, Fields, Projects and more
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
   APPMAN_TEMPLATE: appman.template
 install:
@@ -32,6 +33,7 @@ after_build:
 - cat appmanconfig.txt
 - sed -i -e s/_ID_/quicknavigate/g appmanconfig.txt
 - sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" appmanconfig.txt
+- sed -i -e "s/_DESC_/%PLUGIN_DESC%/g" appmanconfig.txt
 - sed -i -e "s/_VERSION_/2.7/g" appmanconfig.txt
 - sed -i -e "s/_BUILD_/%APPVEYOR_BUILD_NUMBER%/g" appmanconfig.txt
 - sed -i -e "s/_URL_/https:\/\/github.com\/SlavaRa\/fdplugin-quicknavigate\/releases\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" appmanconfig.txt
