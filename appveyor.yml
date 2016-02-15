@@ -10,6 +10,7 @@ skip_tags: true
 environment:
   PLUGIN_NAME: QuickNavigate
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
+  APPMAN_TEMPLATE: appman.template
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 matrix:
@@ -26,19 +27,22 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
+- mv %APPMAN_TEMPLATE% appmanconfig.txt
+- awk '{gsub(/%BUILD%/,%build%);}' appmanconfig.txt
+- cat appmanconfig.txt
 - md5sum -b %PLUGIN_NAME%.fdz > checksum_md5.txt
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
   type: zip
-- path: checksum_md5.txt
-  name: checksum_md5
+- path: c
+  name: appmanconfig
   type: txt
 deploy:
 - provider: GitHub
   release: $(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
-  artifact: /(.*\.fdz)|(checksum_md5.txt)/
+  artifact: /(.*\.fdz)|(appmanconfig.txt)/
   on:
     branch: master
