@@ -26,19 +26,19 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
-- md5sum -b %PLUGIN_NAME%.fdz > chechsum.txt
+- md5sum -b %PLUGIN_NAME%.fdz > checksum_md5.txt
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
   type: zip
-- path: chechsum.txt
-  name: chechsum_md5
+- path: checksum_md5.txt
+  name: checksum_md5
   type: txt
 deploy:
 - provider: GitHub
   release: $(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
-  artifact: /.*\.fdz/
+  artifact: /(.*\.fdz)|(checksum_md5.txt)/
   on:
     branch: master
