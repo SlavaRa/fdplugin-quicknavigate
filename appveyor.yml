@@ -11,8 +11,8 @@ environment:
   PLUGIN_NAME: QuickNavigate
   PLUGIN_DESC: Quickly navigate through Types, Fields, Projects and more
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
-  PLUGIN_INFO: http://www.flashdevelop.org/community/viewtopic.php?f=4&t=5961
-  PLUGIN_GITHUB_RELEASES: https://github.com/SlavaRa/fdplugin-quicknavigate/releases
+  PLUGIN_INFO: http:\/\/www.flashdevelop.org\/community\/viewtopic.php?f=4&t=5961
+  PLUGIN_GITHUB_RELEASES: https:\/\/github.com\/SlavaRa\/fdplugin-quicknavigate\/releases
   APPMAN_TEMPLATE: appman.template
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
