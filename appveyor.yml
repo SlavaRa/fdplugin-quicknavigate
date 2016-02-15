@@ -31,6 +31,12 @@ after_build:
 - echo %build%
 - echo $(build)
 - echo {build}
+- echo %APPVEYOR_BUILD_NUMBER%
+- echo $(APPVEYOR_BUILD_NUMBER)
+- echo $APPVEYOR_BUILD_NUMBER
+- echo %APPVEYOR_BUILD_VERSION%
+- echo $(APPVEYOR_BUILD_VERSION)
+- echo $APPVEYOR_BUILD_VERSION
 - mv %APPMAN_TEMPLATE% appmanconfig.txt
 - cat appmanconfig.txt
 - sed -i -e s/_BUILD_/'$build'/g appmanconfig.txt
