@@ -30,7 +30,11 @@ after_build:
 - cd %PLUGIN_PATH%
 - mv %APPMAN_TEMPLATE% appmanconfig.txt
 - cat appmanconfig.txt
+- sed -i -e s/_id_/quicknavigate/g appmanconfig.txt
+- sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" appmanconfig.txt
 - sed -i -e "s/_BUILD_/%APPVEYOR_BUILD_NUMBER%/g" appmanconfig.txt
+- sed -i -e "s/_URL_/https://github.com/SlavaRa/fdplugin-quicknavigate/releases/download/%APPVEYOR_BUILD_VERSION%/%PLUGIN_NAME%.fdz/g" appmanconfig.txt
+- cat appmanconfig.txt
 #- md5sum -b %PLUGIN_NAME%.fdz > checksum_md5.txt
 artifacts:
 - path: $(PLUGIN_NAME).fdz
