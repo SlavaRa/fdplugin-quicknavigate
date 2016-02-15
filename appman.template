@@ -1,0 +1,13 @@
+<Entry>
+	<Id>%ID%</Id>
+	<Name>%NAME%</Name>
+	<Version>%VERSION%</Version>
+	<Build>%BUILD%</Build>
+	<Checksum>%CHECHSUM%</Checksum>
+	<Desc>Quickly navigate through Types, Fields, Projects and more</Desc>
+	<Group>Plugins</Group>
+	<Info>http://www.flashdevelop.org/community/viewtopic.php?f=4&t=5961</Info>
+	<Urls>
+		<Url>%URL%</Url>
+	</Urls>
+</Entry>
