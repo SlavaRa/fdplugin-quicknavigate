@@ -1,0 +1,13 @@
+<Entry>
+	<Id>_ID_</Id>
+	<Name>_NAME_</Name>
+	<Version>_VERSION_</Version>
+	<Build>_BUILD_</Build>
+	<Checksum>_CHECKSUM_</Checksum>
+	<Desc>_DESC_</Desc>
+	<Group>Plugins</Group>
+	<Info>_INFO_</Info>
+	<Urls>
+		<Url>_URL_</Url>
+	</Urls>
+</Entry>
