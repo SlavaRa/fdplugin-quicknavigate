@@ -47,6 +47,7 @@ after_build:
 - echo %CHECKSUM%
 - cat %APPMAN_CONFIG_XML%
 - sed -i -e "s/_CHECKSUM_/%CHECKSUM%/g" %APPMAN_CONFIG_XML%
+- mv %APPMAN_CONFIG_XML% %APPVEYOR_BUILD_FOLDER%\%APPMAN_CONFIG_XML%
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
