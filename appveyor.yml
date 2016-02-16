@@ -6,7 +6,7 @@ environment:
   PLUGIN_INFO: http:\/\/www.flashdevelop.org\/community\/viewtopic.php?f=4&t=5961
   PLUGIN_GITHUB_RELEASES: https:\/\/github.com\/SlavaRa\/fdplugin-quicknavigate\/releases
   APPMAN_TEMPLATE: appman.template
-  APPMAN_CONFIG_XML: appman.xml
+  APPMAN_CONFIG_XML: appman.txt
 init:
 - git clone -q https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
 version: $(PLUGIN_VERSION).{build}
@@ -53,12 +53,12 @@ artifacts:
   type: zip
 - path: $(APPMAN_CONFIG_XML)
   name: appman
-  type: xml
+  type: txt
 deploy:
 - provider: GitHub
   release: $(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
-  artifact: /(.*\.fdz)|(appman.xml)/
+  artifact: /(.*\.fdz)|(appman.txt)/
   on:
     branch: master
