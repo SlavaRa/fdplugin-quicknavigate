@@ -41,8 +41,10 @@ after_build:
 - sed -i -e "s/_BUILD_/%APPVEYOR_BUILD_NUMBER%/g" appmanconfig.txt
 - sed -i -e "s/_INFO_/%PLUGIN_INFO%/g" appmanconfig.txt
 - sed -i -e "s/_URL_/%PLUGIN_GITHUB_RELEASES%\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" appmanconfig.txt
+- md5sum %APPVEYOR_BUILD_FOLDER%\%PLUGIN_NAME%.fdz > CHECKSUM.md5
+- set /p CHECKSUM=<checksum.md5
+- sed -i -e "s/_CHECHSUM_/%CHECKSUM%/g" appmanconfig.txt
 - cat appmanconfig.txt
-#- md5sum -b %PLUGIN_NAME%.fdz > checksum_md5.txt
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
