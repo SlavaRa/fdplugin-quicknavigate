@@ -32,6 +32,10 @@ after_build:
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
 - cd %PLUGIN_PATH%
+- md5sum %APPVEYOR_BUILD_FOLDER%\%PLUGIN_NAME%.fdz > checksum.md5
+- sed s/\*.*// checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
+- set /p CHECKSUM=<checksum.md5
+- echo %CHECKSUM%
 - mv %APPMAN_TEMPLATE% appmanconfig.txt
 - sed -i -e s/_ID_/quicknavigate/g appmanconfig.txt
 - sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" appmanconfig.txt
@@ -40,11 +44,6 @@ after_build:
 - sed -i -e "s/_BUILD_/%APPVEYOR_BUILD_NUMBER%/g" appmanconfig.txt
 - sed -i -e "s/_INFO_/%PLUGIN_INFO%/g" appmanconfig.txt
 - sed -i -e "s/_URL_/%PLUGIN_GITHUB_RELEASES%\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" appmanconfig.txt
-- md5sum %APPVEYOR_BUILD_FOLDER%\%PLUGIN_NAME%.fdz > checksum.md5
-- sed s/\*.*// checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
-- cat checksum.md5
-- set /p CHECKSUM=<checksum.md5 && echo %CHECKSUM%
-- echo %CHECKSUM%
 - sed -i -e "s/_CHECKSUM_/%CHECKSUM%/g" appmanconfig.txt
 - cat appmanconfig.txt
 artifacts:
