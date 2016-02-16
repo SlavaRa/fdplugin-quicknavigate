@@ -34,7 +34,7 @@ after_build:
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
 - cd %PLUGIN_PATH%
 - md5sum %APPVEYOR_BUILD_FOLDER%\%PLUGIN_NAME%.fdz > checksum.md5
-- sed -e "s/\s.*//" checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
+- sed -e "s/ .*//" checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
 - set /p CHECKSUM=<checksum.md5
 - mv %APPMAN_TEMPLATE% %APPMAN_CONFIG_XML%
 - sed -i -e s/_ID_/quicknavigate/g %APPMAN_CONFIG_XML%
