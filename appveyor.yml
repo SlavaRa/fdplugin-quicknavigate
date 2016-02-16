@@ -6,6 +6,7 @@ environment:
   PLUGIN_INFO: http:\/\/www.flashdevelop.org\/community\/viewtopic.php?f=4&t=5961
   PLUGIN_GITHUB_RELEASES: https:\/\/github.com\/SlavaRa\/fdplugin-quicknavigate\/releases
   APPMAN_TEMPLATE: appman.template
+  APPMAN_CONFIG_XML: appman.xml
 init:
 - git clone -q https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
 version: $(PLUGIN_VERSION).{build}
@@ -36,28 +37,27 @@ after_build:
 - sed -e "s/ \*.*//" checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
 - set /p CHECKSUM=<checksum.md5
 - echo %CHECKSUM%
-- mv %APPMAN_TEMPLATE% appmanconfig.txt
-- sed -i -e s/_ID_/quicknavigate/g appmanconfig.txt
-- sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" appmanconfig.txt
-- sed -i -e "s/_DESC_/%PLUGIN_DESC%/g" appmanconfig.txt
-- sed -i -e "s/_VERSION_/%PLUGIN_VERSION%/g" appmanconfig.txt
-- sed -i -e "s/_BUILD_/%APPVEYOR_BUILD_NUMBER%/g" appmanconfig.txt
-- sed -i -e "s/_INFO_/%PLUGIN_INFO%/g" appmanconfig.txt
-- sed -i -e "s/_URL_/%PLUGIN_GITHUB_RELEASES%\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" appmanconfig.txt
-- sed -i -e "s/_CHECKSUM_/%CHECKSUM%/g" appmanconfig.txt
-- cat appmanconfig.txt
+- mv %APPMAN_TEMPLATE% %APPMAN_CONFIG_XML%
+- sed -i -e s/_ID_/quicknavigate/g %APPMAN_CONFIG_XML%
+- sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" %APPMAN_CONFIG_XML%
+- sed -i -e "s/_DESC_/%PLUGIN_DESC%/g" %APPMAN_CONFIG_XML%
+- sed -i -e "s/_VERSION_/%PLUGIN_VERSION%/g" %APPMAN_CONFIG_XML%
+- sed -i -e "s/_BUILD_/%APPVEYOR_BUILD_NUMBER%/g" %APPMAN_CONFIG_XML%
+- sed -i -e "s/_INFO_/%PLUGIN_INFO%/g" %APPMAN_CONFIG_XML%
+- sed -i -e "s/_URL_/%PLUGIN_GITHUB_RELEASES%\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" %APPMAN_CONFIG_XML%
+- sed -i -e "s/_CHECKSUM_/%CHECKSUM%/g" %APPMAN_CONFIG_XML%
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
   type: zip
-- path: appmanconfig.txt
+- path: $(APPMAN_CONFIG_XML)
   name: appmanconfig
-  type: txt
+  type: xml
 deploy:
 - provider: GitHub
   release: $(appveyor_build_version)
   auth_token:
     secure: HK9ej9WVysHQHeTEQ/QTOJmh08xCtDQyDBy5uXWrWV/xROMNkQrTeQv1j2tYOxVw
-  artifact: /(.*\.fdz)|(appmanconfig.txt)/
+  artifact: /(.*\.fdz)|(appmanconfig.xml)/
   on:
     branch: master
