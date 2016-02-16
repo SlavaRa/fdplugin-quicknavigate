@@ -8,7 +8,7 @@ environment:
   APPMAN_TEMPLATE: appman.template
 init:
 - git clone -q https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
-version: %PLUGIN_VERSION%.{build}
+version: $(PLUGIN_VERSION).{build}
 platform:
 - x86
 configuration:
