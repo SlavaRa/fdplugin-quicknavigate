@@ -41,8 +41,8 @@ namespace QuickNavigate.Forms
             get
             {
                 var result = (from object item in tree.SelectedItems
-                                       where item.ToString() != settings.ItemSpacer
-                                       select item.ToString()).ToList();
+                              where item.ToString() != settings.ItemSpacer
+                              select item.ToString()).ToList();
                 return result;
             }
         }
