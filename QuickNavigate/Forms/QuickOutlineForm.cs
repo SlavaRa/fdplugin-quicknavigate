@@ -139,7 +139,10 @@ namespace QuickNavigate.Forms
             if (SelectedNode != null || tree.Nodes.Count == 0) return;
             var search = input.Text.Trim();
             if (search.Length == 0)
-                tree.SelectedNode = tree.Nodes.OfType<TypeNode>().FirstOrDefault(it => it.Model.Equals(InClass));
+            {
+                if (InClass.Equals(ClassModel.VoidClass)) tree.SelectedNode = tree.Nodes[0];
+                else tree.SelectedNode = tree.Nodes.OfType<TypeNode>().FirstOrDefault(it => it.Model.Equals(InClass));
+            }   
             else
             {
                 var nodes = tree.Nodes.OfType<TreeNode>().ToList().FindAll(it =>
@@ -273,10 +276,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            settings.QuickOutlineSize = Size;
-        }
+        protected override void OnFormClosing(FormClosingEventArgs e) => settings.QuickOutlineSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
