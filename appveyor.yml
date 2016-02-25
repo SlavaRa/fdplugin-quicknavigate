@@ -11,7 +11,7 @@ init:
 - git clone -q https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
 version: $(PLUGIN_VERSION).{build}
 platform:
-- x86
+- Any CPU
 configuration:
 - Release
 os: Visual Studio 2015
