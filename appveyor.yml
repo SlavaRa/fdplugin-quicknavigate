@@ -13,7 +13,7 @@ version: $(PLUGIN_VERSION).{build}
 platform:
 - Any CPU
 configuration:
-- Build
+- Debug
 os: Visual Studio 2015
 skip_tags: true
 install:
