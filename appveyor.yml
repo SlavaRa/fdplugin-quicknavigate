@@ -10,20 +10,20 @@ environment:
   APPMAN_CONFIG_XML: appman.txt
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
-init:
-- git clone -q https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
 version: $(PLUGIN_VERSION).{build}
-platform: Any CPU
-configuration: Release
 skip_tags: true
+init:
+- git clone -q --branch=master https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
+clone_folder: %PLUGIN_PATH%
+configuration: Release
+platform: Any CPU
 matrix:
   fast_finish: true
 before_build:
-- cd ..
-- mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
 - nuget restore %PLUGIN_PATH%\%PLUGIN_NAME%.sln
-build:
-  project: $(PLUGIN_PATH)\$(PLUGIN_NAME).sln
+- msbuild %PLUGIN_PATH%\%PLUGIN_NAME%.sln
+build: off
+#  project: $(PLUGIN_PATH)\$(PLUGIN_NAME).sln
 after_build:
 - mkdir %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins
 - mv C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\%PLUGIN_NAME%.dll %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins\%PLUGIN_NAME%.dll
