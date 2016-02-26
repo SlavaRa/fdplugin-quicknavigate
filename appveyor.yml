@@ -14,7 +14,7 @@ version: $(PLUGIN_VERSION).{build}
 skip_tags: true
 init:
 - git clone -q --branch=master https://github.com/fdorg/flashdevelop.git C:\projects\FlashDevelop
-clone_folder: %PLUGIN_PATH%
+clone_folder: $(PLUGIN_PATH)
 configuration: Release
 platform: Any CPU
 matrix:
