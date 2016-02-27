@@ -45,7 +45,6 @@ after_build:
 - sed -i -e "s/_INFO_/%PLUGIN_INFO%/g" %APPMAN_CONFIG_XML%
 - sed -i -e "s/_URL_/%PLUGIN_GITHUB_RELEASES%\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" %APPMAN_CONFIG_XML%
 - sed -i -e "s/_CHECKSUM_/%CHECKSUM%/g" %APPMAN_CONFIG_XML%
-- cd && ls
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
