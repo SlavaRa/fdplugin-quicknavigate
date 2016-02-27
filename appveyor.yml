@@ -19,7 +19,6 @@ matrix:
   fast_finish: true
 before_build:
 build: off
-#  project: $(PLUGIN_PATH)\$(PLUGIN_NAME).sln
 build_script:
 - cd c:\
 - mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
@@ -31,6 +30,8 @@ after_build:
 - cd %APPVEYOR_BUILD_FOLDER%
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
+- rm -rf %APPVEYOR_BUILD_FOLDER%\$(BaseDir)
+- cd && ls
 - cd %PLUGIN_PATH%
 - md5sum %APPVEYOR_BUILD_FOLDER%\%PLUGIN_NAME%.fdz > checksum.md5
 - cat checksum.md5
