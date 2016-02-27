@@ -18,12 +18,13 @@ init:
 matrix:
   fast_finish: true
 before_build:
+build: off
+#  project: $(PLUGIN_PATH)\$(PLUGIN_NAME).sln
+build_script:
 - cd c:\
 - mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
 - nuget restore %PLUGIN_PATH%\%PLUGIN_NAME%.sln
 - msbuild /p:Configuration=Release /p:Platform="Any CPU" %PLUGIN_PATH%\%PLUGIN_NAME%.sln
-build: off
-#  project: $(PLUGIN_PATH)\$(PLUGIN_NAME).sln
 after_build:
 - mkdir %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins
 - mv %PLUGIN_DLL% %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins\%PLUGIN_NAME%.dll
