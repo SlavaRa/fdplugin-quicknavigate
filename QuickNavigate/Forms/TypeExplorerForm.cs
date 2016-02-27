@@ -283,7 +283,7 @@ namespace QuickNavigate.Forms
                 CurrentFilter = keysToFilter[keyCode];
                 return;
             }
-            switch (e.KeyCode)
+            switch (keyCode)
             {
                 case Keys.E:
                     if (e.Control) searchingInExternalClasspaths.Checked = !searchingInExternalClasspaths.Checked;
@@ -385,7 +385,7 @@ namespace QuickNavigate.Forms
             if (e.Shift) return;
             TreeNode node;
             var visibleCount = tree.VisibleCount - 1;
-            switch (e.KeyCode)
+            switch (keyCode)
             {
                 case Keys.Space:
                     e.Handled = true;

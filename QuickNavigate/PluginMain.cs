@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -20,6 +19,15 @@ using PluginUI = ASCompletion.PluginUI;
 
 namespace QuickNavigate
 {
+    public class ShortcutId
+    {
+        public const string TypeExplorer = "QuickNavigate.TypeExplorer";
+        public const string QuickOutline = "QuickNavigate.Outline";
+        public const string ClassHierarchy = "QuickNavigate.ClassHierarchy";
+        public const string RecentFiles = "QuickNavigate.RecentFiles";
+        public const string RecentProjects = "QuickNavigate.RecentProjects";
+    }
+
     public class PluginMain : IPlugin
 	{
         string settingFilename;
@@ -131,7 +139,7 @@ namespace QuickNavigate
         /// </summary>
         void InitBasics()
         {
-            string dataPath = Path.Combine(PathHelper.DataDir, Name);
+            var dataPath = Path.Combine(PathHelper.DataDir, Name);
             if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
             settingFilename = Path.Combine(dataPath, "Settings.fdb");
         }
@@ -156,26 +164,26 @@ namespace QuickNavigate
         /// </summary>
         void CreateMenuItems()
         {
-            ToolStripMenuItem menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
-            Image image = PluginBase.MainForm.FindImage("99|16|0|0");
+            var menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
+            var image = PluginBase.MainForm.FindImage("99|16|0|0");
             typeExplorerItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeExplorer);
-            PluginBase.MainForm.RegisterShortcutItem($"{Name}.TypeExplorer", typeExplorerItem);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.TypeExplorer, typeExplorerItem);
             menu.DropDownItems.Add(typeExplorerItem);
             image = PluginBase.MainForm.FindImage("315|16|0|0");
             quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline);
-            PluginBase.MainForm.RegisterShortcutItem($"{Name}.Outline", quickOutlineItem);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.QuickOutline, quickOutlineItem);
             menu.DropDownItems.Add(quickOutlineItem);
             image = PluginBase.MainForm.FindImage("99|16|0|0");
             classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             menu.DropDownItems.Add(classHierarchyItem);
-            PluginBase.MainForm.RegisterShortcutItem($"{Name}.ClassHierarchy", classHierarchyItem);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.ClassHierarchy, classHierarchyItem);
             editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
-            ToolStripMenuItem item = new ToolStripMenuItem("Recent Files", null, ShowRecentFiles);
-            PluginBase.MainForm.RegisterShortcutItem($"{Name}.RecentFiles", item);
+            var item = new ToolStripMenuItem("Recent Files", null, ShowRecentFiles);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.RecentFiles, item);
             menu.DropDownItems.Add(item);
             item = new ToolStripMenuItem("Recent Projects", null, ShowRecentProjets);
-            PluginBase.MainForm.RegisterShortcutItem($"{Name}.RecentProjects", item);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.RecentProjects, item);
             menu.DropDownItems.Add(item);
         }
 
@@ -196,23 +204,31 @@ namespace QuickNavigate
         /// </summary>
         void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
 
-        void ShowRecentFiles(object sender, EventArgs e)
+        void ShowRecentFiles(object sender, EventArgs e) => ShowRecentFiles();
+
+        void ShowRecentFiles()
         {
-            var form = new OpenRecentFilesForm((Settings) Settings);
+            var form = new OpenRecentFilesForm((Settings)Settings);
+            form.KeyUp += FormOnKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            var plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
             form.SelectedItems.ForEach(plugin.OpenFile);
         }
 
-        void ShowRecentProjets(object sender, EventArgs e)
+        void ShowRecentProjets(object sender, EventArgs e) => ShowRecentProjets();
+
+        void ShowRecentProjets()
         {
             var form = new OpenRecentProjectsForm((Settings) Settings);
+            form.KeyUp += FormOnKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
             var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
             plugin.OpenFile(form.SelectedItem);
         }
 
-        void ShowTypeExplorer(object sender, EventArgs e)
+        void ShowTypeExplorer(object sender, EventArgs e) => ShowTypeExplorer();
+
+        void ShowTypeExplorer()
         {
             if (PluginBase.CurrentProject == null) return;
             var form = new TypeExplorerForm((Settings) Settings);
@@ -231,7 +247,6 @@ namespace QuickNavigate
                 disabledTip = "Show all(Alt+I or left click)";
                 form.AddFilter(PluginUI.ICON_INTERFACE, FlagType.Interface, Keys.I, enabledTip, disabledTip);
             }
-            // Abstracts
             if (features.hasTypeDefs)
             {
                 enabledTip = "Show only typedefs(Alt+T or left click)";
@@ -244,33 +259,30 @@ namespace QuickNavigate
                 disabledTip = "Show all(Alt+E or left click)";
                 form.AddFilter(PluginUI.ICON_TYPE, FlagType.Enum, Keys.E, enabledTip, disabledTip);
             }
+            // Abstracts
             form.GotoPositionOrLine += OnGotoPositionOrLine;
             form.ShowInQuickOutline += ShowQuickOutline;
             form.ShowInClassHierarchy += ShowClassHierarchy;
             form.ShowInProjectManager += ShowInProjectManager;
             form.ShowInFileExplorer += ShowInFileExplorer;
+            form.KeyUp += FormOnKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
             var node = form.SelectedNode;
             if (node == null) return;
             FormHelper.Navigate(node.Model.InFile.FileName, node);
         }
 
-        void ShowQuickOutline(object sender, EventArgs e)
-        {
-            var context = ASContext.Context;
-            ShowOutlineForm(context.CurrentModel, context.CurrentClass);
-        }
+        void ShowQuickOutline(object sender, EventArgs e) => ShowQuickOutline();
+
+        void ShowQuickOutline() => ShowQuickOutline(ASContext.Context.CurrentModel, ASContext.Context.CurrentClass);
 
         void ShowQuickOutline(Form sender, ClassModel inClass)
         {
             sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
-            {
-                ShowOutlineForm(inClass.InFile, inClass);
-            });
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() => ShowQuickOutline(inClass.InFile, inClass)));
         }
 
-        void ShowOutlineForm(FileModel inFile, ClassModel inClass)
+        void ShowQuickOutline(FileModel inFile, ClassModel inClass)
         {
             var form = new QuickOutlineForm(inFile, inClass, (Settings) Settings);
             form.ShowInClassHierarchy += ShowClassHierarchy;
@@ -286,11 +298,14 @@ namespace QuickNavigate
             enabledTip = "Show only methods(Alt+M or left click)";
             disabledTip = "Show all(Alt+M or left click)";
             form.AddFilter(PluginUI.ICON_FUNCTION, FlagType.Function, Keys.M, enabledTip, disabledTip);
+            form.KeyUp += FormOnKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
             FormHelper.Navigate(inFile.FileName, form.SelectedNode);
         }
 
-        void ShowClassHierarchy(object sender, EventArgs e)
+        void ShowClassHierarchy(object sender, EventArgs e) => ShowClassHierarchy();
+
+        void ShowClassHierarchy()
         {
             if (!GetCanShowClassHierarchy()) return;
             var context = ASContext.Context;
@@ -301,10 +316,7 @@ namespace QuickNavigate
         void ShowClassHierarchy(Form sender, ClassModel model)
         {
             sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
-            {
-                ShowClassHierarchy(model);
-            });
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() => ShowClassHierarchy(model)));
         }
 
         void ShowClassHierarchy(ClassModel model)
@@ -315,6 +327,7 @@ namespace QuickNavigate
             form.ShowInClassHierarchy += ShowClassHierarchy;
             form.ShowInProjectManager += ShowInProjectManager;
             form.ShowInFileExplorer += ShowInFileExplorer;
+            form.KeyUp += FormOnKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
             var node = form.SelectedNode;
             if (node == null) return;
@@ -394,6 +407,35 @@ namespace QuickNavigate
         /// </summary>
         void OnResolvedContextChanged(ResolvedContext resolved) => UpdateMenuItems();
 
+        void FormOnKeyUp(object sender, KeyEventArgs e)
+        {
+            var shortcutId = PluginBase.MainForm.GetShortcutItemId(e.KeyData);
+            if (string.IsNullOrEmpty(shortcutId)) return;
+            MethodInvoker invoker = null;
+            switch (shortcutId)
+            {
+                case ShortcutId.ClassHierarchy:
+                    if (!(sender is ClassHierarchyForm)) invoker = ShowClassHierarchy;
+                    break;
+                case ShortcutId.QuickOutline:
+                    if (!(sender is QuickOutlineForm)) invoker = ShowQuickOutline;
+                    break;
+                case ShortcutId.RecentProjects:
+                    if (!(sender is OpenRecentProjectsForm)) invoker = ShowRecentProjets;
+                    break;
+                case ShortcutId.RecentFiles:
+                    if (!(sender is OpenRecentFilesForm)) invoker = ShowRecentFiles;
+                    break;
+                case ShortcutId.TypeExplorer:
+                    if (!(sender is TypeExplorerForm)) invoker = ShowTypeExplorer;
+                    break;
+                default: return;
+            }
+            if (invoker == null) return;
+            ((Form) sender).Close();
+            ((Control) PluginBase.MainForm).BeginInvoke(invoker);
+        }
+
         #endregion
-	}
+    }
 }
