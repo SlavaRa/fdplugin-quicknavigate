@@ -23,7 +23,7 @@ build_script:
 - cd c:\
 - mv %APPVEYOR_BUILD_FOLDER% %PLUGIN_PATH%
 - nuget restore %PLUGIN_PATH%\%PLUGIN_NAME%.sln
-- msbuild /p:Configuration=Release /p:Platform="Any CPU" %PLUGIN_PATH%\%PLUGIN_NAME%.sln
+- msbuild /p:Configuration=Release /p:Platform="Any CPU" /v:m %PLUGIN_PATH%\%PLUGIN_NAME%.sln
 after_build:
 - mkdir %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins
 - mv %PLUGIN_DLL% %APPVEYOR_BUILD_FOLDER%\$(BaseDir)\Plugins\%PLUGIN_NAME%.dll
@@ -31,16 +31,10 @@ after_build:
 - 7z a %PLUGIN_NAME%.zip $(BaseDir)\
 - mv %PLUGIN_NAME%.zip %PLUGIN_NAME%.fdz
 - rm -rf %APPVEYOR_BUILD_FOLDER%\$(BaseDir)
-- cd && ls
-- cd %PLUGIN_PATH%
-- md5sum %APPVEYOR_BUILD_FOLDER%\%PLUGIN_NAME%.fdz > checksum.md5
-- cat checksum.md5
+- md5sum %PLUGIN_NAME%.fdz > checksum.md5
 - sed -e "s/.//" checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
-- cat checksum.md5
 - sed -e "s/ .*//" checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
-- cat checksum.md5
 - set /p CHECKSUM=<checksum.md5
-- echo %CHECKSUM%
 - mv %APPMAN_TEMPLATE% %APPMAN_CONFIG_XML%
 - sed -i -e s/_ID_/quicknavigate/g %APPMAN_CONFIG_XML%
 - sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" %APPMAN_CONFIG_XML%
@@ -50,7 +44,8 @@ after_build:
 - sed -i -e "s/_INFO_/%PLUGIN_INFO%/g" %APPMAN_CONFIG_XML%
 - sed -i -e "s/_URL_/%PLUGIN_GITHUB_RELEASES%\/download\/%APPVEYOR_BUILD_VERSION%\/%PLUGIN_NAME%.fdz/g" %APPMAN_CONFIG_XML%
 - sed -i -e "s/_CHECKSUM_/%CHECKSUM%/g" %APPMAN_CONFIG_XML%
-- mv %APPMAN_CONFIG_XML% %APPVEYOR_BUILD_FOLDER%\%APPMAN_CONFIG_XML%
+- mv %APPMAN_CONFIG_XML% %APPMAN_CONFIG_XML%
+- cd && ls
 artifacts:
 - path: $(PLUGIN_NAME).fdz
   name: $(PLUGIN_NAME)
