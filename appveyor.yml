@@ -35,6 +35,7 @@ after_build:
 - sed -e "s/.//" checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
 - sed -e "s/ .*//" checksum.md5 > checksum.tmp.md5 && mv checksum.tmp.md5 checksum.md5
 - set /p CHECKSUM=<checksum.md5
+- rm checksum.md5
 - mv %APPMAN_TEMPLATE% %APPMAN_CONFIG_XML%
 - sed -i -e s/_ID_/quicknavigate/g %APPMAN_CONFIG_XML%
 - sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" %APPMAN_CONFIG_XML%
