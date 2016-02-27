@@ -7,7 +7,7 @@ environment:
   PLUGIN_DLL:  C:\projects\FlashDevelop\FlashDevelop\Bin\Release\Plugins\QuickNavigate.dll
   PLUGIN_INFO: http:\/\/www.flashdevelop.org\/community\/viewtopic.php?f=4&t=5961
   PLUGIN_GITHUB_RELEASES: https:\/\/github.com\/SlavaRa\/fdplugin-quicknavigate\/releases
-  APPMAN_TEMPLATE: appman.template
+  APPMAN_TEMPLATE: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\appman.template
   APPMAN_CONFIG_XML: appman.txt
 install:
 - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
