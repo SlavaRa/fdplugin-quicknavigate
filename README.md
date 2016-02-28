@@ -22,7 +22,7 @@ Open Search in the topmenu.
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.gif)
 
 ##### 2. Quick Outline
-![image](https://cloud.githubusercontent.com/assets/576184/11501767/0318a150-9837-11e5-8165-81c8a303a3e2.png)
+![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/QuickOutlineForm.gif)
 
 ##### 3. Class Hierarchy
 ![image](https://cloud.githubusercontent.com/assets/576184/11501841/74c13808-9837-11e5-9772-936b31f57966.png)
