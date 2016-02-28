@@ -31,3 +31,4 @@ Open Search in the topmenu.
 ![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentFiles.gif)
 
 ##### 5. Recent projects
+![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentProjects.gif)
