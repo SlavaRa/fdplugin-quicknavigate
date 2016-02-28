@@ -25,7 +25,7 @@ Open Search in the topmenu.
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/QuickOutlineForm.gif)
 
 ##### 3. Class Hierarchy
-![image](https://cloud.githubusercontent.com/assets/576184/11501841/74c13808-9837-11e5-9772-936b31f57966.png)
+![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/ClassHierarchy.gif)
 
 ##### 4. Recent files
 ![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentFiles.gif)
