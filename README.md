@@ -19,7 +19,7 @@ Open Search in the topmenu.
 
 
 ##### 1. Type Explorer:
-![image](https://cloud.githubusercontent.com/assets/576184/11501741/ed1b7008-9836-11e5-85d4-31e7062af9a3.png)
+![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.gif)
 
 ##### 2. Quick Outline
 ![image](https://cloud.githubusercontent.com/assets/576184/11501767/0318a150-9837-11e5-8165-81c8a303a3e2.png)
