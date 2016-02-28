@@ -28,4 +28,6 @@ Open Search in the topmenu.
 ![image](https://cloud.githubusercontent.com/assets/576184/11501841/74c13808-9837-11e5-9772-936b31f57966.png)
 
 ##### 4. Recent files
+![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentFiles.gif)
+
 ##### 5. Recent projects
