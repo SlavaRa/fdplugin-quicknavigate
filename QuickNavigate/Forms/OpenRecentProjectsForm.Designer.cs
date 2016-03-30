@@ -67,7 +67,6 @@ namespace QuickNavigate.Forms
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
             this.tree.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.OnTreeMouseDoubleClick);
             this.tree.AfterSelect += new TreeViewEventHandler(this.OnTreeAfterSelect);
-
             // 
             // open
             // 
@@ -120,7 +119,7 @@ namespace QuickNavigate.Forms
 
         private System.Windows.Forms.TextBox input;
         private System.Windows.Forms.TreeView tree;
-        private Button open;
-        private Button cancel;
+        private System.Windows.Forms.Button open;
+        private System.Windows.Forms.Button cancel;
     }
 }

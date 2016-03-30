@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace QuickNavigate.Forms
+﻿namespace QuickNavigate.Forms
 {
     sealed partial class QuickOutlineForm
     {
