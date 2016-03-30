@@ -15,6 +15,8 @@ namespace QuickNavigate.Forms
     {
         [NotNull] readonly Settings settings;
         [NotNull] [ItemNotNull] readonly List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
+        [NotNull] readonly Brush defaultNodeBrush;
+        [NotNull] readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
 
         public OpenRecentProjectsForm([NotNull] Settings settings)
         {
@@ -22,6 +24,7 @@ namespace QuickNavigate.Forms
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             InitializeTree();
+            defaultNodeBrush = new SolidBrush(tree.BackColor);
             if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
             RefrestTree();
         }
@@ -55,7 +58,11 @@ namespace QuickNavigate.Forms
         {
             var search = input.Text;
             var projects = search.Length > 0 ? SearchUtil.FindAll(recentProjects, search) : recentProjects;
-            if (projects.Count > 0) projects.ForEach(it => tree.Nodes.Add(it, it, 0));
+            if (projects.Count == 0) return;
+            foreach (var it in projects)
+            {
+                tree.Nodes.Add(it, it, 0);
+            }
         }
 
         void Navigate()
@@ -121,5 +128,30 @@ namespace QuickNavigate.Forms
         void OnTreeMouseDoubleClick(object sender, MouseEventArgs e) => Navigate();
 
         void OnTreeAfterSelect(object sender, TreeViewEventArgs e) => open.Enabled = SelectedItem != null;
+
+        void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            var fillBrush = defaultNodeBrush;
+            var textBrush = Brushes.Black;
+            var moduleBrush = Brushes.DimGray;
+            if ((e.State & TreeNodeStates.Selected) > 0)
+            {
+                fillBrush = selectedNodeBrush;
+                textBrush = Brushes.White;
+                moduleBrush = Brushes.LightGray;
+            }
+            var bounds = e.Bounds;
+            var text = Path.GetFileNameWithoutExtension(e.Node.Text);
+            float x = bounds.X;
+            var itemWidth = tree.Width - x;
+            var graphics = e.Graphics;
+            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
+            var font = tree.Font;
+            graphics.DrawString(text, font, textBrush, x, bounds.Top, StringFormat.GenericDefault);
+            var path = Path.GetDirectoryName(e.Node.Text);
+            if (string.IsNullOrEmpty(path)) return;
+            x += graphics.MeasureString(text, font).Width;
+            graphics.DrawString($"({path})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+        }
     }
 }
