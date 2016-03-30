@@ -1,48 +1,62 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using ASCompletion.Context;
 using JetBrains.Annotations;
 using PluginCore;
+using PluginCore.Helpers;
+using ProjectManager.Controls;
 
 namespace QuickNavigate.Forms
 {
     public sealed partial class OpenRecentProjectsForm : Form
     {
-        [NotNull]
-        readonly Settings settings;
+        [NotNull] readonly Settings settings;
+        [NotNull] [ItemNotNull] List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
 
         public OpenRecentProjectsForm([NotNull] Settings settings)
         {
             this.settings = settings;
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            tree.ItemHeight = tree.Font.Height;
+            InitializeTree();
             if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
             RefrestTree();
         }
 
-        public string SelectedItem => tree?.SelectedItem.ToString();
+        [CanBeNull]
+        public string SelectedItem => tree?.SelectedNode.Text;
+
+        void InitializeTree()
+        {
+            tree.ImageList = new ImageList
+            {
+                ColorDepth = ColorDepth.Depth32Bit,
+                ImageSize = ScaleHelper.Scale(new Size(16, 16))
+            };
+            tree.ImageList.Images.Add(Icons.Project.Img);
+            tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
 
         void RefrestTree()
         {
+            if (recentProjects.Count == 0) return;
             tree.BeginUpdate();
-            tree.Items.Clear();
+            tree.Nodes.Clear();
             FillTree();
-            if (tree.Items.Count > 0) tree.SelectedIndex = 0;
+            if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
             else open.Enabled = false;
             tree.EndUpdate();
         }
 
         void FillTree()
         {
-            var matches = ProjectManager.PluginMain.Settings.RecentProjects
-                        .Where(File.Exists)
-                        .ToList();
-            if (matches.Count == 0) return;
             var search = input.Text;
-            if (search.Length > 0) matches = SearchUtil.FindAll(matches, search);
-            if (matches.Count > 0) tree.Items.AddRange(matches.ToArray());
+            var projects = search.Length > 0 ? SearchUtil.FindAll(recentProjects, search) : recentProjects;
+            if (projects.Count > 0) projects.ForEach(it => tree.Nodes.Add(it, it, 0));
         }
 
         void Navigate()
@@ -78,26 +92,27 @@ namespace QuickNavigate.Forms
 
         void OnInputKeyDown(object sender, KeyEventArgs e)
         {
-            var lastIndex = tree.Items.Count - 1;
-            var index = tree.SelectedIndex;
+            if (tree.Nodes.Count < 2) return;
+            var lastIndex = tree.Nodes.Count - 1;
+            var index = tree.SelectedNode.Index;
             switch (e.KeyCode)
             {
                 case Keys.L:
                     e.Handled = e.Control;
                     return;
                 case Keys.Down:
-                    if (index < lastIndex) tree.SetSelected(index + 1, true);
-                    else if (settings.WrapList) tree.SetSelected(0, true);
+                    if (index < lastIndex) tree.SelectedNode = tree.SelectedNode.NextNode;
+                    else if (settings.WrapList) tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
-                    if (index > 0) tree.SetSelected(index - 1, true);
-                    else if (settings.WrapList) tree.SetSelected(lastIndex, true);
+                    if (index > 0) tree.SelectedNode = tree.SelectedNode.PrevNode;
+                    else if (settings.WrapList) tree.SelectedNode = tree.Nodes[lastIndex];
                     break;
                 case Keys.Home:
-                    tree.SetSelected(0, true);
+                    tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.End:
-                    tree.SetSelected(lastIndex, true);
+                    tree.SelectedNode = tree.Nodes[lastIndex];
                     break;
                 default: return;
             }
@@ -106,6 +121,6 @@ namespace QuickNavigate.Forms
 
         void OnTreeMouseDoubleClick(object sender, MouseEventArgs e) => Navigate();
 
-        void OnTreeSelectedIndexChanged(object sender, EventArgs e) => open.Enabled = SelectedItem != null;
+        void OnTreeAfterSelect(object sender, TreeViewEventArgs e) => open.Enabled = SelectedItem != null;
     }
 }

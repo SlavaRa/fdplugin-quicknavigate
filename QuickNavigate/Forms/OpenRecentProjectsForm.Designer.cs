@@ -31,7 +31,7 @@ namespace QuickNavigate.Forms
         private void InitializeComponent()
         {
             this.input = new System.Windows.Forms.TextBox();
-            this.tree = new System.Windows.Forms.ListBox();
+            this.tree = new TreeViewEx();
             this.open = new System.Windows.Forms.Button();
             this.cancel = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -41,11 +41,10 @@ namespace QuickNavigate.Forms
             this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.input.BackColor = System.Drawing.SystemColors.Control;
-            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.input.Location = new System.Drawing.Point(12, 12);
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(305, 21);
-            this.input.TabIndex = 1;
+            this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
             // 
@@ -56,14 +55,16 @@ namespace QuickNavigate.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tree.BackColor = System.Drawing.SystemColors.Control;
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tree.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tree.ItemHeight = 15;
+            this.tree.HideSelection = false;
             this.tree.Location = new System.Drawing.Point(12, 40);
             this.tree.Name = "tree";
+            this.tree.ShowLines = false;
+            this.tree.ShowPlusMinus = false;
+            this.tree.ShowRootLines = false;
             this.tree.Size = new System.Drawing.Size(305, 182);
-            this.tree.TabIndex = 2;
+            this.tree.TabIndex = 1;
             this.tree.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.OnTreeMouseDoubleClick);
-            this.tree.SelectedIndexChanged += new System.EventHandler(this.OnTreeSelectedIndexChanged);
+            this.tree.AfterSelect += new TreeViewEventHandler(this.OnTreeAfterSelect);
             // 
             // open
             // 
@@ -115,7 +116,8 @@ namespace QuickNavigate.Forms
         #endregion
 
         private System.Windows.Forms.TextBox input;
-        private System.Windows.Forms.ListBox tree;
+        //private System.Windows.Forms.ListBox tree;
+        TreeViewEx tree;
         private Button open;
         private Button cancel;
     }

@@ -65,9 +65,7 @@
             this.tree.BackColor = System.Drawing.SystemColors.Control;
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
-            this.tree.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tree.HideSelection = false;
-            this.tree.ItemHeight = 16;
             this.tree.Location = new System.Drawing.Point(12, 77);
             this.tree.Name = "tree";
             this.tree.ShowLines = false;
