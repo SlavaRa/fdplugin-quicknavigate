@@ -15,7 +15,7 @@ namespace QuickNavigate.Forms
     public sealed partial class OpenRecentProjectsForm : Form
     {
         [NotNull] readonly Settings settings;
-        [NotNull] [ItemNotNull] List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
+        [NotNull] [ItemNotNull] readonly List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
 
         public OpenRecentProjectsForm([NotNull] Settings settings)
         {
