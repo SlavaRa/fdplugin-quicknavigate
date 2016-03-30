@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using ASCompletion.Context;
 using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Helpers;
