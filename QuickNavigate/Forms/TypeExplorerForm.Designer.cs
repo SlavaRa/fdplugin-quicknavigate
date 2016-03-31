@@ -35,7 +35,6 @@
             this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.input.BackColor = System.Drawing.SystemColors.Control;
-            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.input.Location = new System.Drawing.Point(12, 26);
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(365, 21);
@@ -65,9 +64,7 @@
             this.tree.BackColor = System.Drawing.SystemColors.Control;
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
-            this.tree.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tree.HideSelection = false;
-            this.tree.ItemHeight = 16;
             this.tree.Location = new System.Drawing.Point(12, 77);
             this.tree.Name = "tree";
             this.tree.ShowLines = false;

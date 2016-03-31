@@ -42,7 +42,6 @@ namespace QuickNavigate.Forms
             this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.input.BackColor = System.Drawing.SystemColors.Control;
-            this.input.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.input.Location = new System.Drawing.Point(12, 12);
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(305, 21);
@@ -57,8 +56,6 @@ namespace QuickNavigate.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tree.BackColor = System.Drawing.SystemColors.Control;
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tree.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tree.ItemHeight = 15;
             this.tree.Location = new System.Drawing.Point(12, 40);
             this.tree.Name = "tree";
             this.tree.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
