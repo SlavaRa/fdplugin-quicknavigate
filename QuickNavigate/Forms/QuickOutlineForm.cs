@@ -289,9 +289,9 @@ namespace QuickNavigate.Forms
         {
             if (tree.Nodes.Count == 0) return;
             var keyCode = e.KeyCode;
-            if (keysToFilter.ContainsKey(keyCode))
+            if (e.Alt && keysToFilter.ContainsKey(keyCode))
             {
-                e.Handled = e.Alt;
+                e.Handled = true;
                 return;
             }
             TreeNode node;
