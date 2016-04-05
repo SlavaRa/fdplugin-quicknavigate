@@ -471,7 +471,7 @@ namespace QuickNavigate.Forms
         void OnTimerTick(object sender, EventArgs e)
         {
             var context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
-            if (context == null || context.Classpath.Count == openedTypes.Count + closedTypes.Count) return;
+            if (context == null || SelectedNode != null || context.Classpath.Count == openedTypes.Count + closedTypes.Count) return;
             var filesCount = context.Classpath.Sum(it => it.FilesCount);
             if (filesCount == this.filesCount) return;
             this.filesCount = filesCount;
