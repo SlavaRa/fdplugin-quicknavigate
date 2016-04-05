@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -25,11 +26,12 @@ namespace QuickNavigate.Forms
             this.settings = settings;
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            tree.ItemHeight = tree.Font.Height;
             if (settings.RecentFilesSize.Width > MinimumSize.Width) Size = settings.RecentFilesSize;
             recentFiles = PluginBase.MainForm.Settings.PreviousDocuments.Where(File.Exists).ToList();
             openedFiles = FormHelper.FilterOpenedFiles(recentFiles);
             recentFiles.RemoveAll(openedFiles.Contains);
+            InitializeTree();
+            InitializeTheme();
             RefreshTree();
         }
 
@@ -45,6 +47,25 @@ namespace QuickNavigate.Forms
                               select item.ToString()).ToList();
                 return result;
             }
+        }
+
+        void InitializeTree()
+        {
+            tree.ItemHeight = tree.Font.Height;
+        }
+
+        void InitializeTheme()
+        {
+            input.BackColor = PluginBase.MainForm.GetThemeColor("TextBox.BackColor", SystemColors.Window);
+            input.ForeColor = PluginBase.MainForm.GetThemeColor("TextBox.ForeColor", SystemColors.WindowText);
+            tree.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            tree.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            open.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            open.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            cancel.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            cancel.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
         }
 
         void RefreshTree()

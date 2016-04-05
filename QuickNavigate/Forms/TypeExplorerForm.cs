@@ -25,7 +25,6 @@ namespace QuickNavigate.Forms
         [NotNull] readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
         [NotNull] readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
         [NotNull] readonly Timer timer = new Timer();
-        [CanBeNull] readonly Brush defaultNodeBrush;
         private int filesCount;
 
         /// <summary>
@@ -38,9 +37,9 @@ namespace QuickNavigate.Forms
             InitializeComponent();
             if (settings.TypeExplorerSize.Width > MinimumSize.Width) Size = settings.TypeExplorerSize;
             searchingInExternalClasspaths.Checked = settings.TypeExplorerSearchExternalClassPath;
-            defaultNodeBrush = new SolidBrush(tree.BackColor);
             CreateItemsList();
             InitializeTree();
+            InitializeTheme();
             RefreshTree();
             timer.Interval = PluginBase.MainForm.Settings.DisplayDelay;
             timer.Tick += OnTimerTick;
@@ -87,7 +86,6 @@ namespace QuickNavigate.Forms
         {
             if (disposing)
             {
-                defaultNodeBrush?.Dispose();
                 components?.Dispose();
                 timer.Dispose();
             }
@@ -130,6 +128,16 @@ namespace QuickNavigate.Forms
         {
             tree.ImageList = ASContext.Panel.TreeIcons;
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
+
+        void InitializeTheme()
+        {
+            input.BackColor = PluginBase.MainForm.GetThemeColor("TextBox.BackColor", SystemColors.Window);
+            input.ForeColor = PluginBase.MainForm.GetThemeColor("TextBox.ForeColor", SystemColors.WindowText);
+            tree.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            tree.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
         }
 
         void RefreshTree()
@@ -332,13 +340,13 @@ namespace QuickNavigate.Forms
 
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            var fillBrush = defaultNodeBrush;
-            var textBrush = Brushes.Black;
+            var fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            var textBrush = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             var moduleBrush = Brushes.DimGray;
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
-                fillBrush = SelectedNodeBrush;
-                textBrush = Brushes.White;
+                fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.Highlight", SystemColors.Highlight);
+                textBrush = PluginBase.MainForm.GetThemeColor("TreeView.HighlightText", SystemColors.HighlightText);
                 moduleBrush = Brushes.LightGray;
             }
             var bounds = e.Bounds;
@@ -346,9 +354,9 @@ namespace QuickNavigate.Forms
             float x = text == Settings.ItemSpacer ? 0 : bounds.X;
             var itemWidth = tree.Width - x;
             var graphics = e.Graphics;
-            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
+            graphics.FillRectangle(new SolidBrush(fillBrush), x, bounds.Y, itemWidth, tree.ItemHeight);
             var font = tree.Font;
-            graphics.DrawString(text, font, textBrush, x, bounds.Top, StringFormat.GenericDefault);
+            graphics.DrawString(text, font, new SolidBrush(textBrush), x, bounds.Top, StringFormat.GenericDefault);
             var node = e.Node as TypeNode;
             if (node == null) return;
             if (!string.IsNullOrEmpty(node.In))
@@ -463,7 +471,7 @@ namespace QuickNavigate.Forms
         void OnTimerTick(object sender, EventArgs e)
         {
             var context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
-            if (context == null || context.Classpath.Count == openedTypes.Count + closedTypes.Count) return;
+            if (context == null || SelectedNode != null || context.Classpath.Count == openedTypes.Count + closedTypes.Count) return;
             var filesCount = context.Classpath.Sum(it => it.FilesCount);
             if (filesCount == this.filesCount) return;
             this.filesCount = filesCount;

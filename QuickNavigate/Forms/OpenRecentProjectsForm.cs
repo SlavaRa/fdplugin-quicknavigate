@@ -15,17 +15,15 @@ namespace QuickNavigate.Forms
     {
         [NotNull] readonly Settings settings;
         [NotNull] [ItemNotNull] readonly List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
-        [NotNull] readonly Brush defaultNodeBrush;
-        [NotNull] readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
-
+        
         public OpenRecentProjectsForm([NotNull] Settings settings)
         {
             this.settings = settings;
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            InitializeTree();
-            defaultNodeBrush = new SolidBrush(tree.BackColor);
             if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
+            InitializeTree();
+            InitializeTheme();
             RefrestTree();
         }
 
@@ -41,6 +39,20 @@ namespace QuickNavigate.Forms
             };
             tree.ImageList.Images.Add(Icons.Project.Img);
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
+
+        void InitializeTheme()
+        {
+            input.BackColor = PluginBase.MainForm.GetThemeColor("TextBox.BackColor", SystemColors.Window);
+            input.ForeColor = PluginBase.MainForm.GetThemeColor("TextBox.ForeColor", SystemColors.WindowText);
+            tree.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            tree.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            open.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            open.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            cancel.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            cancel.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
         }
 
         void RefrestTree()
@@ -131,13 +143,13 @@ namespace QuickNavigate.Forms
 
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            var fillBrush = defaultNodeBrush;
-            var textBrush = Brushes.Black;
+            var fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            var textBrush = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             var moduleBrush = Brushes.DimGray;
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
-                fillBrush = selectedNodeBrush;
-                textBrush = Brushes.White;
+                fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.Highlight", SystemColors.Highlight);
+                textBrush = PluginBase.MainForm.GetThemeColor("TreeView.HighlightText", SystemColors.HighlightText);
                 moduleBrush = Brushes.LightGray;
             }
             var bounds = e.Bounds;
@@ -145,9 +157,9 @@ namespace QuickNavigate.Forms
             float x = bounds.X;
             var itemWidth = tree.Width - x;
             var graphics = e.Graphics;
-            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
+            graphics.FillRectangle(new SolidBrush(fillBrush), x, bounds.Y, itemWidth, tree.ItemHeight);
             var font = tree.Font;
-            graphics.DrawString(text, font, textBrush, x, bounds.Top, StringFormat.GenericDefault);
+            graphics.DrawString(text, font, new SolidBrush(textBrush), x, bounds.Top, StringFormat.GenericDefault);
             var path = Path.GetDirectoryName(e.Node.Text);
             if (string.IsNullOrEmpty(path)) return;
             x += graphics.MeasureString(text, font).Width;
