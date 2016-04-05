@@ -145,9 +145,4 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\OpenRecentFilesForm.resx">
-      <DependentUpon>OpenRecentFilesForm.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
 </Project>
