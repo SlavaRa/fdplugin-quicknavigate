@@ -7,6 +7,19 @@
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
+        /// <summary>
+        /// Disposes of the resources (other than memory) used by the <see cref="T:System.Windows.Forms.Form"/>.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources. </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                components?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -23,7 +36,6 @@
             // 
             this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.input.BackColor = System.Drawing.SystemColors.Control;
             this.input.Location = new System.Drawing.Point(12, 12);
             this.input.Name = "input";
             this.input.Size = new System.Drawing.Size(305, 21);
@@ -37,7 +49,6 @@
             this.tree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tree.BackColor = System.Drawing.SystemColors.Control;
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.tree.HideSelection = false;
@@ -69,7 +80,6 @@
             this.Text = "Quick Outline";
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion

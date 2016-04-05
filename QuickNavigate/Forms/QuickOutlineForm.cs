@@ -16,11 +16,6 @@ namespace QuickNavigate.Forms
     {
         [NotNull]
         readonly Settings settings;
-
-        [NotNull]
-        readonly Brush defaultNodeBrush;
-
-        readonly Brush selectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
         readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
         readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
         readonly List<Button> filters = new List<Button>();
@@ -43,9 +38,9 @@ namespace QuickNavigate.Forms
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
-            defaultNodeBrush = new SolidBrush(tree.BackColor);
             InitializeContextMenu();
             InitializeTree();
+            InitializeTheme();
             RefreshTree();
         }
 
@@ -94,17 +89,6 @@ namespace QuickNavigate.Forms
             }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                selectedNodeBrush.Dispose();
-                defaultNodeBrush?.Dispose();
-                components?.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         void InitializeContextMenu()
         {
             contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy);
@@ -114,6 +98,16 @@ namespace QuickNavigate.Forms
         {
             tree.ImageList = ASContext.Panel.TreeIcons;
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
+
+        void InitializeTheme()
+        {
+            input.BackColor = PluginBase.MainForm.GetThemeColor("TextBox.BackColor", SystemColors.Window);
+            input.ForeColor = PluginBase.MainForm.GetThemeColor("TextBox.ForeColor", SystemColors.WindowText);
+            tree.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            tree.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
         }
 
         void RefreshTree()
@@ -361,13 +355,13 @@ namespace QuickNavigate.Forms
 
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
-            var fillBrush = defaultNodeBrush;
-            var drawBrush = Brushes.Black;
+            var fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            var textBrush = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             var moduleBrush = Brushes.DimGray;
             if ((e.State & TreeNodeStates.Selected) > 0)
             {
-                fillBrush = selectedNodeBrush;
-                drawBrush = Brushes.White;
+                fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.Highlight", SystemColors.Highlight);
+                textBrush = PluginBase.MainForm.GetThemeColor("TreeView.HighlightText", SystemColors.HighlightText);
                 moduleBrush = Brushes.LightGray;
             }
             var bounds = e.Bounds;
@@ -375,9 +369,9 @@ namespace QuickNavigate.Forms
             float x = bounds.X;
             var itemWidth = tree.Width - x;
             var graphics = e.Graphics;
-            graphics.FillRectangle(fillBrush, x, bounds.Y, itemWidth, tree.ItemHeight);
+            graphics.FillRectangle(new SolidBrush(fillBrush), x, bounds.Y, itemWidth, tree.ItemHeight);
             var text = e.Node.Text;
-            graphics.DrawString(text, font, drawBrush, bounds.Left, bounds.Top, StringFormat.GenericDefault);
+            graphics.DrawString(text, font, new SolidBrush(textBrush), bounds.Left, bounds.Top, StringFormat.GenericDefault);
             var node = e.Node as TypeNode;
             if (node == null) return;
             if (!string.IsNullOrEmpty(node.In))

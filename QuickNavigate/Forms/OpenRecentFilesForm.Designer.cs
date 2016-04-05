@@ -108,7 +108,6 @@ namespace QuickNavigate.Forms
             this.Text = "Recent Files";
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion

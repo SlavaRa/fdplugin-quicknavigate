@@ -15,7 +15,6 @@ namespace QuickNavigate.Forms
     public sealed partial class ClassHierarchyForm : ClassModelExplorerForm
     {
         readonly ClassModel curClass;
-        readonly Brush defaultNodeBrush;
         readonly Dictionary<string, List<ClassModel>> extendsToClasses;
         readonly Dictionary<string, TreeNode> typeToNode = new Dictionary<string, TreeNode>();
 
@@ -65,29 +64,29 @@ namespace QuickNavigate.Forms
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
-            defaultNodeBrush = new SolidBrush(tree.BackColor);
             extendsToClasses = GetAllProjectExtendsClasses();
             InitializeTree();
+            InitializeTheme();
             RefreshTree();
         }
 
         [CanBeNull]
         public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                defaultNodeBrush?.Dispose();
-                components?.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         void InitializeTree()
         {
             tree.ImageList = ASContext.Panel.TreeIcons;
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
+
+        void InitializeTheme()
+        {
+            input.BackColor = PluginBase.MainForm.GetThemeColor("TextBox.BackColor", SystemColors.Window);
+            input.ForeColor = PluginBase.MainForm.GetThemeColor("TextBox.ForeColor", SystemColors.WindowText);
+            tree.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            tree.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
         }
 
         void RefreshTree()
@@ -253,20 +252,20 @@ namespace QuickNavigate.Forms
         void OnTreeDrawNode(object sender, DrawTreeNodeEventArgs e)
         {
             var node = (ClassHierarchyNode) e.Node;
-            var fillBrush = defaultNodeBrush;
-            var drawBrush = Brushes.Black;
+            var fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            var textBrush = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             if (node.Enabled)
             {
                 if ((e.State & TreeNodeStates.Selected) > 0)
                 {
-                    fillBrush = SelectedNodeBrush;
-                    drawBrush = Brushes.White;
+                    fillBrush = PluginBase.MainForm.GetThemeColor("TreeView.Highlight", SystemColors.Highlight);
+                    textBrush = PluginBase.MainForm.GetThemeColor("TreeView.HighlightText", SystemColors.HighlightText);
                 }
             }
-            else drawBrush = Brushes.DimGray;
+            else textBrush = Color.DimGray;
             var bounds = e.Bounds;
-            e.Graphics.FillRectangle(fillBrush, bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
-            e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, drawBrush, e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
+            e.Graphics.FillRectangle(new SolidBrush(fillBrush), bounds.X, bounds.Y, tree.Width - bounds.X, tree.ItemHeight);
+            e.Graphics.DrawString(e.Node.Text, e.Node.NodeFont ?? tree.Font, new SolidBrush(textBrush), e.Bounds.Left, e.Bounds.Top, StringFormat.GenericDefault);
         }
 
         void OnInputTextChanged(object sender, EventArgs e)
