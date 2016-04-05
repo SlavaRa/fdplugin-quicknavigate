@@ -40,10 +40,9 @@ namespace QuickNavigate.Forms
             // 
             this.input.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.input.BackColor = System.Drawing.SystemColors.Control;
             this.input.Location = new System.Drawing.Point(12, 12);
             this.input.Name = "input";
-            this.input.Size = new System.Drawing.Size(305, 21);
+            this.input.Size = new System.Drawing.Size(305, 20);
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
@@ -53,7 +52,6 @@ namespace QuickNavigate.Forms
             this.tree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tree.BackColor = System.Drawing.SystemColors.Control;
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tree.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
             this.tree.HideSelection = false;
@@ -65,8 +63,8 @@ namespace QuickNavigate.Forms
             this.tree.Size = new System.Drawing.Size(305, 182);
             this.tree.TabIndex = 1;
             this.tree.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.OnTreeDrawNode);
+            this.tree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.OnTreeAfterSelect);
             this.tree.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.OnTreeMouseDoubleClick);
-            this.tree.AfterSelect += new TreeViewEventHandler(this.OnTreeAfterSelect);
             // 
             // open
             // 

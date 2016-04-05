@@ -19,7 +19,6 @@ namespace QuickNavigate.Forms
         public event ShowInHandler ShowInFileExplorer;
         protected readonly Settings Settings;
         protected readonly ContextMenu InputEmptyContextMenu = new ContextMenu();
-        protected readonly Brush SelectedNodeBrush = new SolidBrush(SystemColors.ControlDarkDark);
 
         public ClassModelExplorerForm(Settings settings)
         {
@@ -31,7 +30,6 @@ namespace QuickNavigate.Forms
         {
             if (disposing)
             {
-                SelectedNodeBrush.Dispose();
                 InputEmptyContextMenu.Dispose();
             }
             base.Dispose(disposing);
