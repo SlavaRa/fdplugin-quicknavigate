@@ -16,17 +16,17 @@ namespace QuickNavigate.Forms
 {
     public sealed partial class TypeExplorerForm : ClassModelExplorerForm
     {
-        readonly List<string> closedTypes = new List<string>();
-        readonly List<string> openedTypes = new List<string>();
-        static readonly Dictionary<string, ClassModel> TypeToClassModel = new Dictionary<string, ClassModel>();
-        readonly List<Button> filters = new List<Button>();
-        readonly Dictionary<Keys, Button> keysToFilter = new Dictionary<Keys, Button>();
-        readonly Dictionary<Button, string> filterToEnabledTip = new Dictionary<Button, string>();
-        readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
-        readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
-
-        [CanBeNull]
-        readonly Brush defaultNodeBrush;
+        [NotNull] readonly List<string> closedTypes = new List<string>();
+        [NotNull] readonly List<string> openedTypes = new List<string>();
+        [NotNull] static readonly Dictionary<string, ClassModel> TypeToClassModel = new Dictionary<string, ClassModel>();
+        [NotNull] readonly List<Button> filters = new List<Button>();
+        [NotNull] readonly Dictionary<Keys, Button> keysToFilter = new Dictionary<Keys, Button>();
+        [NotNull] readonly Dictionary<Button, string> filterToEnabledTip = new Dictionary<Button, string>();
+        [NotNull] readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
+        [NotNull] readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
+        [NotNull] readonly Timer timer = new Timer();
+        [CanBeNull] readonly Brush defaultNodeBrush;
+        private int filesCount;
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
@@ -42,6 +42,9 @@ namespace QuickNavigate.Forms
             CreateItemsList();
             InitializeTree();
             RefreshTree();
+            timer.Interval = PluginBase.MainForm.Settings.DisplayDelay;
+            timer.Tick += OnTimerTick;
+            timer.Start();
         }
 
         [CanBeNull]
@@ -49,7 +52,7 @@ namespace QuickNavigate.Forms
 
         [CanBeNull]
         Button currentFilter;
-
+        
         [CanBeNull]
         Button CurrentFilter
         {
@@ -86,6 +89,7 @@ namespace QuickNavigate.Forms
             {
                 defaultNodeBrush?.Dispose();
                 components?.Dispose();
+                timer.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -194,7 +198,7 @@ namespace QuickNavigate.Forms
         }
 
         [NotNull]
-        static IEnumerable<TypeNode> SortNodes(IEnumerable<TypeNode> nodes, string search)
+        static IEnumerable<TypeNode> SortNodes([NotNull] IEnumerable<TypeNode> nodes, [NotNull] string search)
         {
             search = search.ToLower();
             var nodes0 = new List<TypeNode>();
@@ -311,6 +315,7 @@ namespace QuickNavigate.Forms
         
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            timer.Stop();
             Settings.TypeExplorerSize = Size;
             Settings.TypeExplorerSearchExternalClassPath = searchingInExternalClasspaths.Checked;
         }
@@ -454,6 +459,17 @@ namespace QuickNavigate.Forms
         }
 
         void OnFilterMouseClick(object sender, EventArgs e) => CurrentFilter = filters.First(sender.Equals);
+
+        void OnTimerTick(object sender, EventArgs e)
+        {
+            var context = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language);
+            if (context == null || context.Classpath.Count == openedTypes.Count + closedTypes.Count) return;
+            var filesCount = context.Classpath.Sum(it => it.FilesCount);
+            if (filesCount == this.filesCount) return;
+            this.filesCount = filesCount;
+            CreateItemsList();
+            RefreshTree();
+        }
 
         #endregion
     }
