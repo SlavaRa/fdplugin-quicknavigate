@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using ASCompletion.Model;
+using JetBrains.Annotations;
 using PluginCore;
 
 namespace QuickNavigate.Forms
@@ -17,10 +18,10 @@ namespace QuickNavigate.Forms
         public event ShowInHandler ShowInClassHierarchy;
         public event ShowInHandler ShowInProjectManager;
         public event ShowInHandler ShowInFileExplorer;
-        protected readonly Settings Settings;
-        protected readonly ContextMenu InputEmptyContextMenu = new ContextMenu();
+        [NotNull] protected readonly Settings Settings;
+        [NotNull] protected readonly ContextMenu InputEmptyContextMenu = new ContextMenu();
 
-        public ClassModelExplorerForm(Settings settings)
+        public ClassModelExplorerForm([NotNull] Settings settings)
         {
             Settings = settings;
             InitializeContextMenu();
@@ -37,7 +38,7 @@ namespace QuickNavigate.Forms
 
         protected void InitializeContextMenu()
         {
-            ContextMenuStrip = new ContextMenuStrip();
+            ContextMenuStrip = new ContextMenuStrip {Renderer = new DockPanelStripRenderer(false)};
             ContextMenuStrip.Items.Add(new ToolStripMenuItem("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"), OnGotoLineOrPosition)
             {
                 ShortcutKeyDisplayString = "G"
