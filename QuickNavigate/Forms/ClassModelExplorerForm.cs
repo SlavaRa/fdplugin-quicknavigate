@@ -38,28 +38,23 @@ namespace QuickNavigate.Forms
         protected void InitializeContextMenu()
         {
             ContextMenuStrip = new ContextMenuStrip();
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"),
-                OnGotoLineOrPosition)
+            ContextMenuStrip.Items.Add(new ToolStripMenuItem("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"), OnGotoLineOrPosition)
             {
                 ShortcutKeyDisplayString = "G"
             });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in Quick &Outline",
-                PluginBase.MainForm.FindImage("315|16|0|0"), OnShowInQuickOutline)
+            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0"), OnShowInQuickOutline)
             {
                 ShortcutKeyDisplayString = "O"
             });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &Class Hierarchy",
-                PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy)
+            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy)
             {
                 ShortcutKeyDisplayString = "C"
             });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &Project Manager", PluginBase.MainForm.FindImage("274"),
-                OnShowInProjectManager)
+            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &Project Manager", PluginBase.MainForm.FindImage("274"), OnShowInProjectManager)
             {
                 ShortcutKeyDisplayString = "P"
             });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &File Explorer", PluginBase.MainForm.FindImage("209"),
-                OnShowInFileExplorer)
+            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &File Explorer", PluginBase.MainForm.FindImage("209"), OnShowInFileExplorer)
             {
                 ShortcutKeyDisplayString = "F"
             });

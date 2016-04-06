@@ -179,10 +179,10 @@ namespace QuickNavigate
             PluginBase.MainForm.RegisterShortcutItem(ShortcutId.ClassHierarchy, classHierarchyItem);
             editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
             PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
-            var item = new ToolStripMenuItem("Recent Files", null, ShowRecentFiles);
+            var item = new ToolStripMenuItem("Recent Files", PluginBase.MainForm.FindImage("209"), ShowRecentFiles);
             PluginBase.MainForm.RegisterShortcutItem(ShortcutId.RecentFiles, item);
             menu.DropDownItems.Add(item);
-            item = new ToolStripMenuItem("Recent Projects", null, ShowRecentProjets);
+            item = new ToolStripMenuItem("Recent Projects", PluginBase.MainForm.FindImage("274"), ShowRecentProjets);
             PluginBase.MainForm.RegisterShortcutItem(ShortcutId.RecentProjects, item);
             menu.DropDownItems.Add(item);
         }
