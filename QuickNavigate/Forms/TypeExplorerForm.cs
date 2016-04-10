@@ -409,11 +409,11 @@ namespace QuickNavigate.Forms
                     return;
                 case Keys.Down:
                     if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
-                    else if (Settings.WrapList) tree.SelectedNode = tree.Nodes[0];
+                    else if (PluginBase.MainForm.Settings.WrapList) tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
                     if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
-                    else if (Settings.WrapList)
+                    else if (PluginBase.MainForm.Settings.WrapList)
                     {
                         node = tree.SelectedNode;
                         while (node.NextVisibleNode != null) node = node.NextVisibleNode;

@@ -52,11 +52,6 @@ namespace QuickNavigate
             set { maxItems = value; }
         }
 
-        [Category("General")]
-        [DisplayName("Wrap list")]
-        [DefaultValue(false)]
-        public bool WrapList { get; set; }
-
         bool typeExplorerSearchExternalClassPath = true;
 
         [Browsable(false)]
