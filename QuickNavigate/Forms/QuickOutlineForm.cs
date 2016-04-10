@@ -14,15 +14,14 @@ namespace QuickNavigate.Forms
 {
     public sealed partial class QuickOutlineForm : Form
     {
-        [NotNull]
-        readonly Settings settings;
-        readonly ContextMenuStrip contextMenu = new ContextMenuStrip();
+        [NotNull] readonly Settings settings;
+        readonly ContextMenuStrip contextMenu = new ContextMenuStrip { Renderer = new DockPanelStripRenderer(false) };
         readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
         readonly List<Button> filters = new List<Button>();
         readonly Dictionary<Keys, Button> keysToFilter = new Dictionary<Keys, Button>();
         readonly Dictionary<Button, string> filterToEnabledTip = new Dictionary<Button, string>();
         readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
-        readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>(); 
+        readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.QuickOutlineForm
@@ -44,11 +43,9 @@ namespace QuickNavigate.Forms
             RefreshTree();
         }
 
-        [CanBeNull]
-        public event ShowInHandler ShowInClassHierarchy;
+        [CanBeNull] public event ShowInHandler ShowInClassHierarchy;
 
-        [CanBeNull]
-        ToolTip filterToolTip;
+        [CanBeNull] ToolTip filterToolTip;
 
         [NotNull]
         public FileModel InFile { get; }
@@ -242,7 +239,7 @@ namespace QuickNavigate.Forms
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var keyCode = e.KeyCode;
-            if (keysToFilter.ContainsKey(keyCode) && e.Alt)
+            if (e.Alt && keysToFilter.ContainsKey(keyCode))
             {
                 CurrentFilter = keysToFilter[keyCode];
                 return;

@@ -7,6 +7,7 @@ using ASCompletion;
 using ASCompletion.Completion;
 using ASCompletion.Context;
 using ASCompletion.Model;
+using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Helpers;
 using PluginCore.Managers;
@@ -30,6 +31,7 @@ namespace QuickNavigate
 
     public class PluginMain : IPlugin
 	{
+        const string ProjectManagerGUID = "30018864-fadd-1122-b2a5-779832cbbf23";
         string settingFilename;
 	    ControlClickManager controlClickManager;
 	    ToolStripMenuItem typeExplorerItem;
@@ -208,10 +210,10 @@ namespace QuickNavigate
 
         void ShowRecentFiles()
         {
-            var form = new OpenRecentFilesForm((Settings)Settings);
+            var form = new OpenRecentFilesForm((Settings) Settings);
             form.KeyUp += FormOnKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
+            var plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin(ProjectManagerGUID);
             form.SelectedItems.ForEach(plugin.OpenFile);
         }
 
@@ -222,8 +224,9 @@ namespace QuickNavigate
             var form = new OpenRecentProjectsForm((Settings) Settings);
             form.KeyUp += FormOnKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin("30018864-fadd-1122-b2a5-779832cbbf23");
-            plugin.OpenFile(form.SelectedItem);
+            var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin(ProjectManagerGUID);
+            if (form.InNewWindow) ProcessHelper.StartAsync(Application.ExecutablePath, form.SelectedItem);
+            else plugin.OpenFile(form.SelectedItem);
         }
 
         void ShowTypeExplorer(object sender, EventArgs e) => ShowTypeExplorer();
@@ -276,13 +279,13 @@ namespace QuickNavigate
 
         void ShowQuickOutline() => ShowQuickOutline(ASContext.Context.CurrentModel, ASContext.Context.CurrentClass);
 
-        void ShowQuickOutline(Form sender, ClassModel inClass)
+        void ShowQuickOutline([NotNull] Form sender, [NotNull] ClassModel inClass)
         {
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() => ShowQuickOutline(inClass.InFile, inClass)));
         }
 
-        void ShowQuickOutline(FileModel inFile, ClassModel inClass)
+        void ShowQuickOutline([NotNull] FileModel inFile, [NotNull] ClassModel inClass)
         {
             var form = new QuickOutlineForm(inFile, inClass, (Settings) Settings);
             form.ShowInClassHierarchy += ShowClassHierarchy;
@@ -313,13 +316,13 @@ namespace QuickNavigate
             ShowClassHierarchy(!curClass.IsVoid() ? curClass : context.CurrentModel.GetPublicClass());
         }
 
-        void ShowClassHierarchy(Form sender, ClassModel model)
+        void ShowClassHierarchy([NotNull] Form sender, [NotNull] ClassModel model)
         {
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() => ShowClassHierarchy(model)));
         }
 
-        void ShowClassHierarchy(ClassModel model)
+        void ShowClassHierarchy([NotNull] ClassModel model)
         {
             var form = new ClassHierarchyForm(model, (Settings) Settings);
             form.GotoPositionOrLine += OnGotoPositionOrLine;
@@ -344,27 +347,27 @@ namespace QuickNavigate
                 && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
-        static void OnGotoPositionOrLine(Form sender, ClassModel model)
+        static void OnGotoPositionOrLine([NotNull] Form sender, [NotNull] ClassModel model)
         {
             sender.Close();
-            ((Control)PluginBase.MainForm).BeginInvoke((MethodInvoker)delegate
+            ((Control)PluginBase.MainForm).BeginInvoke((MethodInvoker)(() =>
             {
                 ModelsExplorer.Instance.OpenFile(model.InFile.FileName);
                 PluginBase.MainForm.CallCommand("GoTo", null);
-            });
+            }));
         }
 
-        static void ShowInProjectManager(Form sender, ClassModel model)
+        static void ShowInProjectManager([NotNull] Form sender, [NotNull] ClassModel model)
         {
             sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
             {
                 foreach (var pane in PluginBase.MainForm.DockPanel.Panes)
                 {
                     foreach (var dockContent in pane.Contents)
                     {
                         var content = (DockContent) dockContent;
-                        if (content.GetPersistString() != "30018864-fadd-1122-b2a5-779832cbbf23") continue;
+                        if (content.GetPersistString() != ProjectManagerGUID) continue;
                         foreach (var ui in content.Controls.OfType<ProjectManager.PluginUI>())
                         {
                             content.Show();
@@ -373,13 +376,13 @@ namespace QuickNavigate
                         }
                     }
                 }
-            });
+            }));
         }
 
-        static void ShowInFileExplorer(Form sender, ClassModel model)
+        static void ShowInFileExplorer([NotNull] Form sender, [NotNull] ClassModel model)
         {
             sender.Close();
-            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) delegate
+            ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
             {
                 foreach (var pane in PluginBase.MainForm.DockPanel.Panes)
                 {
@@ -395,7 +398,7 @@ namespace QuickNavigate
                         }
                     }
                 }
-            });
+            }));
         }
 
         #endregion

@@ -1,6 +1,6 @@
 os: Visual Studio 2015
 environment:
-  PLUGIN_VERSION: 2.7
+  PLUGIN_VERSION: 2.8
   PLUGIN_NAME: QuickNavigate
   PLUGIN_DESC: Quickly navigate through Types, Fields, Projects and more
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
