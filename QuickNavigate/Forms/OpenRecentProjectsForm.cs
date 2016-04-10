@@ -15,7 +15,7 @@ namespace QuickNavigate.Forms
     {
         [NotNull] readonly Settings settings;
         [NotNull] [ItemNotNull] readonly List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
-        
+
         public OpenRecentProjectsForm([NotNull] Settings settings)
         {
             this.settings = settings;
@@ -23,13 +23,19 @@ namespace QuickNavigate.Forms
             InitializeComponent();
             if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
             InitializeTree();
+            InitializeContextMenu();
             InitializeTheme();
+            openInNewWindow.Visible = PluginBase.MainForm.MultiInstanceMode;
             RefrestTree();
         }
 
-        [CanBeNull]
-        public string SelectedItem => tree?.SelectedNode.Text;
+        [CanBeNull] ContextMenuStrip contextMenu;
 
+        public bool InNewWindow { get; private set; }
+
+        [CanBeNull]
+        public string SelectedItem => tree.SelectedNode?.Text;
+        
         void InitializeTree()
         {
             tree.ImageList = new ImageList
@@ -41,6 +47,15 @@ namespace QuickNavigate.Forms
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
         }
 
+        void InitializeContextMenu()
+        {
+            if (!PluginBase.MainForm.MultiInstanceMode) return;
+            input.ContextMenu = new ContextMenu();
+            contextMenu = new ContextMenuStrip {Renderer = new DockPanelStripRenderer(false)};
+            contextMenu.Items.Add("Open in new Window").Click += (s, args) => NavigateInNewWindow();
+            contextMenu.Items[0].Select();
+        }
+
         void InitializeTheme()
         {
             input.BackColor = PluginBase.MainForm.GetThemeColor("TextBox.BackColor", SystemColors.Window);
@@ -49,6 +64,8 @@ namespace QuickNavigate.Forms
             tree.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             open.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
             open.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            openInNewWindow.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            openInNewWindow.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             cancel.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
             cancel.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
@@ -62,8 +79,14 @@ namespace QuickNavigate.Forms
             tree.Nodes.Clear();
             FillTree();
             if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
-            else open.Enabled = false;
+            else RefreshButtons();
             tree.EndUpdate();
+        }
+
+        void RefreshButtons()
+        {
+            open.Enabled = false;
+            openInNewWindow.Enabled = false;
         }
 
         void FillTree()
@@ -83,6 +106,21 @@ namespace QuickNavigate.Forms
             DialogResult = DialogResult.OK;
         }
 
+        void NavigateInNewWindow()
+        {
+            InNewWindow = SelectedItem != null;
+            Navigate();
+        }
+
+        void ShowContextMenu()
+        {
+            var selectedNode = tree.SelectedNode;
+            if (selectedNode == null) return;
+            ShowContextMenu(new Point(selectedNode.Bounds.X, selectedNode.Bounds.Bottom));
+        }
+
+        void ShowContextMenu([NotNull] Point position) => contextMenu?.Show(tree, position);
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -97,6 +135,10 @@ namespace QuickNavigate.Forms
                         input.Focus();
                         input.SelectAll();
                     }
+                    break;
+                case Keys.Apps:
+                    e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }
@@ -165,5 +207,7 @@ namespace QuickNavigate.Forms
             x += graphics.MeasureString(text, font).Width;
             graphics.DrawString($"({path})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
         }
+
+        void OnOpenInNewWindowClick(object sender, EventArgs e) => NavigateInNewWindow();
     }
 }

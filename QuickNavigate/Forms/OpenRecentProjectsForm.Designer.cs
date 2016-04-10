@@ -34,6 +34,7 @@ namespace QuickNavigate.Forms
             this.tree = new System.Windows.Forms.TreeView();
             this.open = new System.Windows.Forms.Button();
             this.cancel = new System.Windows.Forms.Button();
+            this.openInNewWindow = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // input
@@ -73,7 +74,7 @@ namespace QuickNavigate.Forms
             this.open.Location = new System.Drawing.Point(161, 225);
             this.open.Name = "open";
             this.open.Size = new System.Drawing.Size(75, 23);
-            this.open.TabIndex = 6;
+            this.open.TabIndex = 3;
             this.open.Text = "Open";
             this.open.UseVisualStyleBackColor = true;
             // 
@@ -84,9 +85,20 @@ namespace QuickNavigate.Forms
             this.cancel.Location = new System.Drawing.Point(242, 225);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(75, 23);
-            this.cancel.TabIndex = 5;
+            this.cancel.TabIndex = 4;
             this.cancel.Text = "Cancel";
             this.cancel.UseVisualStyleBackColor = true;
+            // 
+            // openInNewWindow
+            // 
+            this.openInNewWindow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.openInNewWindow.Location = new System.Drawing.Point(12, 225);
+            this.openInNewWindow.Name = "openInNewWindow";
+            this.openInNewWindow.Size = new System.Drawing.Size(143, 23);
+            this.openInNewWindow.TabIndex = 2;
+            this.openInNewWindow.Text = "Open in new Window";
+            this.openInNewWindow.UseVisualStyleBackColor = true;
+            this.openInNewWindow.Click += new System.EventHandler(this.OnOpenInNewWindowClick);
             // 
             // OpenRecentProjectsForm
             // 
@@ -95,6 +107,7 @@ namespace QuickNavigate.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancel;
             this.ClientSize = new System.Drawing.Size(330, 251);
+            this.Controls.Add(this.openInNewWindow);
             this.Controls.Add(this.open);
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.tree);
@@ -119,5 +132,6 @@ namespace QuickNavigate.Forms
         private System.Windows.Forms.TreeView tree;
         private System.Windows.Forms.Button open;
         private System.Windows.Forms.Button cancel;
+        private Button openInNewWindow;
     }
 }
