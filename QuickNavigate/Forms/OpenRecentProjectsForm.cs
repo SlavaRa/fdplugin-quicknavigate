@@ -13,22 +13,36 @@ namespace QuickNavigate.Forms
 {
     public sealed partial class OpenRecentProjectsForm : Form
     {
-        [NotNull] readonly Settings settings;
         [NotNull] [ItemNotNull] readonly List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
-        
+
         public OpenRecentProjectsForm([NotNull] Settings settings)
         {
-            this.settings = settings;
-            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
             InitializeTree();
             InitializeTheme();
+            Settings = settings;
             RefrestTree();
         }
 
+        public bool InNewWindow { get; private set; }
+
         [CanBeNull]
         public string SelectedItem => tree?.SelectedNode.Text;
+
+        [NotNull] Settings settings;
+
+        [NotNull]
+        public Settings Settings
+        {
+            get { return settings; }
+            set
+            {
+                settings = value;
+                if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
+                Font = PluginBase.Settings.DefaultFont;
+                openInNewWindow.Visible = PluginBase.MainForm.MultiInstanceMode;
+            }
+        }
 
         void InitializeTree()
         {
@@ -49,6 +63,8 @@ namespace QuickNavigate.Forms
             tree.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             open.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
             open.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
+            openInNewWindow.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
+            openInNewWindow.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             cancel.BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
             cancel.ForeColor = PluginBase.MainForm.GetThemeColor("TreeView.ForeColor", SystemColors.WindowText);
             BackColor = PluginBase.MainForm.GetThemeColor("TreeView.BackColor", SystemColors.Window);
@@ -62,8 +78,14 @@ namespace QuickNavigate.Forms
             tree.Nodes.Clear();
             FillTree();
             if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
-            else open.Enabled = false;
+            else RefreshButtons();
             tree.EndUpdate();
+        }
+
+        void RefreshButtons()
+        {
+            open.Enabled = false;
+            openInNewWindow.Enabled = false;
         }
 
         void FillTree()
@@ -164,6 +186,12 @@ namespace QuickNavigate.Forms
             if (string.IsNullOrEmpty(path)) return;
             x += graphics.MeasureString(text, font).Width;
             graphics.DrawString($"({path})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
+        }
+
+        void OnOpenInNewWindowClick(object sender, EventArgs e)
+        {
+            InNewWindow = SelectedItem != null;
+            Navigate();
         }
     }
 }
