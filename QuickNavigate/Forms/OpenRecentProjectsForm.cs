@@ -120,11 +120,11 @@ namespace QuickNavigate.Forms
                     return;
                 case Keys.Down:
                     if (index < lastIndex) tree.SelectedNode = tree.SelectedNode.NextNode;
-                    else if (settings.WrapList) tree.SelectedNode = tree.Nodes[0];
+                    else if (PluginBase.MainForm.Settings.WrapList) tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
                     if (index > 0) tree.SelectedNode = tree.SelectedNode.PrevNode;
-                    else if (settings.WrapList) tree.SelectedNode = tree.Nodes[lastIndex];
+                    else if (PluginBase.MainForm.Settings.WrapList) tree.SelectedNode = tree.Nodes[lastIndex];
                     break;
                 case Keys.Home:
                     tree.SelectedNode = tree.Nodes[0];

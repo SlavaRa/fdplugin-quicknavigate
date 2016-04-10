@@ -307,7 +307,7 @@ namespace QuickNavigate.Forms
                 case Keys.Down:
                     node = GetNextEnabledNode();
                     if (node != null) tree.SelectedNode = node;
-                    else if (Settings.WrapList)
+                    else if (PluginBase.MainForm.Settings.WrapList)
                     {
                         node = GetUpEnabledNode();
                         if (node != null) tree.SelectedNode = node;
@@ -316,7 +316,7 @@ namespace QuickNavigate.Forms
                 case Keys.Up:
                     node = GetPrevEnabledNode();
                     if (node != null) tree.SelectedNode = node;
-                    else if (Settings.WrapList)
+                    else if (PluginBase.MainForm.Settings.WrapList)
                     {
                         node = GetLastEnabledNode();
                         if (node != null) tree.SelectedNode = node;

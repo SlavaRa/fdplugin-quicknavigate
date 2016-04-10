@@ -143,7 +143,7 @@ namespace QuickNavigate.Forms
                     return;
                 case Keys.Down:
                     if (selectedIndex < lastIndex) ++selectedIndex;
-                    else if (settings.WrapList) selectedIndex = 0;
+                    else if (PluginBase.MainForm.Settings.WrapList) selectedIndex = 0;
                     else
                     {
                         e.Handled = true;
@@ -152,7 +152,7 @@ namespace QuickNavigate.Forms
                     break;
                 case Keys.Up:
                     if (selectedIndex > 0) --selectedIndex;
-                    else if (settings.WrapList) selectedIndex = lastIndex;
+                    else if (PluginBase.MainForm.Settings.WrapList) selectedIndex = lastIndex;
                     else
                     {
                         e.Handled = true;
