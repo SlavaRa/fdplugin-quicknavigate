@@ -13,37 +13,29 @@ namespace QuickNavigate.Forms
 {
     public sealed partial class OpenRecentProjectsForm : Form
     {
+        [NotNull] readonly Settings settings;
         [NotNull] [ItemNotNull] readonly List<string> recentProjects = ProjectManager.PluginMain.Settings.RecentProjects.Where(File.Exists).ToList();
 
         public OpenRecentProjectsForm([NotNull] Settings settings)
         {
+            this.settings = settings;
+            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
+            if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
             InitializeTree();
+            InitializeContextMenu();
             InitializeTheme();
-            Settings = settings;
+            openInNewWindow.Visible = PluginBase.MainForm.MultiInstanceMode;
             RefrestTree();
         }
+
+        [CanBeNull] ContextMenuStrip contextMenu;
 
         public bool InNewWindow { get; private set; }
 
         [CanBeNull]
-        public string SelectedItem => tree?.SelectedNode.Text;
-
-        [NotNull] Settings settings;
-
-        [NotNull]
-        public Settings Settings
-        {
-            get { return settings; }
-            set
-            {
-                settings = value;
-                if (settings.RecentProjectsSize.Width > MinimumSize.Width) Size = settings.RecentProjectsSize;
-                Font = PluginBase.Settings.DefaultFont;
-                openInNewWindow.Visible = PluginBase.MainForm.MultiInstanceMode;
-            }
-        }
-
+        public string SelectedItem => tree.SelectedNode?.Text;
+        
         void InitializeTree()
         {
             tree.ImageList = new ImageList
@@ -53,6 +45,15 @@ namespace QuickNavigate.Forms
             };
             tree.ImageList.Images.Add(Icons.Project.Img);
             tree.ItemHeight = tree.ImageList.ImageSize.Height;
+        }
+
+        void InitializeContextMenu()
+        {
+            if (!PluginBase.MainForm.MultiInstanceMode) return;
+            input.ContextMenu = new ContextMenu();
+            contextMenu = new ContextMenuStrip {Renderer = new DockPanelStripRenderer(false)};
+            contextMenu.Items.Add("Open in new Window").Click += (s, args) => NavigateInNewWindow();
+            contextMenu.Items[0].Select();
         }
 
         void InitializeTheme()
@@ -105,6 +106,21 @@ namespace QuickNavigate.Forms
             DialogResult = DialogResult.OK;
         }
 
+        void NavigateInNewWindow()
+        {
+            InNewWindow = SelectedItem != null;
+            Navigate();
+        }
+
+        void ShowContextMenu()
+        {
+            var selectedNode = tree.SelectedNode;
+            if (selectedNode == null) return;
+            ShowContextMenu(new Point(selectedNode.Bounds.X, selectedNode.Bounds.Bottom));
+        }
+
+        void ShowContextMenu([NotNull] Point position) => contextMenu?.Show(tree, position);
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -119,6 +135,10 @@ namespace QuickNavigate.Forms
                         input.Focus();
                         input.SelectAll();
                     }
+                    break;
+                case Keys.Apps:
+                    e.Handled = true;
+                    ShowContextMenu();
                     break;
             }
         }
@@ -188,10 +208,6 @@ namespace QuickNavigate.Forms
             graphics.DrawString($"({path})", font, moduleBrush, x, bounds.Top, StringFormat.GenericDefault);
         }
 
-        void OnOpenInNewWindowClick(object sender, EventArgs e)
-        {
-            InNewWindow = SelectedItem != null;
-            Navigate();
-        }
+        void OnOpenInNewWindowClick(object sender, EventArgs e) => NavigateInNewWindow();
     }
 }

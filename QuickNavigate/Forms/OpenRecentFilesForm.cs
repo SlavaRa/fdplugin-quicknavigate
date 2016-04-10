@@ -12,14 +12,11 @@ namespace QuickNavigate.Forms
 {
     public sealed partial class OpenRecentFilesForm : Form
     {
-        [NotNull]
-        readonly Settings settings;
+        [NotNull] readonly Settings settings;
 
-        [NotNull]
-        readonly List<string> recentFiles;
+        [NotNull] readonly List<string> recentFiles;
 
-        [NotNull]
-        readonly List<string> openedFiles;
+        [NotNull] readonly List<string> openedFiles;
 
         public OpenRecentFilesForm([NotNull] Settings settings)
         {
