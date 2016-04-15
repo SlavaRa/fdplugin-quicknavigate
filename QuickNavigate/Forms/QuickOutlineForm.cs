@@ -86,10 +86,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        void InitializeContextMenu()
-        {
-            contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy);
-        }
+        void InitializeContextMenu() => contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy);
 
         void InitializeTree()
         {
