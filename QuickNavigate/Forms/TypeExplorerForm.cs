@@ -9,6 +9,7 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
+using ProjectManager.Projects;
 using QuickNavigate.Collections;
 using QuickNavigate.Helpers;
 
@@ -31,7 +32,7 @@ namespace QuickNavigate.Forms
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
         /// </summary>
         /// <param name="settings"></param>
-        public TypeExplorerForm(Settings settings) : base(settings)
+        public TypeExplorerForm([NotNull] Settings settings) : base(settings)
         {
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
@@ -46,12 +47,10 @@ namespace QuickNavigate.Forms
             timer.Start();
         }
 
-        [CanBeNull]
-        ToolTip filterToolTip;
+        [CanBeNull] public ShowInHandler SetDocumentClass;
+        [CanBeNull] ToolTip filterToolTip;
+        [CanBeNull] Button currentFilter;
 
-        [CanBeNull]
-        Button currentFilter;
-        
         [CanBeNull]
         Button CurrentFilter
         {
@@ -79,8 +78,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        [CanBeNull]
-        public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
+        [CanBeNull] public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
 
         protected override void Dispose(bool disposing)
         {
@@ -199,7 +197,7 @@ namespace QuickNavigate.Forms
         }
 
         [NotNull]
-        static TypeNode CreateNode(string type)
+        static TypeNode CreateNode([NotNull] string type)
         {
             var aClass = TypeToClassModel[type];
             return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access));
@@ -225,6 +223,12 @@ namespace QuickNavigate.Forms
             return nodes0.Concat(nodes1).Concat(nodes2);
         }
 
+        protected override void InitializeContextMenu()
+        {
+            base.InitializeContextMenu();
+            QuickContextMenu.SetDocumentClassMenuItem.Click += OnSetDocumentClassMenuItemClick;
+        }
+
         protected override void ShowContextMenu()
         {
             if (SelectedNode == null) return;
@@ -234,7 +238,23 @@ namespace QuickNavigate.Forms
         protected override void ShowContextMenu(Point position)
         {
             if (SelectedNode == null) return;
-            ContextMenuStrip.Items[4].Enabled = File.Exists(SelectedNode.Model.InFile.FileName);
+            ContextMenuStrip.Items.Clear();
+            var classModel = SelectedNode.Model;
+            var flags = classModel.Flags;
+            var fileName = classModel.InFile.FileName;
+            if ((flags & FlagType.Class) > 0
+                && (flags & FlagType.Interface) == 0
+                && (classModel.Access & Visibility.Public) > 0
+                && !((Project)PluginBase.CurrentProject).IsDocumentClass(fileName))
+            {
+                ContextMenuStrip.Items.Add(QuickContextMenu.SetDocumentClassMenuItem);
+                ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            }
+            ContextMenuStrip.Items.Add(QuickContextMenu.GotoPositionOrLineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInQuickOutlineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInClassHierarchyMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInProjectManagerMenuItem);
+            if (File.Exists(fileName)) ContextMenuStrip.Items.Add(QuickContextMenu.ShowInFileExplorerMenuItem);
             ContextMenuStrip.Show(tree, position);
         }
 
@@ -478,6 +498,8 @@ namespace QuickNavigate.Forms
             CreateItemsList();
             RefreshTree();
         }
+
+        void OnSetDocumentClassMenuItemClick(object sender, EventArgs e) => SetDocumentClass?.Invoke(this, SelectedNode.Model);
 
         #endregion
     }
