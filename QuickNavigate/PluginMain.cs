@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Completion;
@@ -13,25 +13,15 @@ using PluginCore.Helpers;
 using PluginCore.Managers;
 using PluginCore.Utilities;
 using ProjectManager;
+using ProjectManager.Projects;
 using QuickNavigate.Forms;
 using QuickNavigate.Helpers;
-using WeifenLuo.WinFormsUI.Docking;
 using PluginUI = ASCompletion.PluginUI;
 
 namespace QuickNavigate
 {
-    public class ShortcutId
-    {
-        public const string TypeExplorer = "QuickNavigate.TypeExplorer";
-        public const string QuickOutline = "QuickNavigate.Outline";
-        public const string ClassHierarchy = "QuickNavigate.ClassHierarchy";
-        public const string RecentFiles = "QuickNavigate.RecentFiles";
-        public const string RecentProjects = "QuickNavigate.RecentProjects";
-    }
-
     public class PluginMain : IPlugin
 	{
-        const string ProjectManagerGUID = "30018864-fadd-1122-b2a5-779832cbbf23";
         string settingFilename;
 	    ControlClickManager controlClickManager;
 	    ToolStripMenuItem typeExplorerItem;
@@ -143,7 +133,7 @@ namespace QuickNavigate
         {
             var dataPath = Path.Combine(PathHelper.DataDir, Name);
             if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
-            settingFilename = Path.Combine(dataPath, "Settings.fdb");
+            settingFilename = Path.Combine(dataPath, $"{nameof(Settings)}.fdb");
         }
 
         /// <summary>
@@ -153,7 +143,7 @@ namespace QuickNavigate
         {
             Settings = new Settings();
             if (!File.Exists(settingFilename)) SaveSettings();
-            else Settings = (Settings)ObjectSerializer.Deserialize(settingFilename, Settings);
+            else Settings = (Settings) ObjectSerializer.Deserialize(settingFilename, Settings);
         }
 
         /// <summary>
@@ -211,9 +201,9 @@ namespace QuickNavigate
         void ShowRecentFiles()
         {
             var form = new OpenRecentFilesForm((Settings) Settings);
-            form.KeyUp += FormOnKeyUp;
+            form.KeyUp += OnFormKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin(ProjectManagerGUID);
+            var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin(FormHelper.ProjectManagerGUID);
             form.SelectedItems.ForEach(plugin.OpenFile);
         }
 
@@ -222,9 +212,9 @@ namespace QuickNavigate
         void ShowRecentProjets()
         {
             var form = new OpenRecentProjectsForm((Settings) Settings);
-            form.KeyUp += FormOnKeyUp;
+            form.KeyUp += OnFormKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin(ProjectManagerGUID);
+            var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin(FormHelper.ProjectManagerGUID);
             if (form.InNewWindow) ProcessHelper.StartAsync(Application.ExecutablePath, form.SelectedItem);
             else plugin.OpenFile(form.SelectedItem);
         }
@@ -262,13 +252,14 @@ namespace QuickNavigate
                 disabledTip = "Show all(Alt+E or left click)";
                 form.AddFilter(PluginUI.ICON_TYPE, FlagType.Enum, Keys.E, enabledTip, disabledTip);
             }
-            // Abstracts
-            form.GotoPositionOrLine += OnGotoPositionOrLine;
+            // TODO: Abstracts
+            form.GotoPositionOrLine += GotoPositionOrLine;
             form.ShowInQuickOutline += ShowQuickOutline;
             form.ShowInClassHierarchy += ShowClassHierarchy;
             form.ShowInProjectManager += ShowInProjectManager;
             form.ShowInFileExplorer += ShowInFileExplorer;
-            form.KeyUp += FormOnKeyUp;
+            form.SetDocumentClass += OnSetDocumentClassClick;
+            form.KeyUp += OnFormKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
             var node = form.SelectedNode;
             if (node == null) return;
@@ -301,7 +292,7 @@ namespace QuickNavigate
             enabledTip = "Show only methods(Alt+M or left click)";
             disabledTip = "Show all(Alt+M or left click)";
             form.AddFilter(PluginUI.ICON_FUNCTION, FlagType.Function, Keys.M, enabledTip, disabledTip);
-            form.KeyUp += FormOnKeyUp;
+            form.KeyUp += OnFormKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
             FormHelper.Navigate(inFile.FileName, form.SelectedNode);
         }
@@ -325,12 +316,12 @@ namespace QuickNavigate
         void ShowClassHierarchy([NotNull] ClassModel model)
         {
             var form = new ClassHierarchyForm(model, (Settings) Settings);
-            form.GotoPositionOrLine += OnGotoPositionOrLine;
+            form.GotoPositionOrLine += GotoPositionOrLine;
             form.ShowInQuickOutline += ShowQuickOutline;
             form.ShowInClassHierarchy += ShowClassHierarchy;
             form.ShowInProjectManager += ShowInProjectManager;
             form.ShowInFileExplorer += ShowInFileExplorer;
-            form.KeyUp += FormOnKeyUp;
+            form.KeyUp += OnFormKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
             var node = form.SelectedNode;
             if (node == null) return;
@@ -347,7 +338,7 @@ namespace QuickNavigate
                 && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
-        static void OnGotoPositionOrLine([NotNull] Form sender, [NotNull] ClassModel model)
+        static void GotoPositionOrLine([NotNull] Form sender, [NotNull] ClassModel model)
         {
             sender.Close();
             ((Control)PluginBase.MainForm).BeginInvoke((MethodInvoker)(() =>
@@ -362,20 +353,10 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
             {
-                foreach (var pane in PluginBase.MainForm.DockPanel.Panes)
-                {
-                    foreach (var dockContent in pane.Contents)
-                    {
-                        var content = (DockContent) dockContent;
-                        if (content.GetPersistString() != ProjectManagerGUID) continue;
-                        foreach (var ui in content.Controls.OfType<ProjectManager.PluginUI>())
-                        {
-                            content.Show();
-                            ui.Tree.Select(model.InFile.FileName);
-                            return;
-                        }
-                    }
-                }
+                var ui = FormHelper.GetProjectManagerPluginUI();
+                Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI != null");
+                ui.Parent.Show();
+                ui.Tree.Select(model.InFile.FileName);
             }));
         }
 
@@ -384,20 +365,10 @@ namespace QuickNavigate
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
             {
-                foreach (var pane in PluginBase.MainForm.DockPanel.Panes)
-                {
-                    foreach (var dockContent in pane.Contents)
-                    {
-                        var content = (DockContent) dockContent;
-                        if (content.GetPersistString() != "f534a520-bcc7-4fe4-a4b9-6931948b2686") continue;
-                        foreach (var ui in content.Controls.OfType<FileExplorer.PluginUI>())
-                        {
-                            ui.BrowseTo(Path.GetDirectoryName(model.InFile.FileName));
-                            content.Show();
-                            return;
-                        }
-                    }
-                }
+                var ui = FormHelper.GetFileExplorerPluginUI();
+                Debug.Assert(ui != null, "FileExplorer.PluginMain.pluginUI != null");
+                ui.BrowseTo(Path.GetDirectoryName(model.InFile.FileName));
+                ui.Parent.Show();
             }));
         }
 
@@ -410,7 +381,7 @@ namespace QuickNavigate
         /// </summary>
         void OnResolvedContextChanged(ResolvedContext resolved) => UpdateMenuItems();
 
-        void FormOnKeyUp(object sender, KeyEventArgs e)
+        void OnFormKeyUp(object sender, KeyEventArgs e)
         {
             var shortcutId = PluginBase.MainForm.GetShortcutItemId(e.KeyData);
             if (string.IsNullOrEmpty(shortcutId)) return;
@@ -437,6 +408,16 @@ namespace QuickNavigate
             if (invoker == null) return;
             ((Form) sender).Close();
             ((Control) PluginBase.MainForm).BeginInvoke(invoker);
+        }
+
+        static void OnSetDocumentClassClick([NotNull] Form sender, [NotNull] ClassModel model)
+        {
+            var project = (Project) PluginBase.CurrentProject;
+            project.SetDocumentClass(model.InFile.FileName, true);
+            project.Save();
+            var ui = FormHelper.GetProjectManagerPluginUI();
+            Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI != null");
+            ui.Tree.RefreshTree();
         }
 
         #endregion

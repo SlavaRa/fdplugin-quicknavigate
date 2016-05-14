@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using ASCompletion.Model;
 using JetBrains.Annotations;
-using PluginCore;
+using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
@@ -27,6 +26,8 @@ namespace QuickNavigate.Forms
             InitializeContextMenu();
         }
 
+        [CanBeNull] public virtual TypeNode SelectedNode => null;
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -36,29 +37,14 @@ namespace QuickNavigate.Forms
             base.Dispose(disposing);
         }
 
-        protected void InitializeContextMenu()
+        protected virtual void InitializeContextMenu()
         {
             ContextMenuStrip = new ContextMenuStrip {Renderer = new DockPanelStripRenderer(false)};
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"), OnGotoLineOrPosition)
-            {
-                ShortcutKeyDisplayString = "G"
-            });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0"), OnShowInQuickOutline)
-            {
-                ShortcutKeyDisplayString = "O"
-            });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy)
-            {
-                ShortcutKeyDisplayString = "C"
-            });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &Project Manager", PluginBase.MainForm.FindImage("274"), OnShowInProjectManager)
-            {
-                ShortcutKeyDisplayString = "P"
-            });
-            ContextMenuStrip.Items.Add(new ToolStripMenuItem("Show in &File Explorer", PluginBase.MainForm.FindImage("209"), OnShowInFileExplorer)
-            {
-                ShortcutKeyDisplayString = "F"
-            });
+            QuickContextMenu.GotoPositionOrLineMenuItem.Click += OnGotoLineOrPosition;
+            QuickContextMenu.ShowInQuickOutlineMenuItem.Click += OnShowInQuickOutline;
+            QuickContextMenu.ShowInClassHierarchyMenuItem.Click += OnShowInClassHierarchy;
+            QuickContextMenu.ShowInProjectManagerMenuItem.Click += OnShowInProjectManager;
+            QuickContextMenu.ShowInFileExplorerMenuItem.Click += OnShowInFileExplorer;
         }
         
         protected virtual void Navigate()
@@ -82,40 +68,32 @@ namespace QuickNavigate.Forms
         protected void OnGotoLineOrPosition(object sender, EventArgs e)
         {
             Debug.Assert(GotoPositionOrLine != null, "GotoPositionOrLine != null");
-            GotoPositionOrLine(this, GetModelFromSelectedNode());
+            GotoPositionOrLine(this, SelectedNode?.Model);
         }
 
         protected void OnShowInQuickOutline(object sender, EventArgs e)
         {
             Debug.Assert(ShowInQuickOutline != null, "ShowInQuickOutline != null");
-            ShowInQuickOutline(this, GetModelFromSelectedNode());
+            ShowInQuickOutline(this, SelectedNode?.Model);
         }
 
         protected void OnShowInClassHierarchy(object sender, EventArgs e)
         {
             Debug.Assert(ShowInClassHierarchy != null, "ShowInClassHierarchy != null");
-            ShowInClassHierarchy(this, GetModelFromSelectedNode());
+            ShowInClassHierarchy(this, SelectedNode?.Model);
         }
 
         protected void OnShowInProjectManager(object sender, EventArgs e)
         {
             Debug.Assert(ShowInProjectManager != null, "ShowInProjectManager != null");
-            ShowInProjectManager(this, GetModelFromSelectedNode());
+            ShowInProjectManager(this, SelectedNode?.Model);
         }
 
         protected void OnShowInFileExplorer(object sender, EventArgs e)
         {
             Debug.Assert(ShowInFileExplorer != null, "ShowInFileExplorer != null");
-            ShowInFileExplorer(this, GetModelFromSelectedNode());
+            ShowInFileExplorer(this, SelectedNode?.Model);
         }
-
-        TreeView GetTreeView()
-        {
-            var tree = ContextMenuStrip.SourceControl as TreeView;
-            return tree ?? ContextMenuStrip.SourceControl.Controls.OfType<TreeView>().FirstOrDefault();
-        }
-
-        ClassModel GetModelFromSelectedNode() => ((TypeNode) GetTreeView().SelectedNode).Model;
 
         #region Event Handlers
         

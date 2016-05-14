@@ -9,6 +9,7 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
+using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
@@ -70,8 +71,7 @@ namespace QuickNavigate.Forms
             RefreshTree();
         }
 
-        [CanBeNull]
-        public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
+        public override TypeNode SelectedNode => tree.SelectedNode as TypeNode;
 
         void InitializeTree()
         {
@@ -163,7 +163,7 @@ namespace QuickNavigate.Forms
         }
 
         [CanBeNull]
-        TreeNode GetUpEnabledNode()
+        TreeNode GetFirstEnabledNode()
         {
             TreeNode result = null;
             var node = tree.SelectedNode;
@@ -197,8 +197,12 @@ namespace QuickNavigate.Forms
         protected override void ShowContextMenu(Point position)
         {
             if (SelectedNode == null) return;
-            ContextMenuStrip.Items[2].Enabled = !curClass.Equals(SelectedNode.Model);
-            ContextMenuStrip.Items[4].Enabled = File.Exists(SelectedNode.Model.InFile.FileName);
+            ContextMenuStrip.Items.Clear();
+            ContextMenuStrip.Items.Add(QuickContextMenu.GotoPositionOrLineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInQuickOutlineMenuItem);
+            if (!curClass.Equals(SelectedNode.Model)) ContextMenuStrip.Items.Add(QuickContextMenu.ShowInClassHierarchyMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInProjectManagerMenuItem);
+            if (File.Exists(SelectedNode.Model.InFile.FileName)) ContextMenuStrip.Items.Add(QuickContextMenu.ShowInFileExplorerMenuItem);
             ContextMenuStrip.Show(tree, position);
         }
 
@@ -234,10 +238,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            Settings.HierarchyExplorerSize = Size;
-        }
+        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.HierarchyExplorerSize = Size;
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -309,7 +310,7 @@ namespace QuickNavigate.Forms
                     if (node != null) tree.SelectedNode = node;
                     else if (PluginBase.MainForm.Settings.WrapList)
                     {
-                        node = GetUpEnabledNode();
+                        node = GetFirstEnabledNode();
                         if (node != null) tree.SelectedNode = node;
                     }
                     break;
@@ -323,7 +324,7 @@ namespace QuickNavigate.Forms
                     }
                     break;
                 case Keys.Home:
-                    node = GetUpEnabledNode();
+                    node = GetFirstEnabledNode();
                     if (node != null) tree.SelectedNode = node;
                     break;
                 case Keys.End:
