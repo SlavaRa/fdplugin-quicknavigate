@@ -34,7 +34,6 @@ namespace QuickNavigate.Forms
             InFile = inFile;
             InClass = inClass ?? ClassModel.VoidClass;
             this.settings = settings;
-            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
             InitializeTree();
@@ -168,18 +167,18 @@ namespace QuickNavigate.Forms
                 tree.SelectedNode = nodes[0];
         }
 
-        void Navigate()
+        protected override void Navigate()
         {
             if (SelectedNode != null) DialogResult = DialogResult.OK;
         }
 
-        void ShowContextMenu()
+        protected override void ShowContextMenu()
         {
             if (!(SelectedNode is TypeNode)) return;
             ShowContextMenu(new Point(SelectedNode.Bounds.X, SelectedNode.Bounds.Bottom));
         }
 
-        void ShowContextMenu(Point position)
+        protected override void ShowContextMenu(Point position)
         {
             if (!(SelectedNode is TypeNode)) return;
             contextMenu.Items.Clear();
@@ -335,7 +334,7 @@ namespace QuickNavigate.Forms
             e.Handled = true;
         }
 
-        void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
             TreeNode node = e.Node as TypeNode;

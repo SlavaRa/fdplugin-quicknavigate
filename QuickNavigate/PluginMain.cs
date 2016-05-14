@@ -434,7 +434,12 @@ namespace QuickNavigate
             ((Control) PluginBase.MainForm).BeginInvoke(invoker);
         }
 
-        void OnFormShown(object sender, EventArgs eventArgs) => openedForm = (QuickForm)sender;
+        void OnFormShown(object sender, EventArgs eventArgs)
+        {
+            openedForm = (QuickForm) sender;
+            openedForm.Font = PluginBase.Settings.DefaultFont;
+            openedForm.ContextMenuStrip = new ContextMenuStrip {Renderer = new DockPanelStripRenderer(false)};
+        }
 
         void OnFormClosing(object sender, CancelEventArgs cancelEventArgs) => openedForm = null;
 
