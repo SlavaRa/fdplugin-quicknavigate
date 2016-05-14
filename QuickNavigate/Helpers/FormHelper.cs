@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
@@ -8,12 +9,22 @@ using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Localization;
 using ProjectManager.Controls;
+using QuickNavigate.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace QuickNavigate.Helpers
 {
-    public abstract class QuickForm : Form
+    public class QuickForm : Form
     {
+        protected QuickForm() { }
+
+        protected QuickForm([NotNull] Settings settings)
+        {
+            Settings = settings;
+        }
+
+        [CanBeNull] protected Settings Settings;
+
         /// <summary>
         /// The currently selected tree node, or null if nothing is selected.
         /// </summary>
@@ -21,6 +32,28 @@ namespace QuickNavigate.Helpers
 
         protected virtual void Navigate()
         {
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        protected virtual void ShowContextMenu()
+        {
+        }
+
+        /// <summary>
+        /// Displays the shortcut menu.
+        /// </summary>
+        protected virtual void ShowContextMenu(Point position)
+        {
+        }
+
+        protected virtual void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            var node = e.Node as TypeNode;
+            if (node == null) return;
+            ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
         }
     }
 

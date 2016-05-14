@@ -79,16 +79,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControlClickManager.cs" />
-    <Compile Include="Forms\ClassHierarchyForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Forms\ClassHierarchyForm.cs" />
     <Compile Include="Forms\ClassHierarchyForm.Designer.cs">
       <DependentUpon>ClassHierarchyForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Collections\Comparers.cs" />
-    <Compile Include="Forms\ClassModelExplorerForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Forms\Nodes.cs" />
     <Compile Include="Forms\OpenRecentProjectsForm.cs">
       <SubType>Form</SubType>

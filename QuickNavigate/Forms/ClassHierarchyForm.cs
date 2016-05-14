@@ -13,7 +13,7 @@ using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class ClassHierarchyForm : ClassModelExplorerForm
+    public sealed partial class ClassHierarchyForm : QuickForm
     {
         readonly ClassModel curClass;
         readonly Dictionary<string, List<ClassModel>> extendsToClasses;

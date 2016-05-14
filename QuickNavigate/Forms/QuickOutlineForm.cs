@@ -172,13 +172,13 @@ namespace QuickNavigate.Forms
             if (SelectedNode != null) DialogResult = DialogResult.OK;
         }
 
-        void ShowContextMenu()
+        protected override void ShowContextMenu()
         {
             if (!(SelectedNode is TypeNode)) return;
             ShowContextMenu(new Point(SelectedNode.Bounds.X, SelectedNode.Bounds.Bottom));
         }
 
-        void ShowContextMenu(Point position)
+        protected override void ShowContextMenu(Point position)
         {
             if (!(SelectedNode is TypeNode)) return;
             contextMenu.Items.Clear();
@@ -334,7 +334,7 @@ namespace QuickNavigate.Forms
             e.Handled = true;
         }
 
-        void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
             TreeNode node = e.Node as TypeNode;

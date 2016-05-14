@@ -15,7 +15,7 @@ using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class TypeExplorerForm : ClassModelExplorerForm
+    public sealed partial class TypeExplorerForm : QuickForm
     {
         [NotNull] readonly List<string> closedTypes = new List<string>();
         [NotNull] readonly List<string> openedTypes = new List<string>();
