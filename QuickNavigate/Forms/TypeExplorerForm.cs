@@ -78,7 +78,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        [CanBeNull] public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
+        public override TypeNode SelectedNode => tree.SelectedNode as TypeNode;
 
         protected override void Dispose(bool disposing)
         {

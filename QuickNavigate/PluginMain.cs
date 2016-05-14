@@ -133,7 +133,7 @@ namespace QuickNavigate
         {
             var dataPath = Path.Combine(PathHelper.DataDir, Name);
             if (!Directory.Exists(dataPath)) Directory.CreateDirectory(dataPath);
-            settingFilename = Path.Combine(dataPath, "Settings.fdb");
+            settingFilename = Path.Combine(dataPath, $"{nameof(Settings)}.fdb");
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace QuickNavigate
         {
             Settings = new Settings();
             if (!File.Exists(settingFilename)) SaveSettings();
-            else Settings = (Settings)ObjectSerializer.Deserialize(settingFilename, Settings);
+            else Settings = (Settings) ObjectSerializer.Deserialize(settingFilename, Settings);
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace QuickNavigate
             var form = new OpenRecentFilesForm((Settings) Settings);
             form.KeyUp += OnFormKeyUp;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var plugin = (ProjectManager.PluginMain)PluginBase.MainForm.FindPlugin(FormHelper.ProjectManagerGUID);
+            var plugin = (ProjectManager.PluginMain) PluginBase.MainForm.FindPlugin(FormHelper.ProjectManagerGUID);
             form.SelectedItems.ForEach(plugin.OpenFile);
         }
 
@@ -252,7 +252,7 @@ namespace QuickNavigate
                 disabledTip = "Show all(Alt+E or left click)";
                 form.AddFilter(PluginUI.ICON_TYPE, FlagType.Enum, Keys.E, enabledTip, disabledTip);
             }
-            // Abstracts
+            // TODO: Abstracts
             form.GotoPositionOrLine += GotoPositionOrLine;
             form.ShowInQuickOutline += ShowQuickOutline;
             form.ShowInClassHierarchy += ShowClassHierarchy;

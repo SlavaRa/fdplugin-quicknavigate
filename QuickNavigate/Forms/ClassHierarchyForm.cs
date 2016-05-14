@@ -71,8 +71,7 @@ namespace QuickNavigate.Forms
             RefreshTree();
         }
 
-        [CanBeNull]
-        public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
+        public override TypeNode SelectedNode => tree.SelectedNode as TypeNode;
 
         void InitializeTree()
         {
