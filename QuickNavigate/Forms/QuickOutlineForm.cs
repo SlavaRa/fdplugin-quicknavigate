@@ -34,7 +34,6 @@ namespace QuickNavigate.Forms
             InFile = inFile;
             InClass = inClass ?? ClassModel.VoidClass;
             this.settings = settings;
-            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
             InitializeTree();
@@ -168,7 +167,7 @@ namespace QuickNavigate.Forms
                 tree.SelectedNode = nodes[0];
         }
 
-        void Navigate()
+        protected override void Navigate()
         {
             if (SelectedNode != null) DialogResult = DialogResult.OK;
         }

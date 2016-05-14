@@ -18,10 +18,16 @@ namespace QuickNavigate.Helpers
         /// The currently selected tree node, or null if nothing is selected.
         /// </summary>
         [CanBeNull] public virtual TreeNode SelectedNode { get; }
+
+        protected virtual void Navigate()
+        {
+        }
     }
 
     class FormHelper
     {
+        [NotNull] internal static readonly ContextMenu EmptyContextMenu = new ContextMenu();
+
         public static bool IsFileOpened([NotNull] string fileName)
         {
             return PluginBase.MainForm.Documents.Any(it => it.FileName == fileName);

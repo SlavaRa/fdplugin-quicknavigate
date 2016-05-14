@@ -62,9 +62,7 @@ namespace QuickNavigate.Forms
         public ClassHierarchyForm([NotNull] ClassModel model, [NotNull] Settings settings) : base(settings)
         {
             curClass = model;
-            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            if (settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = settings.HierarchyExplorerSize;
             extendsToClasses = GetAllProjectExtendsClasses();
             InitializeTree();
             InitializeTheme();
@@ -214,6 +212,18 @@ namespace QuickNavigate.Forms
 
         #region Event Handlers
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Settings != null && Settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = Settings.HierarchyExplorerSize;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (Settings == null) return;
+            Settings.HierarchyExplorerSize = Size;
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -238,8 +248,6 @@ namespace QuickNavigate.Forms
                     break;
             }
         }
-
-        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.HierarchyExplorerSize = Size;
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -290,7 +298,7 @@ namespace QuickNavigate.Forms
 
         void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? InputEmptyContextMenu : null;
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? FormHelper.EmptyContextMenu : null;
         }
 
         void OnInputKeyDown(object sender, KeyEventArgs e)

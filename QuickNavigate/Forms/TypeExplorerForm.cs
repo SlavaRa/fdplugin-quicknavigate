@@ -34,17 +34,11 @@ namespace QuickNavigate.Forms
         /// <param name="settings"></param>
         public TypeExplorerForm([NotNull] Settings settings) : base(settings)
         {
-            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            if (settings.TypeExplorerSize.Width > MinimumSize.Width) Size = settings.TypeExplorerSize;
-            searchingInExternalClasspaths.Checked = settings.TypeExplorerSearchExternalClassPath;
             CreateItemsList();
             InitializeTree();
             InitializeTheme();
             RefreshTree();
-            timer.Interval = PluginBase.MainForm.Settings.DisplayDelay;
-            timer.Tick += OnTimerTick;
-            timer.Start();
         }
 
         [CanBeNull] ToolTip filterToolTip;
@@ -335,7 +329,20 @@ namespace QuickNavigate.Forms
                     break;
             }
         }
-        
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Settings != null)
+            {
+                if (Settings.TypeExplorerSize.Width > MinimumSize.Width) Size = Settings.TypeExplorerSize;
+                searchingInExternalClasspaths.Checked = Settings.TypeExplorerSearchExternalClassPath;
+            }
+            timer.Interval = PluginBase.MainForm.Settings.DisplayDelay;
+            timer.Tick += OnTimerTick;
+            timer.Start();
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             timer.Stop();
@@ -398,7 +405,7 @@ namespace QuickNavigate.Forms
 
         void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? InputEmptyContextMenu : null;
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? FormHelper.EmptyContextMenu : null;
         }
 
         void OnInputKeyDown(object sender, KeyEventArgs e)
