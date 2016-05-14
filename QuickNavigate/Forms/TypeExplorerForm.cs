@@ -47,7 +47,6 @@ namespace QuickNavigate.Forms
             timer.Start();
         }
 
-        [CanBeNull] public ShowInHandler SetDocumentClass;
         [CanBeNull] ToolTip filterToolTip;
         [CanBeNull] Button currentFilter;
 
@@ -78,7 +77,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        public override TypeNode SelectedNode => tree.SelectedNode as TypeNode;
+        public override TreeNode SelectedNode => tree.SelectedNode;
 
         protected override void Dispose(bool disposing)
         {
@@ -223,12 +222,6 @@ namespace QuickNavigate.Forms
             return nodes0.Concat(nodes1).Concat(nodes2);
         }
 
-        protected override void InitializeContextMenu()
-        {
-            base.InitializeContextMenu();
-            QuickContextMenu.SetDocumentClassMenuItem.Click += OnSetDocumentClassMenuItemClick;
-        }
-
         protected override void ShowContextMenu()
         {
             if (SelectedNode == null) return;
@@ -239,7 +232,7 @@ namespace QuickNavigate.Forms
         {
             if (SelectedNode == null) return;
             ContextMenuStrip.Items.Clear();
-            var classModel = SelectedNode.Model;
+            var classModel = ((TypeNode) SelectedNode).Model;
             var flags = classModel.Flags;
             var fileName = classModel.InFile.FileName;
             if ((flags & FlagType.Class) > 0
@@ -247,14 +240,14 @@ namespace QuickNavigate.Forms
                 && (classModel.Access & Visibility.Public) > 0
                 && !((Project)PluginBase.CurrentProject).IsDocumentClass(fileName))
             {
-                ContextMenuStrip.Items.Add(QuickContextMenu.SetDocumentClassMenuItem);
+                ContextMenuStrip.Items.Add(QuickContextMenuItem.SetDocumentClassMenuItem);
                 ContextMenuStrip.Items.Add(new ToolStripSeparator());
             }
-            ContextMenuStrip.Items.Add(QuickContextMenu.GotoPositionOrLineMenuItem);
-            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInQuickOutlineMenuItem);
-            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInClassHierarchyMenuItem);
-            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInProjectManagerMenuItem);
-            if (File.Exists(fileName)) ContextMenuStrip.Items.Add(QuickContextMenu.ShowInFileExplorerMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.GotoPositionOrLineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInQuickOutlineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInClassHierarchyMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInProjectManagerMenuItem);
+            if (File.Exists(fileName)) ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInFileExplorerMenuItem);
             ContextMenuStrip.Show(tree, position);
         }
 
@@ -263,6 +256,8 @@ namespace QuickNavigate.Forms
             if (SelectedNode == null) return;
             DialogResult = DialogResult.OK;
         }
+
+        internal void AddFilter(QuickFilter filter) => AddFilter(filter.ImageIndex, filter.Flag, filter.Shortcut, filter.EnabledTip, filter.DisabledTip);
 
         public void AddFilter(int imageIndex, FlagType flag, Keys shortcut, string enabledTip, string disabledTip)
         {
@@ -498,8 +493,6 @@ namespace QuickNavigate.Forms
             CreateItemsList();
             RefreshTree();
         }
-
-        void OnSetDocumentClassMenuItemClick(object sender, EventArgs e) => SetDocumentClass?.Invoke(this, SelectedNode.Model);
 
         #endregion
     }

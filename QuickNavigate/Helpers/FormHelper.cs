@@ -3,15 +3,23 @@ using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
+using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Localization;
 using ProjectManager.Controls;
 using WeifenLuo.WinFormsUI.Docking;
-using PluginUI = ProjectManager.PluginUI;
 
 namespace QuickNavigate.Helpers
 {
+    public abstract class QuickForm : Form
+    {
+        /// <summary>
+        /// The currently selected tree node, or null if nothing is selected.
+        /// </summary>
+        [CanBeNull] public virtual TreeNode SelectedNode { get; }
+    }
+
     class FormHelper
     {
         public static bool IsFileOpened([NotNull] string fileName)
@@ -42,41 +50,35 @@ namespace QuickNavigate.Helpers
         [CanBeNull]
         public static ProjectManager.PluginUI GetProjectManagerPluginUI()
         {
-            foreach (var pane in PluginBase.MainForm.DockPanel.Panes)
-            {
-                foreach (var dockContent in pane.Contents)
-                {
-                    var content = (DockContent) dockContent;
-                    if (content?.GetPersistString() != ProjectManagerGUID) continue;
-                    foreach (var ui in content.Controls.OfType<PluginUI>())
-                    {
-                        return ui;
-                    }
-                }
-            }
-            return null;
+            return GetPluginUI<ProjectManager.PluginUI>(ProjectManagerGUID);
         }
 
         [CanBeNull]
         public static FileExplorer.PluginUI GetFileExplorerPluginUI()
+        {
+            return GetPluginUI<FileExplorer.PluginUI>("f534a520-bcc7-4fe4-a4b9-6931948b2686");
+        }
+
+        [CanBeNull]
+        static T GetPluginUI<T>(string pluginGUID)
         {
             foreach (var pane in PluginBase.MainForm.DockPanel.Panes)
             {
                 foreach (var dockContent in pane.Contents)
                 {
                     var content = (DockContent) dockContent;
-                    if (content?.GetPersistString() != "f534a520-bcc7-4fe4-a4b9-6931948b2686") continue;
-                    foreach (var ui in content.Controls.OfType<FileExplorer.PluginUI>())
+                    if (content?.GetPersistString() != pluginGUID) continue;
+                    foreach (var ui in content.Controls.OfType<T>())
                     {
                         return ui;
                     }
                 }
             }
-            return null;
+            return default(T);
         }
     }
 
-    public class ShortcutId
+    class ShortcutId
     {
         public const string TypeExplorer = "QuickNavigate.TypeExplorer";
         public const string QuickOutline = "QuickNavigate.Outline";
@@ -85,13 +87,114 @@ namespace QuickNavigate.Helpers
         public const string RecentProjects = "QuickNavigate.RecentProjects";
     }
 
-    class QuickContextMenu
+    class QuickContextMenuItem
     {
-        [NotNull] internal static ToolStripMenuItem GotoPositionOrLineMenuItem = new ToolStripMenuItem("&Goto Position Or Line", PluginBase.MainForm.FindImage("67")) { ShortcutKeyDisplayString = "G" };
-        [NotNull] internal static ToolStripMenuItem ShowInQuickOutlineMenuItem = new ToolStripMenuItem("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0")) {ShortcutKeyDisplayString = "O"};
-        [NotNull] internal static ToolStripMenuItem ShowInClassHierarchyMenuItem = new ToolStripMenuItem("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0")) { ShortcutKeyDisplayString = "C" };
-        [NotNull] internal static ToolStripMenuItem ShowInProjectManagerMenuItem = new ToolStripMenuItem("Show in &Project Manager", PluginBase.MainForm.FindImage("274")) { ShortcutKeyDisplayString = "P" };
-        [NotNull] internal static ToolStripMenuItem ShowInFileExplorerMenuItem = new ToolStripMenuItem("Show in &File Explorer", PluginBase.MainForm.FindImage("209")) { ShortcutKeyDisplayString = "F" };
-        [NotNull] internal static ToolStripMenuItem SetDocumentClassMenuItem = new ToolStripMenuItem(TextHelper.GetString("ProjectManager.Label.SetDocumentClass"), Icons.DocumentClass.Img);
+        [NotNull] internal static ToolStripMenuItem GotoPositionOrLineMenuItem =
+            new ToolStripMenuItem("&Goto Position Or Line", PluginBase.MainForm.FindImage("67"))
+            {
+                ShortcutKeyDisplayString = "G"
+            };
+
+        [NotNull] internal static ToolStripMenuItem ShowInQuickOutlineMenuItem =
+            new ToolStripMenuItem("Show in Quick &Outline", PluginBase.MainForm.FindImage("315|16|0|0"))
+            {
+                ShortcutKeyDisplayString = "O"
+            };
+
+        [NotNull] internal static ToolStripMenuItem ShowInClassHierarchyMenuItem =
+            new ToolStripMenuItem("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"))
+            {
+                ShortcutKeyDisplayString = "C"
+            };
+
+        [NotNull] internal static ToolStripMenuItem ShowInProjectManagerMenuItem =
+            new ToolStripMenuItem("Show in &Project Manager", PluginBase.MainForm.FindImage("274"))
+            {
+                ShortcutKeyDisplayString = "P"
+            };
+
+        [NotNull] internal static ToolStripMenuItem ShowInFileExplorerMenuItem =
+            new ToolStripMenuItem("Show in &File Explorer", PluginBase.MainForm.FindImage("209"))
+            {
+                ShortcutKeyDisplayString = "F"
+            };
+
+        [NotNull] internal static ToolStripMenuItem SetDocumentClassMenuItem =
+            new ToolStripMenuItem(TextHelper.GetString("ProjectManager.Label.SetDocumentClass"), Icons.DocumentClass.Img);
+    }
+
+    class QuickFilter
+    {
+        public int ImageIndex;
+        public FlagType Flag;
+        public Keys Shortcut;
+        public string EnabledTip;
+        public string DisabledTip;
+    }
+
+    class QuickFilterMenuItem
+    {
+        [NotNull] internal static QuickFilter ShowOnlyClasses = new QuickFilter
+        {
+            ImageIndex = PluginUI.ICON_TYPE,
+            Flag = FlagType.Class,
+            Shortcut = Keys.C,
+            EnabledTip = "Show only classes(Alt+C or left click)",
+            DisabledTip = "Show all(Alt+C or left click)"
+        };
+
+        [NotNull] internal static QuickFilter ShowOnlyInterfaces = new QuickFilter
+        {
+            ImageIndex = PluginUI.ICON_INTERFACE,
+            Flag = FlagType.Interface,
+            Shortcut = Keys.I,
+            EnabledTip = "Show only interfaces(Alt+I or left click)",
+            DisabledTip = "Show all(Alt+I or left click)"
+        };
+
+        [NotNull] internal static QuickFilter ShowOnlyTypeDefs = new QuickFilter
+        {
+            ImageIndex = PluginUI.ICON_TEMPLATE,
+            Flag = FlagType.TypeDef,
+            Shortcut = Keys.T,
+            EnabledTip = "Show only typedefs(Alt+T or left click)",
+            DisabledTip = "Show all(Alt+T or left click)"
+        };
+
+        [NotNull] internal static QuickFilter ShowOnlyEnums = new QuickFilter
+        {
+            ImageIndex = PluginUI.ICON_TYPE,
+            Flag = FlagType.Enum,
+            Shortcut = Keys.E,
+            EnabledTip = "Show only enums(Alt+E or left click)",
+            DisabledTip = "Show all(Alt+E or left click)"
+        };
+
+        [NotNull] internal static QuickFilter ShowOnlyFields = new QuickFilter
+        {
+            ImageIndex = PluginUI.ICON_VAR,
+            Flag = FlagType.Variable,
+            Shortcut = Keys.F,
+            EnabledTip = "Show only fields(Alt+F or left click)",
+            DisabledTip = "Show all(Alt+F or left click)"
+        };
+
+        [NotNull] internal static QuickFilter ShowOnlyProperties = new QuickFilter
+        {
+            ImageIndex = PluginUI.ICON_PROPERTY,
+            Flag = FlagType.Getter | FlagType.Setter,
+            Shortcut = Keys.P,
+            EnabledTip = "Show only properties(Alt+P or left click)",
+            DisabledTip = "Show all(Alt+P or left click)"
+        };
+
+        [NotNull] internal static QuickFilter ShowOnlyMethods = new QuickFilter
+        {
+            ImageIndex = PluginUI.ICON_FUNCTION,
+            Flag = FlagType.Function,
+            Shortcut = Keys.M,
+            EnabledTip = "Show only methods(Alt+M or left click)",
+            DisabledTip = "Show all(Alt+M or left click)"
+        };
     }
 }

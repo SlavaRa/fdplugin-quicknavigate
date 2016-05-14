@@ -16,7 +16,6 @@ using ProjectManager;
 using ProjectManager.Projects;
 using QuickNavigate.Forms;
 using QuickNavigate.Helpers;
-using PluginUI = ASCompletion.PluginUI;
 
 namespace QuickNavigate
 {
@@ -28,6 +27,7 @@ namespace QuickNavigate
 	    ToolStripMenuItem quickOutlineItem;
         ToolStripMenuItem classHierarchyItem;
         ToolStripMenuItem editorClassHierarchyItem;
+        [CanBeNull] QuickForm openedForm;
 
         #region Required Properties
 
@@ -149,7 +149,16 @@ namespace QuickNavigate
         /// <summary>
         /// Adds the required event handlers
         /// </summary>
-        void AddEventHandlers() => EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command);
+        void AddEventHandlers()
+        {
+            EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command);
+            QuickContextMenuItem.SetDocumentClassMenuItem.Click += OnSetDocumentClassMenuClick;
+            QuickContextMenuItem.GotoPositionOrLineMenuItem.Click += OnGotoPositionOrLineMenuClick;
+            QuickContextMenuItem.ShowInQuickOutlineMenuItem.Click += OnShowInQuickOutlineMenuClick;
+            QuickContextMenuItem.ShowInClassHierarchyMenuItem.Click += OnShowInClassHierarchyMenuClick;
+            QuickContextMenuItem.ShowInProjectManagerMenuItem.Click += OnShowInProjectManagerMenuClick;
+            QuickContextMenuItem.ShowInFileExplorerMenuItem.Click += OnShowInFileExplorerMenuClick;
+        }
 
         /// <summary>
         /// Creates the required menu items
@@ -225,43 +234,16 @@ namespace QuickNavigate
         {
             if (PluginBase.CurrentProject == null) return;
             var form = new TypeExplorerForm((Settings) Settings);
-            string enabledTip;
-            string disabledTip;
             var features = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language).Features;
-            if (features.hasClasses)
-            {
-                enabledTip = "Show only classes(Alt+C or left click)";
-                disabledTip = "Show all(Alt+C or left click)";
-                form.AddFilter(PluginUI.ICON_TYPE, FlagType.Class, Keys.C, enabledTip, disabledTip);
-            }
-            if (features.hasInterfaces)
-            {
-                enabledTip = "Show only interfaces(Alt+I or left click)";
-                disabledTip = "Show all(Alt+I or left click)";
-                form.AddFilter(PluginUI.ICON_INTERFACE, FlagType.Interface, Keys.I, enabledTip, disabledTip);
-            }
-            if (features.hasTypeDefs)
-            {
-                enabledTip = "Show only typedefs(Alt+T or left click)";
-                disabledTip = "Show all(Alt+T or left click)";
-                form.AddFilter(PluginUI.ICON_TEMPLATE, FlagType.TypeDef, Keys.T, enabledTip, disabledTip);
-            }
-            if (features.hasEnums)
-            {
-                enabledTip = "Show only enums(Alt+E or left click)";
-                disabledTip = "Show all(Alt+E or left click)";
-                form.AddFilter(PluginUI.ICON_TYPE, FlagType.Enum, Keys.E, enabledTip, disabledTip);
-            }
-            // TODO: Abstracts
-            form.GotoPositionOrLine += GotoPositionOrLine;
-            form.ShowInQuickOutline += ShowQuickOutline;
-            form.ShowInClassHierarchy += ShowClassHierarchy;
-            form.ShowInProjectManager += ShowInProjectManager;
-            form.ShowInFileExplorer += ShowInFileExplorer;
-            form.SetDocumentClass += OnSetDocumentClassClick;
+            if (features.hasClasses) form.AddFilter(QuickFilterMenuItem.ShowOnlyClasses);
+            if (features.hasInterfaces) form.AddFilter(QuickFilterMenuItem.ShowOnlyInterfaces);
+            if (features.hasTypeDefs) form.AddFilter(QuickFilterMenuItem.ShowOnlyTypeDefs);
+            if (features.hasEnums) form.AddFilter(QuickFilterMenuItem.ShowOnlyEnums);
             form.KeyUp += OnFormKeyUp;
+            form.Shown += OnFormShown;
+            form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var node = form.SelectedNode;
+            var node = form.SelectedNode as TypeNode;
             if (node == null) return;
             FormHelper.Navigate(node.Model.InFile.FileName, node);
         }
@@ -279,20 +261,13 @@ namespace QuickNavigate
         void ShowQuickOutline([NotNull] FileModel inFile, [NotNull] ClassModel inClass)
         {
             var form = new QuickOutlineForm(inFile, inClass, (Settings) Settings);
-            form.ShowInClassHierarchy += ShowClassHierarchy;
-            var enabledTip = "Show only classes(Alt+C or left click)";
-            var disabledTip = "Show all(Alt+C or left click)";
-            form.AddFilter(PluginUI.ICON_TYPE, FlagType.Class, Keys.C, enabledTip, disabledTip);
-            enabledTip = "Show only fields(Alt+F or left click)";
-            disabledTip = "Show all(Alt+F or left click)";
-            form.AddFilter(PluginUI.ICON_VAR, FlagType.Variable, Keys.F, enabledTip, disabledTip);
-            enabledTip = "Show only properties(Alt+P or left click)";
-            disabledTip = "Show all(Alt+P or left click)";
-            form.AddFilter(PluginUI.ICON_PROPERTY, FlagType.Getter | FlagType.Setter, Keys.P, enabledTip, disabledTip);
-            enabledTip = "Show only methods(Alt+M or left click)";
-            disabledTip = "Show all(Alt+M or left click)";
-            form.AddFilter(PluginUI.ICON_FUNCTION, FlagType.Function, Keys.M, enabledTip, disabledTip);
+            form.AddFilter(QuickFilterMenuItem.ShowOnlyClasses);
+            form.AddFilter(QuickFilterMenuItem.ShowOnlyFields);
+            form.AddFilter(QuickFilterMenuItem.ShowOnlyProperties);
+            form.AddFilter(QuickFilterMenuItem.ShowOnlyMethods);
             form.KeyUp += OnFormKeyUp;
+            form.Shown += OnFormShown;
+            form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
             FormHelper.Navigate(inFile.FileName, form.SelectedNode);
         }
@@ -316,16 +291,13 @@ namespace QuickNavigate
         void ShowClassHierarchy([NotNull] ClassModel model)
         {
             var form = new ClassHierarchyForm(model, (Settings) Settings);
-            form.GotoPositionOrLine += GotoPositionOrLine;
-            form.ShowInQuickOutline += ShowQuickOutline;
-            form.ShowInClassHierarchy += ShowClassHierarchy;
-            form.ShowInProjectManager += ShowInProjectManager;
-            form.ShowInFileExplorer += ShowInFileExplorer;
             form.KeyUp += OnFormKeyUp;
+            form.Shown += OnFormShown;
+            form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var node = form.SelectedNode;
+            var node = form.SelectedNode as TypeNode;
             if (node == null) return;
-            FormHelper.Navigate(node.Model.InFile.FileName, new TreeNode(node.Name) { Tag = node.Tag });
+            FormHelper.Navigate(node.Model.InFile.FileName, new TreeNode(node.Name) {Tag = node.Tag});
         }
 
         static bool GetCanShowClassHierarchy()
@@ -338,7 +310,7 @@ namespace QuickNavigate
                 && (!context.CurrentClass.IsVoid() || !context.CurrentModel.GetPublicClass().IsVoid());
         }
 
-        static void GotoPositionOrLine([NotNull] Form sender, [NotNull] ClassModel model)
+        static void GotoPositionOrLine([NotNull] Form sender, [NotNull] MemberModel model)
         {
             sender.Close();
             ((Control)PluginBase.MainForm).BeginInvoke((MethodInvoker)(() =>
@@ -348,7 +320,7 @@ namespace QuickNavigate
             }));
         }
 
-        static void ShowInProjectManager([NotNull] Form sender, [NotNull] ClassModel model)
+        static void ShowInProjectManager([NotNull] Form sender, [NotNull] MemberModel model)
         {
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
@@ -360,7 +332,7 @@ namespace QuickNavigate
             }));
         }
 
-        static void ShowInFileExplorer([NotNull] Form sender, [NotNull] ClassModel model)
+        static void ShowInFileExplorer([NotNull] Form sender, [NotNull] MemberModel model)
         {
             sender.Close();
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
@@ -374,7 +346,59 @@ namespace QuickNavigate
 
         #endregion
 
+        static void SetDocumentClass([NotNull] MemberModel model)
+        {
+            var project = (Project) PluginBase.CurrentProject;
+            project.SetDocumentClass(model.InFile.FileName, true);
+            project.Save();
+            var ui = FormHelper.GetProjectManagerPluginUI();
+            Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI != null");
+            ui.Tree.RefreshTree();
+        }
+
         #region Event Handlers
+
+        void OnSetDocumentClassMenuClick(object sender, EventArgs e)
+        {
+            var node = (TypeNode) openedForm.SelectedNode;
+            Debug.Assert(node != null, "node != null");
+            SetDocumentClass(node.Model);
+        }
+
+        void OnGotoPositionOrLineMenuClick(object sender, EventArgs e)
+        {
+            var node = (TypeNode) openedForm.SelectedNode;
+            Debug.Assert(node != null, "node != null");
+            GotoPositionOrLine(openedForm, node.Model);
+        }
+
+        void OnShowInQuickOutlineMenuClick(object sender, EventArgs e)
+        {
+            var node = (TypeNode) openedForm.SelectedNode;
+            Debug.Assert(node != null, "node != null");
+            ShowQuickOutline(openedForm, node.Model);
+        }
+
+        void OnShowInClassHierarchyMenuClick(object sender, EventArgs e)
+        {
+            var node = (TypeNode) openedForm.SelectedNode;
+            Debug.Assert(node != null, "node != null");
+            ShowClassHierarchy(openedForm, node.Model);
+        }
+
+        void OnShowInProjectManagerMenuClick(object sender, EventArgs e)
+        {
+            var node = (TypeNode) openedForm.SelectedNode;
+            Debug.Assert(node != null, "node != null");
+            ShowInProjectManager(openedForm, node.Model);
+        }
+
+        void OnShowInFileExplorerMenuClick(object sender, EventArgs e)
+        {
+            var node = (TypeNode) openedForm.SelectedNode;
+            Debug.Assert(node != null, "node != null");
+            ShowInFileExplorer(openedForm, node.Model);
+        }
 
         /// <summary>
         /// Cursor position changed and word at this position was resolved
@@ -410,15 +434,9 @@ namespace QuickNavigate
             ((Control) PluginBase.MainForm).BeginInvoke(invoker);
         }
 
-        static void OnSetDocumentClassClick([NotNull] Form sender, [NotNull] ClassModel model)
-        {
-            var project = (Project) PluginBase.CurrentProject;
-            project.SetDocumentClass(model.InFile.FileName, true);
-            project.Save();
-            var ui = FormHelper.GetProjectManagerPluginUI();
-            Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI != null");
-            ui.Tree.RefreshTree();
-        }
+        void OnFormShown(object sender, EventArgs eventArgs) => openedForm = (QuickForm)sender;
+
+        void OnFormClosing(object sender, CancelEventArgs cancelEventArgs) => openedForm = null;
 
         #endregion
     }

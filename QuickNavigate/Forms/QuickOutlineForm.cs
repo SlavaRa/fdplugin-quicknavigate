@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -9,10 +8,11 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
+using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class QuickOutlineForm : Form
+    public sealed partial class QuickOutlineForm : QuickForm
     {
         [NotNull] readonly Settings settings;
         readonly ContextMenuStrip contextMenu = new ContextMenuStrip { Renderer = new DockPanelStripRenderer(false) };
@@ -37,13 +37,10 @@ namespace QuickNavigate.Forms
             Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
             if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
-            InitializeContextMenu();
             InitializeTree();
             InitializeTheme();
             RefreshTree();
         }
-
-        [CanBeNull] public event ShowInHandler ShowInClassHierarchy;
 
         [CanBeNull] ToolTip filterToolTip;
 
@@ -53,8 +50,7 @@ namespace QuickNavigate.Forms
         [NotNull]
         public ClassModel InClass { get; }
 
-        [CanBeNull]
-        public TreeNode SelectedNode => tree.SelectedNode;
+        public override TreeNode SelectedNode => tree.SelectedNode;
 
         [CanBeNull]
         Button currentFilter;
@@ -85,8 +81,6 @@ namespace QuickNavigate.Forms
                 input.Select();
             }
         }
-
-        void InitializeContextMenu() => contextMenu.Items.Add("Show in &Class Hierarchy", PluginBase.MainForm.FindImage("99|16|0|0"), OnShowInClassHierarchy);
 
         void InitializeTree()
         {
@@ -187,8 +181,13 @@ namespace QuickNavigate.Forms
 
         void ShowContextMenu(Point position)
         {
-            if (SelectedNode is TypeNode) contextMenu.Show(tree, position);
+            if (!(SelectedNode is TypeNode)) return;
+            contextMenu.Items.Clear();
+            contextMenu.Items.Add(QuickContextMenuItem.ShowInClassHierarchyMenuItem);
+            contextMenu.Show(tree, position);
         }
+
+        internal void AddFilter(QuickFilter filter) => AddFilter(filter.ImageIndex, filter.Flag, filter.Shortcut, filter.EnabledTip, filter.DisabledTip);
 
         public void AddFilter(int imageIndex, FlagType flag, Keys shortcut, string enabledTip, string disabledTip)
         {
@@ -377,12 +376,6 @@ namespace QuickNavigate.Forms
             font = new Font(font, FontStyle.Underline);
             x = itemWidth - graphics.MeasureString("(private)", font).Width;
             graphics.DrawString("(private)", font, moduleBrush, x, bounds.Y, StringFormat.GenericTypographic);
-        }
-
-        void OnShowInClassHierarchy(object sender, EventArgs e)
-        {
-            Debug.Assert(ShowInClassHierarchy != null, "ShowInClassHierarchy != null");
-            ShowInClassHierarchy(this, ((TypeNode) SelectedNode).Model);
         }
 
         void OnFilterMouseHover(object sender, EventArgs e) => RefreshFilterTip((Button) sender);

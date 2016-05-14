@@ -71,7 +71,7 @@ namespace QuickNavigate.Forms
             RefreshTree();
         }
 
-        public override TypeNode SelectedNode => tree.SelectedNode as TypeNode;
+        public override TreeNode SelectedNode => tree.SelectedNode;
 
         void InitializeTree()
         {
@@ -197,12 +197,13 @@ namespace QuickNavigate.Forms
         protected override void ShowContextMenu(Point position)
         {
             if (SelectedNode == null) return;
+            var classModel = ((TypeNode) SelectedNode).Model;
             ContextMenuStrip.Items.Clear();
-            ContextMenuStrip.Items.Add(QuickContextMenu.GotoPositionOrLineMenuItem);
-            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInQuickOutlineMenuItem);
-            if (!curClass.Equals(SelectedNode.Model)) ContextMenuStrip.Items.Add(QuickContextMenu.ShowInClassHierarchyMenuItem);
-            ContextMenuStrip.Items.Add(QuickContextMenu.ShowInProjectManagerMenuItem);
-            if (File.Exists(SelectedNode.Model.InFile.FileName)) ContextMenuStrip.Items.Add(QuickContextMenu.ShowInFileExplorerMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.GotoPositionOrLineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInQuickOutlineMenuItem);
+            if (!curClass.Equals(classModel)) ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInClassHierarchyMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInProjectManagerMenuItem);
+            if (File.Exists(classModel.InFile.FileName)) ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInFileExplorerMenuItem);
             ContextMenuStrip.Show(tree, position);
         }
 
