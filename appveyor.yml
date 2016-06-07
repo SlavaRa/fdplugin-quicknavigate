@@ -1,5 +1,6 @@
 os: Visual Studio 2015
 environment:
+  ID: quicknavigate
   PLUGIN_VERSION: 2.8
   PLUGIN_NAME: QuickNavigate
   PLUGIN_DESC: Quickly navigate through Types, Fields, Projects and more
@@ -37,7 +38,7 @@ after_build:
 - set /p CHECKSUM=<checksum.md5
 - rm checksum.md5
 - mv %APPMAN_TEMPLATE% %APPMAN_CONFIG_XML%
-- sed -i -e s/_ID_/quicknavigate/g %APPMAN_CONFIG_XML%
+- sed -i -e "s/_ID_/%ID%/g" %APPMAN_CONFIG_XML%
 - sed -i -e "s/_NAME_/%PLUGIN_NAME%/g" %APPMAN_CONFIG_XML%
 - sed -i -e "s/_DESC_/%PLUGIN_DESC%/g" %APPMAN_CONFIG_XML%
 - sed -i -e "s/_VERSION_/%PLUGIN_VERSION%/g" %APPMAN_CONFIG_XML%
