@@ -9,12 +9,13 @@ using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
+using ProjectManager.Projects;
 using QuickNavigate.Collections;
 using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
-    public sealed partial class TypeExplorerForm : ClassModelExplorerForm
+    public sealed partial class TypeExplorerForm : QuickForm
     {
         [NotNull] readonly List<string> closedTypes = new List<string>();
         [NotNull] readonly List<string> openedTypes = new List<string>();
@@ -31,27 +32,18 @@ namespace QuickNavigate.Forms
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
         /// </summary>
         /// <param name="settings"></param>
-        public TypeExplorerForm(Settings settings) : base(settings)
+        public TypeExplorerForm([NotNull] Settings settings) : base(settings)
         {
-            Font = PluginBase.Settings.DefaultFont;
             InitializeComponent();
-            if (settings.TypeExplorerSize.Width > MinimumSize.Width) Size = settings.TypeExplorerSize;
-            searchingInExternalClasspaths.Checked = settings.TypeExplorerSearchExternalClassPath;
             CreateItemsList();
             InitializeTree();
             InitializeTheme();
             RefreshTree();
-            timer.Interval = PluginBase.MainForm.Settings.DisplayDelay;
-            timer.Tick += OnTimerTick;
-            timer.Start();
         }
 
-        [CanBeNull]
-        ToolTip filterToolTip;
+        [CanBeNull] ToolTip filterToolTip;
+        [CanBeNull] Button currentFilter;
 
-        [CanBeNull]
-        Button currentFilter;
-        
         [CanBeNull]
         Button CurrentFilter
         {
@@ -79,8 +71,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        [CanBeNull]
-        public TypeNode SelectedNode => tree.SelectedNode as TypeNode;
+        public override TreeNode SelectedNode => tree.SelectedNode;
 
         protected override void Dispose(bool disposing)
         {
@@ -199,7 +190,7 @@ namespace QuickNavigate.Forms
         }
 
         [NotNull]
-        static TypeNode CreateNode(string type)
+        static TypeNode CreateNode([NotNull] string type)
         {
             var aClass = TypeToClassModel[type];
             return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access));
@@ -234,7 +225,23 @@ namespace QuickNavigate.Forms
         protected override void ShowContextMenu(Point position)
         {
             if (SelectedNode == null) return;
-            ContextMenuStrip.Items[4].Enabled = File.Exists(SelectedNode.Model.InFile.FileName);
+            ContextMenuStrip.Items.Clear();
+            var classModel = ((TypeNode) SelectedNode).Model;
+            var flags = classModel.Flags;
+            var fileName = classModel.InFile.FileName;
+            if ((flags & FlagType.Class) > 0
+                && (flags & FlagType.Interface) == 0
+                && (classModel.Access & Visibility.Public) > 0
+                && !((Project)PluginBase.CurrentProject).IsDocumentClass(fileName))
+            {
+                ContextMenuStrip.Items.Add(QuickContextMenuItem.SetDocumentClassMenuItem);
+                ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            }
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.GotoPositionOrLineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInQuickOutlineMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInClassHierarchyMenuItem);
+            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInProjectManagerMenuItem);
+            if (File.Exists(fileName)) ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInFileExplorerMenuItem);
             ContextMenuStrip.Show(tree, position);
         }
 
@@ -243,6 +250,8 @@ namespace QuickNavigate.Forms
             if (SelectedNode == null) return;
             DialogResult = DialogResult.OK;
         }
+
+        internal void AddFilter(QuickFilter filter) => AddFilter(filter.ImageIndex, filter.Flag, filter.Shortcut, filter.EnabledTip, filter.DisabledTip);
 
         public void AddFilter(int imageIndex, FlagType flag, Keys shortcut, string enabledTip, string disabledTip)
         {
@@ -320,7 +329,20 @@ namespace QuickNavigate.Forms
                     break;
             }
         }
-        
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Settings != null)
+            {
+                if (Settings.TypeExplorerSize.Width > MinimumSize.Width) Size = Settings.TypeExplorerSize;
+                searchingInExternalClasspaths.Checked = Settings.TypeExplorerSearchExternalClassPath;
+            }
+            timer.Interval = Math.Max(PluginBase.MainForm.Settings.DisplayDelay, 100);
+            timer.Tick += OnTimerTick;
+            timer.Start();
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             timer.Stop();
@@ -383,7 +405,7 @@ namespace QuickNavigate.Forms
 
         void OnInputPreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? InputEmptyContextMenu : null;
+            if (e.KeyCode == Keys.Apps) input.ContextMenu = SelectedNode != null ? FormHelper.EmptyContextMenu : null;
         }
 
         void OnInputKeyDown(object sender, KeyEventArgs e)
