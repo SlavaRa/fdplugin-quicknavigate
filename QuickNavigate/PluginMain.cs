@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Completion;
@@ -16,6 +18,7 @@ using ProjectManager;
 using ProjectManager.Projects;
 using QuickNavigate.Forms;
 using QuickNavigate.Helpers;
+using ScintillaNet;
 
 namespace QuickNavigate
 {
@@ -119,6 +122,13 @@ namespace QuickNavigate
                         #endregion
                     }
                     break;
+                case EventType.Keys:
+                    var ke = e as KeyEvent;
+                    if (ke.Value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoPreviousMember))
+                        GotoPreviousMember();
+                    else if (ke.Value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoNextMember))
+                        GotoNextMember();
+                    break;
             }
 		}
 
@@ -151,7 +161,7 @@ namespace QuickNavigate
         /// </summary>
         void AddEventHandlers()
         {
-            EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command);
+            EventManager.AddEventHandler(this, EventType.UIStarted | EventType.FileSwitch | EventType.Command | EventType.Keys);
             QuickContextMenuItem.SetDocumentClassMenuItem.Click += OnSetDocumentClassMenuClick;
             QuickContextMenuItem.GotoPositionOrLineMenuItem.Click += OnGotoPositionOrLineMenuClick;
             QuickContextMenuItem.ShowInQuickOutlineMenuItem.Click += OnShowInQuickOutlineMenuClick;
@@ -186,6 +196,8 @@ namespace QuickNavigate
             item = new ToolStripMenuItem("Recent Projects", PluginBase.MainForm.FindImage("274"), ShowRecentProjets);
             PluginBase.MainForm.RegisterShortcutItem(ShortcutId.RecentProjects, item);
             menu.DropDownItems.Add(item);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextMember, Keys.None);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoPreviousMember, Keys.None);
         }
 
         /// <summary>
@@ -344,11 +356,43 @@ namespace QuickNavigate
             }));
         }
 
+        static void GotoPreviousMember()
+        {
+            var members = GetCurrentFileMembers();
+            if (members.Count == 0) return;
+            members.Reverse();
+            var line = ASContext.Context.CurrentLine;
+            var target = members.FirstOrDefault(member => member.LineFrom < line);
+            if (target != null) FormHelper.Navigate(target);
+        }
+
+        static void GotoNextMember()
+        {
+            var members = GetCurrentFileMembers();
+            if (members.Count == 0) return;
+            var line = ASContext.Context.CurrentLine;
+            var target = members.FirstOrDefault(member => member.LineFrom > line);
+            if (target != null) FormHelper.Navigate(target);
+        }
+
+        [NotNull, ItemNotNull]
+        static List<MemberModel> GetCurrentFileMembers()
+        {
+            var file = ASContext.Context.CurrentModel;
+            var result = new List<MemberModel>(file.Members.Items);
+            foreach (var it in file.Classes)
+            {
+                result.Add(it);
+                result.AddRange(it.Members.Items);
+            }
+            return result;
+        }
+
         #endregion
 
         static void SetDocumentClass([NotNull] MemberModel model)
         {
-            var project = (Project) PluginBase.CurrentProject;
+            var project = (Project)PluginBase.CurrentProject;
             project.SetDocumentClass(model.InFile.FileName, true);
             project.Save();
             var ui = FormHelper.GetProjectManagerPluginUI();

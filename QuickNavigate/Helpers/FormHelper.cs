@@ -76,6 +76,15 @@ namespace QuickNavigate.Helpers
             return result;
         }
 
+        public static void Navigate([NotNull] MemberModel member)
+        {
+            string tag;
+            if (member is ClassModel) tag = "class";
+            else if ((member.Flags & FlagType.Import) > 0) tag = "import";
+            else tag = $"{member.Name}@{member.LineFrom}";
+            Navigate(new TreeNode(member.Name) {Tag = tag});
+        }
+
         public static void Navigate([NotNull] string fileName, [NotNull] TreeNode node)
         {
             ModelsExplorer.Instance.OpenFile(fileName);
@@ -124,6 +133,8 @@ namespace QuickNavigate.Helpers
         public const string ClassHierarchy = "QuickNavigate.ClassHierarchy";
         public const string RecentFiles = "QuickNavigate.RecentFiles";
         public const string RecentProjects = "QuickNavigate.RecentProjects";
+        public const string GotoNextMember = "QuickNavigate.GotoNextMember";
+        public const string GotoPreviousMember = "QuickNavigate.GotoPreviousMember";
     }
 
     class QuickContextMenuItem
