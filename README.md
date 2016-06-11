@@ -17,18 +17,22 @@ Open Search in the topmenu.
 
 ### Features
 
-
-##### 1. Type Explorer:
+##### 1. Type Explorer
+Shortcut: QuickNavigate.TypeExplorer
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.gif)
 
 ##### 2. Quick Outline
+Shortcut: QuickNavigate.Outline
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/QuickOutlineForm.gif)
 
 ##### 3. Class Hierarchy
+Shortcut: QuickNavigate.ClassHierarchy
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/ClassHierarchy.gif)
 
 ##### 4. Recent files
+Shortcut: QuickNavigate.RecentFiles
 ![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentFiles.gif)
 
 ##### 5. Recent projects
+Shortcut: QuickNavigate.RecentProjects
 ![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentProjects.gif)
