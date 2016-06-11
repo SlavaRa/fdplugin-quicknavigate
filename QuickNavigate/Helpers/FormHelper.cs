@@ -135,6 +135,8 @@ namespace QuickNavigate.Helpers
         public const string RecentProjects = "QuickNavigate.RecentProjects";
         public const string GotoNextMember = "QuickNavigate.GotoNextMember";
         public const string GotoPreviousMember = "QuickNavigate.GotoPreviousMember";
+        public const string GotoNextTab = "QuickNavigate.GotoNextTab";
+        public const string GotoPreviousTab = "QuickNavigate.GotoPreviousTab";
     }
 
     class QuickContextMenuItem

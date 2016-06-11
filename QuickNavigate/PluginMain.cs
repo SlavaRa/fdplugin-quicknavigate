@@ -123,11 +123,15 @@ namespace QuickNavigate
                     }
                     break;
                 case EventType.Keys:
-                    var ke = e as KeyEvent;
-                    if (ke.Value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoPreviousMember))
+                    var value = ((KeyEvent) e).Value;
+                    if (value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoPreviousMember))
                         GotoPreviousMember();
-                    else if (ke.Value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoNextMember))
+                    else if (value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoNextMember))
                         GotoNextMember();
+                    else if (value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoPreviousTab))
+                        GotoPreviousTab();
+                    else if (value == PluginBase.MainForm.GetShortcutItemKeys(ShortcutId.GotoNextTab))
+                        GotoNextTab();
                     break;
             }
 		}
@@ -198,6 +202,8 @@ namespace QuickNavigate
             menu.DropDownItems.Add(item);
             PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextMember, Keys.None);
             PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoPreviousMember, Keys.None);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoPreviousTab, Keys.None);
+            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextTab, Keys.None);
         }
 
         /// <summary>
@@ -386,6 +392,24 @@ namespace QuickNavigate
                 result.AddRange(it.Members.Items);
             }
             return result;
+        }
+
+        static void GotoPreviousTab()
+        {
+            var documents = PluginBase.MainForm.Documents;
+            if (documents.Length < 2) return;
+            var index = Array.IndexOf(documents, PluginBase.MainForm.CurrentDocument) - 1;
+            if (index == -1) index = documents.Length - 1;
+            documents[index].Activate();
+        }
+
+        static void GotoNextTab()
+        {
+            var documents = PluginBase.MainForm.Documents;
+            if (documents.Length < 2) return;
+            var index = Array.IndexOf(documents, PluginBase.MainForm.CurrentDocument) + 1;
+            if (index == documents.Length) index = 0;
+            documents[index].Activate();
         }
 
         #endregion
