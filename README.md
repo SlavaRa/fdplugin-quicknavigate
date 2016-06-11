@@ -39,8 +39,10 @@ Shortcut: QuickNavigate.RecentProjects
 
 ##### 6. Go to previous/next member
 Shortcut: QuickNavigate.GotoPreviousMember
+
 Shortcut: QuickNavigate.GotoNextMember
 
 ##### 7. Go to previous/next editor tab
 Shortcut: QuickNavigate.GotoPreviousTab
+
 Shortcut: QuickNavigate.GotoNextTab
