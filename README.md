@@ -36,3 +36,11 @@ Shortcut: QuickNavigate.RecentFiles
 ##### 5. Recent projects
 Shortcut: QuickNavigate.RecentProjects
 ![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentProjects.gif)
+
+##### 6. Go to previous/next member
+Shortcut: QuickNavigate.GotoPreviousMember
+Shortcut: QuickNavigate.GotoNextMember
+
+##### 7. Go to previous/next editor tab
+Shortcut: QuickNavigate.GotoPreviousTab
+Shortcut: QuickNavigate.GotoNextTab
