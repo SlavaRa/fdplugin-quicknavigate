@@ -261,9 +261,8 @@ namespace QuickNavigate
             form.Shown += OnFormShown;
             form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var node = form.SelectedNode as TypeNode;
-            if (node == null) return;
-            FormHelper.Navigate(node.Model.InFile.FileName, node);
+            var node = form.SelectedNode;
+            if (node != null) FormHelper.Navigate(node);
         }
 
         void ShowQuickOutline(object sender, EventArgs e) => ShowQuickOutline();
