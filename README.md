@@ -21,6 +21,12 @@ Open Search in the topmenu.
 Shortcut: QuickNavigate.TypeExplorer
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.gif)
 
+Synchronize input field with selected type, shortcut: ctrl+right
+![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorerSyncWithSelectedType.gif)
+
+Outline mode<br/>
+![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.Outline.gif)
+
 ##### 2. Quick Outline
 Shortcut: QuickNavigate.Outline
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/QuickOutlineForm.gif)
