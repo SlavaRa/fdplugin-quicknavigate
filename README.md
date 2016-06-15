@@ -24,6 +24,9 @@ Shortcut: QuickNavigate.TypeExplorer
 Synchronize input field with selected type, shortcut: ctrl+right
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorerSyncWithSelectedType.gif)
 
+Outline mode:
+![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.Outline.gif)
+
 ##### 2. Quick Outline
 Shortcut: QuickNavigate.Outline
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/QuickOutlineForm.gif)
