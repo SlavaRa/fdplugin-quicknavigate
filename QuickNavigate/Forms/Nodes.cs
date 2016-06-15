@@ -43,6 +43,15 @@ namespace QuickNavigate.Forms
         }
     }
 
+    public class MemberNode : TreeNode
+    {
+        public FileModel InFile;
+
+        public MemberNode(string text, int imageIndex, int selectedImageIndex) : base(text, imageIndex, selectedImageIndex)
+        {
+        }
+    }
+
     class ClassHierarchyNode : TypeNode
     {
         public ClassHierarchyNode(ClassModel model, int imageIndex, int selectedImageIndex)

@@ -133,53 +133,99 @@ namespace QuickNavigate.Forms
 
         void RefreshTree()
         {
+            var search = input.Text.Trim();
+            TypeNode selectedNode = null;
+            if (search.Length > 1 && search.Contains('.') && tree.Nodes.Count > 0)
+            {
+                var node = SelectedNode as TypeNode ?? (TypeNode)tree.Nodes[0];
+                var parts = search.Split('.');
+                if (node.Name == parts[0])
+                {
+                    selectedNode = node;
+                    search = parts[1];
+                }
+            }
             tree.BeginUpdate();
             tree.Nodes.Clear();
-            FillTree();
+            if (selectedNode == null)
+            {
+                if (search.Length == 0) FillTree();
+                else FillTree(search);
+                if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
+            }
+            else
+            {
+                selectedNode.Nodes.Clear();
+                tree.Nodes.Add(selectedNode);
+                FillTree(selectedNode, search);
+                tree.SelectedNode = selectedNode.FirstNode ?? selectedNode;
+            }
             tree.ExpandAll();
             tree.EndUpdate();
         }
 
         void FillTree()
         {
-            var search = input.Text.Trim();
-            var openedTypes = this.openedTypes.ToList();
-            var closedTypes = this.closedTypes.ToList();
-            if (CurrentFilter != null)
+            var openedTypes = FilterTypes(this.openedTypes.ToList());
+            if (openedTypes.Count > 0) tree.Nodes.AddRange(CreateNodes(openedTypes, string.Empty).ToArray());
+        }
+
+        void FillTree(string search)
+        {
+            var openedTypes = FilterTypes(this.openedTypes.ToList());
+            var closedTypes = FilterTypes(this.closedTypes.ToList());
+            var maxItems = Settings.MaxItems;
+            var openedMatches = openedTypes.Count > 0 ? SearchUtil.FindAll(openedTypes, search) : new List<string>();
+            var closedMatches = new List<string>();
+            if (maxItems > 0)
             {
-                var flags = (FlagType)CurrentFilter.Tag;
-                openedTypes.RemoveAll(it => (TypeToClassModel[it].Flags & flags) == 0);
-                closedTypes.RemoveAll(it => (TypeToClassModel[it].Flags & flags) == 0);
-            }
-            var openedCount = openedTypes.Count;
-            if (search.Length == 0)
-            {
-                if (openedCount > 0) tree.Nodes.AddRange(CreateNodes(openedTypes, string.Empty).ToArray());
-            }
-            else
-            {
-                var maxItems = Settings.MaxItems;
-                var openedMatches = openedCount > 0 ? SearchUtil.FindAll(openedTypes, search) : new List<string>();
-                var closedMatches = new List<string>();
+                if (openedMatches.Count >= maxItems) openedMatches = openedMatches.GetRange(0, maxItems);
+                maxItems -= openedMatches.Count;
                 if (maxItems > 0)
                 {
-                    if (openedMatches.Count >= maxItems) openedMatches = openedMatches.GetRange(0, maxItems);
-                    maxItems -= openedMatches.Count;
-                    if (maxItems > 0)
-                    {
-                        closedMatches = SearchUtil.FindAll(closedTypes, search);
-                        if (closedMatches.Count >= maxItems) closedMatches = closedMatches.GetRange(0, maxItems);
-                    }
+                    closedMatches = SearchUtil.FindAll(closedTypes, search);
+                    if (closedMatches.Count >= maxItems) closedMatches = closedMatches.GetRange(0, maxItems);
                 }
-                else closedMatches = SearchUtil.FindAll(closedTypes, search);
-                var hasOpenedMatches = openedMatches.Count > 0;
-                var hasClosedMatches = closedMatches.Count > 0;
-                if (hasOpenedMatches) tree.Nodes.AddRange(CreateNodes(openedMatches, search).ToArray());
-                if (Settings.EnableItemSpacer && hasOpenedMatches && hasClosedMatches)
-                    tree.Nodes.Add(Settings.ItemSpacer);
-                if (hasClosedMatches) tree.Nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
             }
-            if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
+            else closedMatches = SearchUtil.FindAll(closedTypes, search);
+            var hasOpenedMatches = openedMatches.Count > 0;
+            var hasClosedMatches = closedMatches.Count > 0;
+            if (hasOpenedMatches) tree.Nodes.AddRange(CreateNodes(openedMatches, search).ToArray());
+            if (Settings.EnableItemSpacer && hasOpenedMatches && hasClosedMatches)
+                tree.Nodes.Add(Settings.ItemSpacer);
+            if (hasClosedMatches) tree.Nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
+        }
+
+        void FillTree(TypeNode node, string search)
+        {
+            var nodes = node.Nodes;
+            var currentClass = node.Model;
+            var inFile = currentClass.InFile;
+            var isHaxe = inFile.haXe;
+            var items = currentClass.Members.Items.ToList();
+            if (search.Length > 0) items = SearchUtil.FindAll(items, search);
+            foreach (var it in items)
+            {
+                var flags = it.Flags;
+                var icon = PluginUI.GetIcon(flags, it.Access);
+                var constrDecl = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : it.FullName;
+                nodes.Add(new MemberNode(it.ToString(), icon, icon)
+                {
+                    Tag = $"{constrDecl}@{it.LineFrom}",
+                    InFile = inFile
+                });
+            }
+        }
+
+        [NotNull]
+        List<string> FilterTypes(List<string> list)
+        {
+            if (CurrentFilter != null)
+            {
+                var flags = (FlagType) CurrentFilter.Tag;
+                list.RemoveAll(it => (TypeToClassModel[it].Flags & flags) == 0);
+            }
+            return list;
         }
 
         [NotNull]
@@ -412,6 +458,13 @@ namespace QuickNavigate.Forms
         {
             if (tree.Nodes.Count == 0) return;
             var keyCode = e.KeyCode;
+            if (e.Control && keyCode == Keys.Right && SelectedNode is TypeNode)
+            {
+                e.Handled = true;
+                input.Text = ((TypeNode) SelectedNode).Model.Name;
+                input.SelectionStart = input.TextLength;
+                return;
+            }
             if (keysToFilter.ContainsKey(keyCode))
             {
                 e.Handled = e.Alt;

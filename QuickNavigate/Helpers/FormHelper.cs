@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Security.Permissions;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
@@ -91,7 +92,12 @@ namespace QuickNavigate.Helpers
             Navigate(node);
         }
 
-        public static void Navigate([NotNull] TreeNode node) => ASContext.Context.OnSelectOutlineNode(node);
+        public static void Navigate([NotNull] TreeNode node)
+        {
+            if (node is TypeNode) ModelsExplorer.Instance.OpenFile(((TypeNode) node).Model.InFile.FileName);
+            else if (node is MemberNode) ModelsExplorer.Instance.OpenFile(((MemberNode) node).InFile.FileName);
+            ASContext.Context.OnSelectOutlineNode(node);
+        }
 
         public const string ProjectManagerGUID = "30018864-fadd-1122-b2a5-779832cbbf23";
 
