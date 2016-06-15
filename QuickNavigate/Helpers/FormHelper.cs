@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Security.Permissions;
 using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Context;
@@ -52,7 +51,7 @@ namespace QuickNavigate.Helpers
         protected virtual void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            var node = e.Node as TypeNode;
+            var node = e.Node as ClassNode;
             if (node == null) return;
             ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
         }
@@ -86,15 +85,9 @@ namespace QuickNavigate.Helpers
             Navigate(new TreeNode(member.Name) {Tag = tag});
         }
 
-        public static void Navigate([NotNull] string fileName, [NotNull] TreeNode node)
-        {
-            ModelsExplorer.Instance.OpenFile(fileName);
-            Navigate(node);
-        }
-
         public static void Navigate([NotNull] TreeNode node)
         {
-            if (node is TypeNode) ModelsExplorer.Instance.OpenFile(((TypeNode) node).Model.InFile.FileName);
+            if (node is ClassNode) ModelsExplorer.Instance.OpenFile(((ClassNode) node).InFile.FileName);
             else if (node is MemberNode) ModelsExplorer.Instance.OpenFile(((MemberNode) node).InFile.FileName);
             ASContext.Context.OnSelectOutlineNode(node);
         }
@@ -129,6 +122,24 @@ namespace QuickNavigate.Helpers
                 }
             }
             return default(T);
+        }
+
+        public static TreeNode CreateTreeNode(FileModel inFile, bool isHaxe, MemberModel it)
+        {
+            var flags = it.Flags;
+            var icon = PluginUI.GetIcon(flags, it.Access);
+            var constrDecl = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : it.FullName;
+            var node = new MemberNode(it.ToString(), icon, icon)
+            {
+                InFile = inFile,
+                Tag = $"{constrDecl}@{it.LineFrom}"
+            };
+            return node;
+        }
+
+        public static TreeNode CreateTreeNode(ClassModel classModel)
+        {
+            return new ClassNode(classModel, PluginUI.GetIcon(classModel.Flags, classModel.Access));
         }
     }
 

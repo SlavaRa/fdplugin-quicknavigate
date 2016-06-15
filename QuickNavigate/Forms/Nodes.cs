@@ -6,43 +6,6 @@ using JetBrains.Annotations;
 
 namespace QuickNavigate.Forms
 {
-    public class TypeNode : TreeNode
-    {
-        public ClassModel Model;
-        public new string Name;
-        public string In;
-        public string NameInLowercase;
-        public string Package;
-        public string Module;
-        public bool IsPrivate;
-
-        public TypeNode([NotNull] ClassModel model, int icon) : this(model, icon, icon)
-        {
-        }
-
-        public TypeNode([NotNull] ClassModel model, int imageIndex, int selectedImageIndex)
-        {
-            Model = model;
-            Name = model.Name;
-            var inFile = model.InFile;
-            Package = inFile != null ? inFile.Package : string.Empty;
-            IsPrivate = (model.Access & Visibility.Private) > 0;
-            Text = Name;
-            Tag = "class";
-            In = Package;
-            if (!string.IsNullOrEmpty(Package))
-            {
-                if (IsPrivate) In = $"{Package}.{Path.GetFileNameWithoutExtension(inFile.FileName)}";
-            }
-            else if (IsPrivate) In = Path.GetFileNameWithoutExtension(inFile.FileName);
-            ImageIndex = imageIndex;
-            SelectedImageIndex = selectedImageIndex;
-            if (inFile == null) return;
-            var match = Regex.Match(inFile.FileName, @"\S*.swc", RegexOptions.Compiled);
-            if (match.Success) Module = Path.GetFileName(match.Value);
-        }
-    }
-
     public class MemberNode : TreeNode
     {
         public FileModel InFile;
@@ -52,9 +15,47 @@ namespace QuickNavigate.Forms
         }
     }
 
-    class ClassHierarchyNode : TypeNode
+    public class ClassNode : TreeNode
     {
-        public ClassHierarchyNode(ClassModel model, int imageIndex, int selectedImageIndex)
+        public ClassModel Model;
+        public FileModel InFile;
+        public new string Name;
+        public string In;
+        public string NameInLowercase;
+        public string Package;
+        public string Module;
+        public bool IsPrivate;
+
+        public ClassNode([NotNull] ClassModel model, int icon) : this(model, icon, icon)
+        {
+        }
+
+        public ClassNode([NotNull] ClassModel model, int imageIndex, int selectedImageIndex)
+        {
+            Model = model;
+            Name = model.Name;
+            InFile = model.InFile;
+            Package = InFile != null ? InFile.Package : string.Empty;
+            IsPrivate = (model.Access & Visibility.Private) > 0;
+            Text = Name;
+            Tag = "class";
+            In = Package;
+            if (!string.IsNullOrEmpty(Package))
+            {
+                if (IsPrivate) In = $"{Package}.{Path.GetFileNameWithoutExtension(InFile.FileName)}";
+            }
+            else if (IsPrivate) In = Path.GetFileNameWithoutExtension(InFile.FileName);
+            ImageIndex = imageIndex;
+            SelectedImageIndex = selectedImageIndex;
+            if (InFile == null) return;
+            var match = Regex.Match(InFile.FileName, @"\S*.swc", RegexOptions.Compiled);
+            if (match.Success) Module = Path.GetFileName(match.Value);
+        }
+    }
+
+    class ClassHierarchyNode : ClassNode
+    {
+        public ClassHierarchyNode([NotNull] ClassModel model, int imageIndex, int selectedImageIndex)
             : base(model, imageIndex, selectedImageIndex)
         {
             Text = model.Type;
