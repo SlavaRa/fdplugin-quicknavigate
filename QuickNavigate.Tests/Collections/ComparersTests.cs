@@ -40,14 +40,14 @@ namespace QuickNavigate.Tests.Collections
                 "a.Sprite",
                 "b.Sprite"
             });
-            List<TypeNode> nodes = matches.Select(match => new TypeNode(new ClassModel() {InFile = FileModel.Ignore}, 0)
+            var nodes = matches.Select(match => new ClassNode(new ClassModel {InFile = FileModel.Ignore}, 0)
             {
                 Package = match.Substring(0, match.LastIndexOf(".")),
                 Name = match.Substring(match.LastIndexOf(".") + 1)
             }).ToList();
-            List<TypeNode> nodes0 = nodes.Where(node => node.Name.ToLower() == "sprite").ToList();
-            List<TypeNode> nodes1 = nodes.Where(node => node.Name.ToLower() != "sprite" && node.Name.ToLower().StartsWith("sprite")).ToList();
-            List<TypeNode> nodes2 = nodes.Where(node => node.Name.ToLower() != "sprite" && !node.Name.ToLower().StartsWith("sprite")).ToList();
+            var nodes0 = nodes.Where(node => node.Name.ToLower() == "sprite").ToList();
+            var nodes1 = nodes.Where(node => node.Name.ToLower() != "sprite" && node.Name.ToLower().StartsWith("sprite")).ToList();
+            var nodes2 = nodes.Where(node => node.Name.ToLower() != "sprite" && !node.Name.ToLower().StartsWith("sprite")).ToList();
             nodes0.Sort(TypeExplorerNodeComparer.Package);
             Assert.AreEqual("Sprite", nodes0[0].Name);
             Assert.AreEqual("a", nodes0[0].Package);

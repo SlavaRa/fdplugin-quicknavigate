@@ -1,45 +1,30 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using ASCompletion;
 using ASCompletion.Model;
 using JetBrains.Annotations;
 
 namespace QuickNavigate.Forms
 {
-    public class TypeNode : TreeNode
+    public class NodeFactory
     {
-        public ClassModel Model;
-        public new string Name;
-        public string In;
-        public string NameInLowercase;
-        public string Package;
-        public string Module;
-        public bool IsPrivate;
-
-        public TypeNode([NotNull] ClassModel model, int icon) : this(model, icon, icon)
+        public static TreeNode CreateTreeNode(FileModel inFile, bool isHaxe, MemberModel it)
         {
+            var flags = it.Flags;
+            var icon = PluginUI.GetIcon(flags, it.Access);
+            var constrDecl = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : it.FullName;
+            var node = new MemberNode(it.ToString(), icon, icon)
+            {
+                InFile = inFile,
+                Tag = $"{constrDecl}@{it.LineFrom}"
+            };
+            return node;
         }
 
-        public TypeNode([NotNull] ClassModel model, int imageIndex, int selectedImageIndex)
+        public static TreeNode CreateTreeNode(ClassModel classModel)
         {
-            Model = model;
-            Name = model.Name;
-            var inFile = model.InFile;
-            Package = inFile != null ? inFile.Package : string.Empty;
-            IsPrivate = (model.Access & Visibility.Private) > 0;
-            Text = Name;
-            Tag = "class";
-            In = Package;
-            if (!string.IsNullOrEmpty(Package))
-            {
-                if (IsPrivate) In = $"{Package}.{Path.GetFileNameWithoutExtension(inFile.FileName)}";
-            }
-            else if (IsPrivate) In = Path.GetFileNameWithoutExtension(inFile.FileName);
-            ImageIndex = imageIndex;
-            SelectedImageIndex = selectedImageIndex;
-            if (inFile == null) return;
-            var match = Regex.Match(inFile.FileName, @"\S*.swc", RegexOptions.Compiled);
-            if (match.Success) Module = Path.GetFileName(match.Value);
+            return new ClassNode(classModel, PluginUI.GetIcon(classModel.Flags, classModel.Access));
         }
     }
 
@@ -52,9 +37,47 @@ namespace QuickNavigate.Forms
         }
     }
 
-    class ClassHierarchyNode : TypeNode
+    public class ClassNode : TreeNode
     {
-        public ClassHierarchyNode(ClassModel model, int imageIndex, int selectedImageIndex)
+        public ClassModel Model;
+        public FileModel InFile;
+        public new string Name;
+        public string In;
+        public string NameInLowercase;
+        public string Package;
+        public string Module;
+        public bool IsPrivate;
+
+        public ClassNode([NotNull] ClassModel model, int icon) : this(model, icon, icon)
+        {
+        }
+
+        public ClassNode([NotNull] ClassModel model, int imageIndex, int selectedImageIndex)
+        {
+            Model = model;
+            Name = model.Name;
+            InFile = model.InFile;
+            Package = InFile != null ? InFile.Package : string.Empty;
+            IsPrivate = (model.Access & Visibility.Private) > 0;
+            Text = Name;
+            Tag = "class";
+            In = Package;
+            if (!string.IsNullOrEmpty(Package))
+            {
+                if (IsPrivate) In = $"{Package}.{Path.GetFileNameWithoutExtension(InFile.FileName)}";
+            }
+            else if (IsPrivate) In = Path.GetFileNameWithoutExtension(InFile.FileName);
+            ImageIndex = imageIndex;
+            SelectedImageIndex = selectedImageIndex;
+            if (InFile == null) return;
+            var match = Regex.Match(InFile.FileName, @"\S*.swc", RegexOptions.Compiled);
+            if (match.Success) Module = Path.GetFileName(match.Value);
+        }
+    }
+
+    class ClassHierarchyNode : ClassNode
+    {
+        public ClassHierarchyNode([NotNull] ClassModel model, int imageIndex, int selectedImageIndex)
             : base(model, imageIndex, selectedImageIndex)
         {
             Text = model.Type;
