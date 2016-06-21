@@ -7,10 +7,11 @@ namespace QuickNavigate
     internal static class SearchUtil
     {
         [NotNull]
-        public static List<string> FindAll([NotNull] List<string> source, [NotNull] string search)
+        public static List<string> FindAll([NotNull] List<string> items, [NotNull] string search)
         {
             var length = search.Length;
-            var result = source.FindAll(it =>
+            if (length == 0) return items;
+            var result = items.FindAll(it =>
             {
                 var score = PluginCore.Controls.CompletionList.SmartMatch(it, search, length);
                 return score > 0 && score < 6;
