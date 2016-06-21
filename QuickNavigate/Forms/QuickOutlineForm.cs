@@ -112,7 +112,7 @@ namespace QuickNavigate.Forms
             if (InFile.Members.Count > 0) AddMembers(tree.Nodes, InFile, InFile.Members, isHaxe);
             foreach (var classModel in InFile.Classes)
             {
-                var node = FormHelper.CreateTreeNode(classModel);
+                var node = NodeFactory.CreateTreeNode(classModel);
                 tree.Nodes.Add(node);
                 AddMembers(node.Nodes, InFile, classModel.Members, isHaxe, classModel.Equals(InClass));
             }
@@ -156,7 +156,7 @@ namespace QuickNavigate.Forms
             if (searchIsNotEmpty) items = SearchUtil.FindAll(items, search);
             foreach (var it in items)
             {
-                nodes.Add(FormHelper.CreateTreeNode(inFile, isHaxe, it));
+                nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
             }
             if ((searchIsNotEmpty && SelectedNode == null || currentClass) && nodes.Count > 0)
                 tree.SelectedNode = nodes[0];

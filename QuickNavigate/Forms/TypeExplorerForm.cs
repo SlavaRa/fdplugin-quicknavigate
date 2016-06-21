@@ -137,7 +137,7 @@ namespace QuickNavigate.Forms
             ClassNode selectedNode = null;
             if (search.Length > 1 && search.Contains('.') && tree.Nodes.Count > 0)
             {
-                var node = SelectedNode as ClassNode ?? (ClassNode)tree.Nodes[0];
+                var node = SelectedNode as ClassNode ?? (ClassNode) tree.Nodes[0];
                 var parts = search.Split('.');
                 if (node.Name == parts[0])
                 {
@@ -151,7 +151,7 @@ namespace QuickNavigate.Forms
             {
                 if (search.Length == 0) FillTree();
                 else FillTree(search);
-                if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
+                tree.SelectedNode = tree.TopNode;
             }
             else
             {
@@ -206,7 +206,7 @@ namespace QuickNavigate.Forms
             if (search.Length > 0) items = SearchUtil.FindAll(items, search);
             foreach (var it in items)
             {
-                nodes.Add(FormHelper.CreateTreeNode(inFile, isHaxe, it));
+                nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
             }
         }
 
@@ -232,7 +232,7 @@ namespace QuickNavigate.Forms
         static ClassNode CreateNode([NotNull] string type)
         {
             var classModel = TypeToClassModel[type];
-            return (ClassNode) FormHelper.CreateTreeNode(classModel);
+            return (ClassNode) NodeFactory.CreateTreeNode(classModel);
         }
 
         [NotNull]

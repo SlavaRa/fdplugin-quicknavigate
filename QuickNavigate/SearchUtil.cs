@@ -22,6 +22,7 @@ namespace QuickNavigate
         public static List<MemberModel> FindAll([NotNull] List<MemberModel> items, [NotNull] string search)
         {
             var length = search.Length;
+            if (length == 0) return items;
             var result = items.FindAll(it =>
             {
                 var score = PluginCore.Controls.CompletionList.SmartMatch(it.FullName, search, length);
