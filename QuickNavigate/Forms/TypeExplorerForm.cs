@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
@@ -26,7 +25,7 @@ namespace QuickNavigate.Forms
         [NotNull] readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
         [NotNull] readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
         [NotNull] readonly Timer timer = new Timer();
-        private int filesCount;
+        int filesCount;
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
@@ -149,28 +148,28 @@ namespace QuickNavigate.Forms
             tree.Nodes.Clear();
             if (selectedNode == null)
             {
-                if (search.Length == 0) FillTree();
-                else FillTree(search);
+                if (search.Length == 0) FillNodes(tree.Nodes);
+                else FillNodes(tree.Nodes, search);
                 tree.SelectedNode = tree.TopNode;
             }
             else
             {
                 selectedNode.Nodes.Clear();
                 tree.Nodes.Add(selectedNode);
-                FillTree(selectedNode, search);
+                FillNodes(selectedNode.Nodes, selectedNode.Model, search);
                 tree.SelectedNode = selectedNode.FirstNode ?? selectedNode;
             }
             tree.ExpandAll();
             tree.EndUpdate();
         }
 
-        void FillTree()
+        void FillNodes(TreeNodeCollection nodes)
         {
             var openedTypes = FilterTypes(this.openedTypes.ToList());
-            if (openedTypes.Count > 0) tree.Nodes.AddRange(CreateNodes(openedTypes, string.Empty).ToArray());
+            if (openedTypes.Count > 0) nodes.AddRange(CreateNodes(openedTypes, string.Empty).ToArray());
         }
 
-        void FillTree(string search)
+        void FillNodes(TreeNodeCollection nodes, string search)
         {
             var openedTypes = FilterTypes(this.openedTypes.ToList());
             var closedTypes = FilterTypes(this.closedTypes.ToList());
@@ -190,20 +189,17 @@ namespace QuickNavigate.Forms
             else closedMatches = SearchUtil.FindAll(closedTypes, search);
             var hasOpenedMatches = openedMatches.Count > 0;
             var hasClosedMatches = closedMatches.Count > 0;
-            if (hasOpenedMatches) tree.Nodes.AddRange(CreateNodes(openedMatches, search).ToArray());
+            if (hasOpenedMatches) nodes.AddRange(CreateNodes(openedMatches, search).ToArray());
             if (Settings.EnableItemSpacer && hasOpenedMatches && hasClosedMatches)
-                tree.Nodes.Add(Settings.ItemSpacer);
-            if (hasClosedMatches) tree.Nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
+                nodes.Add(Settings.ItemSpacer);
+            if (hasClosedMatches) nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
         }
 
-        void FillTree(ClassNode node, string search)
+        void FillNodes(TreeNodeCollection nodes, ClassModel inClass, string search)
         {
-            var nodes = node.Nodes;
-            var currentClass = node.Model;
-            var inFile = currentClass.InFile;
+            var inFile = inClass.InFile;
             var isHaxe = inFile.haXe;
-            var items = currentClass.Members.Items;
-            if (search.Length > 0) items = SearchUtil.FindAll(items, search);
+            var items = SearchUtil.FindAll(inClass.Members.Items, search);
             foreach (var it in items)
             {
                 nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
