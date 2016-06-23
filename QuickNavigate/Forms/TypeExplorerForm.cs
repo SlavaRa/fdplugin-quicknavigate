@@ -136,12 +136,12 @@ namespace QuickNavigate.Forms
             ClassNode selectedNode = null;
             if (search.Length > 1 && search.Contains('.') && tree.Nodes.Count > 0)
             {
-                var node = SelectedNode as ClassNode ?? (ClassNode) tree.Nodes[0];
+                var node = SelectedNode as ClassNode ?? (ClassNode) tree.TopNode;
                 var parts = search.Split('.');
-                if (node.Name == parts[0])
+                if (node.Name.Equals(parts[parts.Length - 2], StringComparison.OrdinalIgnoreCase))
                 {
                     selectedNode = node;
-                    search = parts[1];
+                    search = parts.Last();
                 }
             }
             tree.BeginUpdate();
