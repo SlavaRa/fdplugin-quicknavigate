@@ -26,7 +26,7 @@ namespace QuickNavigate.Forms
         [NotNull] readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
         [NotNull] readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
         [NotNull] readonly Timer timer = new Timer();
-        private int filesCount;
+        int filesCount;
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer

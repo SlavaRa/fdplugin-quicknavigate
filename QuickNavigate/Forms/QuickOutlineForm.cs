@@ -14,7 +14,6 @@ namespace QuickNavigate.Forms
 {
     public sealed partial class QuickOutlineForm : QuickForm
     {
-        [NotNull] readonly Settings settings;
         readonly ContextMenuStrip contextMenu = new ContextMenuStrip { Renderer = new DockPanelStripRenderer(false) };
         readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
         readonly List<Button> filters = new List<Button>();
@@ -29,13 +28,11 @@ namespace QuickNavigate.Forms
         /// <param name="inFile"></param>
         /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        public QuickOutlineForm([NotNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings)
+        public QuickOutlineForm([NotNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings) : base(settings)
         {
             InFile = inFile;
             InClass = inClass ?? ClassModel.VoidClass;
-            this.settings = settings;
             InitializeComponent();
-            if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
             InitializeTree();
             InitializeTheme();
             RefreshTree();
@@ -226,6 +223,12 @@ namespace QuickNavigate.Forms
 
         #region Event Handlers
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Settings != null && Settings.QuickOutlineSize.Width > MinimumSize.Width) Size = Settings.QuickOutlineSize;
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var keyCode = e.KeyCode;
@@ -257,7 +260,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e) => settings.QuickOutlineSize = Size;
+        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.QuickOutlineSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
