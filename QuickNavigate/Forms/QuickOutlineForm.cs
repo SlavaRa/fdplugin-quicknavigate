@@ -14,7 +14,6 @@ namespace QuickNavigate.Forms
 {
     public sealed partial class QuickOutlineForm : QuickForm
     {
-        [NotNull] readonly Settings settings;
         readonly ContextMenuStrip contextMenu = new ContextMenuStrip { Renderer = new DockPanelStripRenderer(false) };
         readonly ContextMenu inputEmptyContextMenu = new ContextMenu();
         readonly List<Button> filters = new List<Button>();
@@ -29,13 +28,11 @@ namespace QuickNavigate.Forms
         /// <param name="inFile"></param>
         /// <param name="inClass"></param>
         /// <param name="settings"></param>
-        public QuickOutlineForm([NotNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings)
+        public QuickOutlineForm([NotNull] FileModel inFile, [CanBeNull] ClassModel inClass, [NotNull] Settings settings) : base(settings)
         {
             InFile = inFile;
             InClass = inClass ?? ClassModel.VoidClass;
-            this.settings = settings;
             InitializeComponent();
-            if (settings.QuickOutlineSize.Width > MinimumSize.Width) Size = settings.QuickOutlineSize;
             InitializeTree();
             InitializeTheme();
             RefreshTree();
@@ -109,26 +106,25 @@ namespace QuickNavigate.Forms
         void FillTree()
         {
             var isHaxe = InFile.haXe;
-            if (InFile.Members.Count > 0) AddMembers(tree.Nodes, InFile.Members, isHaxe);
-            foreach (var aClass in InFile.Classes)
+            if (InFile.Members.Count > 0) AddMembers(tree.Nodes, InFile, InFile.Members, isHaxe);
+            foreach (var classModel in InFile.Classes)
             {
-                var icon = PluginUI.GetIcon(aClass.Flags, aClass.Access);
-                TreeNode node = new TypeNode(aClass, icon);
+                var node = FormHelper.CreateTreeNode(classModel);
                 tree.Nodes.Add(node);
-                AddMembers(node.Nodes, aClass.Members, isHaxe, aClass.Equals(InClass));
+                AddMembers(node.Nodes, InFile, classModel.Members, isHaxe, classModel.Equals(InClass));
             }
             if (SelectedNode != null || tree.Nodes.Count == 0) return;
             var search = input.Text.Trim();
             if (search.Length == 0)
             {
                 if (InClass.Equals(ClassModel.VoidClass)) tree.SelectedNode = tree.Nodes[0];
-                else tree.SelectedNode = tree.Nodes.OfType<TypeNode>().FirstOrDefault(it => it.Model.Equals(InClass));
+                else tree.SelectedNode = tree.Nodes.OfType<ClassNode>().FirstOrDefault(it => it.Model.Equals(InClass));
             }   
             else
             {
                 var nodes = tree.Nodes.OfType<TreeNode>().ToList().FindAll(it =>
                 {
-                    var word = ((TypeNode) it).Model.QualifiedName;
+                    var word = ((ClassNode) it).Model.QualifiedName;
                     var score = PluginCore.Controls.CompletionList.SmartMatch(word, search, search.Length);
                     return score > 0 && score < 6;
                 });
@@ -139,12 +135,12 @@ namespace QuickNavigate.Forms
             }
         }
 
-        void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe)
+        void AddMembers(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe)
         {
-            AddMembers(nodes, members, isHaxe, true);
+            AddMembers(nodes, inFile, members, isHaxe, true);
         }
 
-        void AddMembers(TreeNodeCollection nodes, MemberList members, bool isHaxe, bool currentClass)
+        void AddMembers(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe, bool currentClass)
         {
             var items = members.Items.ToList();
             if (CurrentFilter != null)
@@ -157,11 +153,7 @@ namespace QuickNavigate.Forms
             if (searchIsNotEmpty) items = SearchUtil.FindAll(items, search);
             foreach (var it in items)
             {
-                var flags = it.Flags;
-                var icon = PluginUI.GetIcon(flags, it.Access);
-                var constrDecl = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : it.FullName;
-                var node = new TreeNode(it.ToString(), icon, icon) {Tag = $"{constrDecl}@{it.LineFrom}"};
-                nodes.Add(node);
+                nodes.Add(FormHelper.CreateTreeNode(inFile, isHaxe, it));
             }
             if ((searchIsNotEmpty && SelectedNode == null || currentClass) && nodes.Count > 0)
                 tree.SelectedNode = nodes[0];
@@ -174,13 +166,13 @@ namespace QuickNavigate.Forms
 
         protected override void ShowContextMenu()
         {
-            if (!(SelectedNode is TypeNode)) return;
+            if (!(SelectedNode is ClassNode)) return;
             ShowContextMenu(new Point(SelectedNode.Bounds.X, SelectedNode.Bounds.Bottom));
         }
 
         protected override void ShowContextMenu(Point position)
         {
-            if (!(SelectedNode is TypeNode)) return;
+            if (!(SelectedNode is ClassNode)) return;
             contextMenu.Items.Clear();
             contextMenu.Items.Add(QuickContextMenuItem.ShowInClassHierarchyMenuItem);
             contextMenu.Show(tree, position);
@@ -231,6 +223,12 @@ namespace QuickNavigate.Forms
 
         #region Event Handlers
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Settings != null && Settings.QuickOutlineSize.Width > MinimumSize.Width) Size = Settings.QuickOutlineSize;
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var keyCode = e.KeyCode;
@@ -262,7 +260,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e) => settings.QuickOutlineSize = Size;
+        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.QuickOutlineSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
@@ -337,7 +335,7 @@ namespace QuickNavigate.Forms
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
-            TreeNode node = e.Node as TypeNode;
+            TreeNode node = e.Node as ClassNode;
             if (node == null || (string) node.Tag != "class") return;
             tree.SelectedNode = node;
             ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
@@ -364,7 +362,7 @@ namespace QuickNavigate.Forms
             graphics.FillRectangle(new SolidBrush(fillBrush), x, bounds.Y, itemWidth, tree.ItemHeight);
             var text = e.Node.Text;
             graphics.DrawString(text, font, new SolidBrush(textBrush), bounds.Left, bounds.Top, StringFormat.GenericDefault);
-            var node = e.Node as TypeNode;
+            var node = e.Node as ClassNode;
             if (node == null) return;
             if (!string.IsNullOrEmpty(node.In))
             {

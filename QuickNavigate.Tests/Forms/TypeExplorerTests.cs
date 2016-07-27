@@ -19,7 +19,7 @@ namespace QuickNavigate.Tests.Forms
                 },
                 Name = "TestClass"
             };
-            TypeNode node = new TypeNode(model, 0);
+            ClassNode node = new ClassNode(model, 0);
             Assert.AreEqual(model, node.Model);
             Assert.IsFalse(node.IsPrivate);
             Assert.IsNull(node.Module);
@@ -39,7 +39,7 @@ namespace QuickNavigate.Tests.Forms
                 },
                 Name = "DisplayObject"
             };
-            TypeNode node = new TypeNode(model, 0);
+            ClassNode node = new ClassNode(model, 0);
             Assert.AreEqual("playerglobal.swc", node.Module);
             Assert.AreEqual("DisplayObject", node.Text);
             Assert.AreEqual("flash.display", node.In);
@@ -58,7 +58,7 @@ namespace QuickNavigate.Tests.Forms
                 Name = "TestClass2",
                 Access = Visibility.Private
             };
-            TypeNode node = new TypeNode(model, 0);
+            ClassNode node = new ClassNode(model, 0);
             Assert.IsTrue(node.IsPrivate);
             Assert.AreEqual("TestClass2", node.Text);
             Assert.AreEqual("test.TestClass", node.In);

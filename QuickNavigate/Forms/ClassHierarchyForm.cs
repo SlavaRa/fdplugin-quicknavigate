@@ -195,7 +195,7 @@ namespace QuickNavigate.Forms
         protected override void ShowContextMenu(Point position)
         {
             if (SelectedNode == null) return;
-            var classModel = ((TypeNode) SelectedNode).Model;
+            var classModel = ((ClassNode) SelectedNode).Model;
             ContextMenuStrip.Items.Clear();
             ContextMenuStrip.Items.Add(QuickContextMenuItem.GotoPositionOrLineMenuItem);
             ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInQuickOutlineMenuItem);
@@ -251,7 +251,7 @@ namespace QuickNavigate.Forms
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            var node = e.Node as TypeNode;
+            var node = e.Node as ClassNode;
             if (node == null) return;
             tree.SelectedNode = node;
             base.OnTreeNodeMouseClick(sender, e);

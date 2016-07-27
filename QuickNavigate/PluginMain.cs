@@ -286,7 +286,7 @@ namespace QuickNavigate
             form.Shown += OnFormShown;
             form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
-            FormHelper.Navigate(inFile.FileName, form.SelectedNode);
+            FormHelper.Navigate(form.SelectedNode);
         }
 
         void ShowClassHierarchy(object sender, EventArgs e) => ShowClassHierarchy();
@@ -312,9 +312,8 @@ namespace QuickNavigate
             form.Shown += OnFormShown;
             form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
-            var node = form.SelectedNode as TypeNode;
-            if (node == null) return;
-            FormHelper.Navigate(node.Model.InFile.FileName, new TreeNode(node.Name) {Tag = node.Tag});
+            var node = form.SelectedNode;
+            if (node != null) FormHelper.Navigate(node);
         }
 
         static bool GetCanShowClassHierarchy()
@@ -427,42 +426,42 @@ namespace QuickNavigate
 
         void OnSetDocumentClassMenuClick(object sender, EventArgs e)
         {
-            var node = (TypeNode) openedForm.SelectedNode;
+            var node = (ClassNode) openedForm.SelectedNode;
             Debug.Assert(node != null, "node != null");
             SetDocumentClass(node.Model);
         }
 
         void OnGotoPositionOrLineMenuClick(object sender, EventArgs e)
         {
-            var node = (TypeNode) openedForm.SelectedNode;
+            var node = (ClassNode) openedForm.SelectedNode;
             Debug.Assert(node != null, "node != null");
             GotoPositionOrLine(openedForm, node.Model);
         }
 
         void OnShowInQuickOutlineMenuClick(object sender, EventArgs e)
         {
-            var node = (TypeNode) openedForm.SelectedNode;
+            var node = (ClassNode) openedForm.SelectedNode;
             Debug.Assert(node != null, "node != null");
             ShowQuickOutline(openedForm, node.Model);
         }
 
         void OnShowInClassHierarchyMenuClick(object sender, EventArgs e)
         {
-            var node = (TypeNode) openedForm.SelectedNode;
+            var node = (ClassNode) openedForm.SelectedNode;
             Debug.Assert(node != null, "node != null");
             ShowClassHierarchy(openedForm, node.Model);
         }
 
         void OnShowInProjectManagerMenuClick(object sender, EventArgs e)
         {
-            var node = (TypeNode) openedForm.SelectedNode;
+            var node = (ClassNode) openedForm.SelectedNode;
             Debug.Assert(node != null, "node != null");
             ShowInProjectManager(openedForm, node.Model);
         }
 
         void OnShowInFileExplorerMenuClick(object sender, EventArgs e)
         {
-            var node = (TypeNode) openedForm.SelectedNode;
+            var node = (ClassNode) openedForm.SelectedNode;
             Debug.Assert(node != null, "node != null");
             ShowInFileExplorer(openedForm, node.Model);
         }

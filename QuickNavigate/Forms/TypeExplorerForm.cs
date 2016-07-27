@@ -26,7 +26,7 @@ namespace QuickNavigate.Forms
         [NotNull] readonly Dictionary<Button, string> filterToDisabledTip = new Dictionary<Button, string>();
         [NotNull] readonly Dictionary<FlagType, Button> flagToFilter = new Dictionary<FlagType, Button>();
         [NotNull] readonly Timer timer = new Timer();
-        private int filesCount;
+        int filesCount;
 
         /// <summary>
         /// Initializes a new instance of the QuickNavigate.Controls.TypeExplorer
@@ -134,10 +134,10 @@ namespace QuickNavigate.Forms
         void RefreshTree()
         {
             var search = input.Text.Trim();
-            TypeNode selectedNode = null;
+            ClassNode selectedNode = null;
             if (search.Length > 1 && search.Contains('.') && tree.Nodes.Count > 0)
             {
-                var node = SelectedNode as TypeNode ?? (TypeNode)tree.Nodes[0];
+                var node = SelectedNode as ClassNode ?? (ClassNode)tree.Nodes[0];
                 var parts = search.Split('.');
                 if (node.Name == parts[0])
                 {
@@ -196,24 +196,17 @@ namespace QuickNavigate.Forms
             if (hasClosedMatches) tree.Nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
         }
 
-        void FillTree(TypeNode node, string search)
+        void FillTree(ClassNode node, string search)
         {
             var nodes = node.Nodes;
             var currentClass = node.Model;
             var inFile = currentClass.InFile;
             var isHaxe = inFile.haXe;
-            var items = currentClass.Members.Items.ToList();
+            var items = currentClass.Members.Items;
             if (search.Length > 0) items = SearchUtil.FindAll(items, search);
             foreach (var it in items)
             {
-                var flags = it.Flags;
-                var icon = PluginUI.GetIcon(flags, it.Access);
-                var constrDecl = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : it.FullName;
-                nodes.Add(new MemberNode(it.ToString(), icon, icon)
-                {
-                    Tag = $"{constrDecl}@{it.LineFrom}",
-                    InFile = inFile
-                });
+                nodes.Add(FormHelper.CreateTreeNode(inFile, isHaxe, it));
             }
         }
 
@@ -229,26 +222,26 @@ namespace QuickNavigate.Forms
         }
 
         [NotNull]
-        static IEnumerable<TypeNode> CreateNodes([NotNull] IEnumerable<string> matches, [NotNull] string search)
+        static IEnumerable<ClassNode> CreateNodes([NotNull] IEnumerable<string> matches, [NotNull] string search)
         {
             var nodes = matches.Select(CreateNode);
             return SortNodes(nodes, search);
         }
 
         [NotNull]
-        static TypeNode CreateNode([NotNull] string type)
+        static ClassNode CreateNode([NotNull] string type)
         {
-            var aClass = TypeToClassModel[type];
-            return new TypeNode(aClass, PluginUI.GetIcon(aClass.Flags, aClass.Access));
+            var classModel = TypeToClassModel[type];
+            return (ClassNode) FormHelper.CreateTreeNode(classModel);
         }
 
         [NotNull]
-        static IEnumerable<TypeNode> SortNodes([NotNull] IEnumerable<TypeNode> nodes, [NotNull] string search)
+        static IEnumerable<ClassNode> SortNodes([NotNull] IEnumerable<ClassNode> nodes, [NotNull] string search)
         {
             search = search.ToLower();
-            var nodes0 = new List<TypeNode>();
-            var nodes1 = new List<TypeNode>();
-            var nodes2 = new List<TypeNode>();
+            var nodes0 = new List<ClassNode>();
+            var nodes1 = new List<ClassNode>();
+            var nodes2 = new List<ClassNode>();
             foreach (var node in nodes)
             {
                 var name = node.Name.ToLower();
@@ -272,7 +265,7 @@ namespace QuickNavigate.Forms
         {
             if (SelectedNode == null) return;
             ContextMenuStrip.Items.Clear();
-            var classModel = ((TypeNode) SelectedNode).Model;
+            var classModel = ((ClassNode) SelectedNode).Model;
             var flags = classModel.Flags;
             var fileName = classModel.InFile.FileName;
             if ((flags & FlagType.Class) > 0
@@ -398,7 +391,7 @@ namespace QuickNavigate.Forms
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            var node = e.Node as TypeNode;
+            var node = e.Node as ClassNode;
             if (node == null) return;
             tree.SelectedNode = node;
             base.OnTreeNodeMouseClick(sender, e);
@@ -425,7 +418,7 @@ namespace QuickNavigate.Forms
             graphics.FillRectangle(new SolidBrush(fillBrush), x, bounds.Y, itemWidth, tree.ItemHeight);
             var font = tree.Font;
             graphics.DrawString(text, font, new SolidBrush(textBrush), x, bounds.Top, StringFormat.GenericDefault);
-            var node = e.Node as TypeNode;
+            var node = e.Node as ClassNode;
             if (node == null) return;
             if (!string.IsNullOrEmpty(node.In))
             {
@@ -458,10 +451,10 @@ namespace QuickNavigate.Forms
         {
             if (tree.Nodes.Count == 0) return;
             var keyCode = e.KeyCode;
-            if (e.Control && keyCode == Keys.Right && SelectedNode is TypeNode)
+            if (e.Control && keyCode == Keys.Right && SelectedNode is ClassNode)
             {
                 e.Handled = true;
-                input.Text = ((TypeNode) SelectedNode).Model.Name;
+                input.Text = ((ClassNode) SelectedNode).Model.Name;
                 input.SelectionStart = input.TextLength;
                 return;
             }
