@@ -123,24 +123,6 @@ namespace QuickNavigate.Helpers
             }
             return default(T);
         }
-
-        public static TreeNode CreateTreeNode(FileModel inFile, bool isHaxe, MemberModel it)
-        {
-            var flags = it.Flags;
-            var icon = PluginUI.GetIcon(flags, it.Access);
-            var constrDecl = isHaxe && (flags & FlagType.Constructor) > 0 ? "new" : it.FullName;
-            var node = new MemberNode(it.ToString(), icon, icon)
-            {
-                InFile = inFile,
-                Tag = $"{constrDecl}@{it.LineFrom}"
-            };
-            return node;
-        }
-
-        public static TreeNode CreateTreeNode(ClassModel classModel)
-        {
-            return new ClassNode(classModel, PluginUI.GetIcon(classModel.Flags, classModel.Access));
-        }
     }
 
     class ShortcutId
