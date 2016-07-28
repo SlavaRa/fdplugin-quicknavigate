@@ -229,6 +229,7 @@ namespace QuickNavigate.Forms
         {
             base.OnShown(e);
             if (Settings != null && Settings.QuickOutlineSize.Width > MinimumSize.Width) Size = Settings.QuickOutlineSize;
+            CenterToParent();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
