@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using ASCompletion;
 using ASCompletion.Context;
 using ASCompletion.Model;
 using JetBrains.Annotations;
@@ -98,65 +97,68 @@ namespace QuickNavigate.Forms
         {
             tree.BeginUpdate();
             tree.Nodes.Clear();
-            FillTree();
+            FillTree(input.Text.Trim());
             tree.ExpandAll();
             tree.EndUpdate();
         }
 
-        void FillTree()
+        void FillTree(string search)
         {
             var isHaxe = InFile.haXe;
-            if (InFile.Members.Count > 0) AddMembers(tree.Nodes, InFile, InFile.Members, isHaxe);
+            if (InFile.Members.Count > 0) FillNodes(tree.Nodes, InFile, InFile.Members, isHaxe, search);
             foreach (var classModel in InFile.Classes)
             {
-                var node = FormHelper.CreateTreeNode(classModel);
+                var node = NodeFactory.CreateTreeNode(classModel);
                 tree.Nodes.Add(node);
-                AddMembers(node.Nodes, InFile, classModel.Members, isHaxe, classModel.Equals(InClass));
+                FillNodes(node.Nodes, InFile, classModel.Members, isHaxe, classModel.Equals(InClass), search);
             }
             if (SelectedNode != null || tree.Nodes.Count == 0) return;
-            var search = input.Text.Trim();
             if (search.Length == 0)
             {
-                if (InClass.Equals(ClassModel.VoidClass)) tree.SelectedNode = tree.Nodes[0];
+                if (InClass.Equals(ClassModel.VoidClass)) tree.SelectedNode = tree.TopNode;
                 else tree.SelectedNode = tree.Nodes.OfType<ClassNode>().FirstOrDefault(it => it.Model.Equals(InClass));
             }   
             else
             {
-                var nodes = tree.Nodes.OfType<TreeNode>().ToList().FindAll(it =>
+                var nodes = tree.Nodes.OfType<ClassNode>().ToList().FindAll(it =>
                 {
-                    var word = ((ClassNode) it).Model.QualifiedName;
+                    var word = it.Model.QualifiedName;
                     var score = PluginCore.Controls.CompletionList.SmartMatch(word, search, search.Length);
                     return score > 0 && score < 6;
                 });
                 tree.Nodes.Clear();
                 if (nodes.Count == 0) return;
                 tree.Nodes.AddRange(nodes.ToArray());
-                tree.SelectedNode = tree.Nodes[0];
+                tree.SelectedNode = tree.TopNode;
             }
         }
 
-        void AddMembers(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe)
+        void FillNodes(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe, string search)
         {
-            AddMembers(nodes, inFile, members, isHaxe, true);
+            FillNodes(nodes, inFile, members, isHaxe, true, search);
         }
 
-        void AddMembers(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe, bool currentClass)
+        void FillNodes(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe, bool currentClass, string search)
         {
-            var items = members.Items.ToList();
+            var items = FilterTypes(members.Items.ToList());
+            items = SearchUtil.FindAll(items, search);
+            foreach (var it in items)
+            {
+                nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
+            }
+            if ((search.Length > 0 && SelectedNode == null || currentClass) && nodes.Count > 0)
+                tree.SelectedNode = nodes[0];
+        }
+
+        [NotNull]
+        List<MemberModel> FilterTypes(List<MemberModel> list)
+        {
             if (CurrentFilter != null)
             {
                 var flags = (FlagType) CurrentFilter.Tag;
-                items.RemoveAll(it => (it.Flags & flags) == 0);
+                list.RemoveAll(it => (it.Flags & flags) == 0);
             }
-            var search = input.Text.Trim();
-            var searchIsNotEmpty = search.Length > 0;
-            if (searchIsNotEmpty) items = SearchUtil.FindAll(items, search);
-            foreach (var it in items)
-            {
-                nodes.Add(FormHelper.CreateTreeNode(inFile, isHaxe, it));
-            }
-            if ((searchIsNotEmpty && SelectedNode == null || currentClass) && nodes.Count > 0)
-                tree.SelectedNode = nodes[0];
+            return list;
         }
 
         protected override void Navigate()
