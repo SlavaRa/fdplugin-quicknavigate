@@ -216,6 +216,7 @@ namespace QuickNavigate.Forms
         {
             base.OnShown(e);
             if (Settings != null && Settings.HierarchyExplorerSize.Width > MinimumSize.Width) Size = Settings.HierarchyExplorerSize;
+            CenterToParent();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

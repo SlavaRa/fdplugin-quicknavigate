@@ -373,6 +373,7 @@ namespace QuickNavigate.Forms
                 if (Settings.TypeExplorerSize.Width > MinimumSize.Width) Size = Settings.TypeExplorerSize;
                 searchingInExternalClasspaths.Checked = Settings.TypeExplorerSearchExternalClassPath;
             }
+            CenterToParent();
             timer.Interval = Math.Max(PluginBase.MainForm.Settings.DisplayDelay, 100);
             timer.Tick += OnTimerTick;
             timer.Start();
