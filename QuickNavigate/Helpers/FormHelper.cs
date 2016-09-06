@@ -158,7 +158,7 @@ namespace QuickNavigate.Helpers
         public static string Transcriptor([NotNull] string s)
         {
             if (s.Trim().Length == 0) return s;
-            var result = new string(s.ToCharArray().Select(c => ruToEn[c]).ToArray());
+            var result = new string(s.ToCharArray().Select(c => ruToEn.ContainsKey(c) ? ruToEn[c] : c).ToArray());
             return result;
         }
     }
