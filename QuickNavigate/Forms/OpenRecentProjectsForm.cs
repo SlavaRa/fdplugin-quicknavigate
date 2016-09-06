@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using PluginCore;
 using PluginCore.Helpers;
 using ProjectManager.Controls;
+using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
 {
@@ -92,6 +93,7 @@ namespace QuickNavigate.Forms
         void FillTree()
         {
             var search = input.Text;
+            search = FormHelper.Transcriptor(search);
             var projects = search.Length > 0 ? SearchUtil.FindAll(recentProjects, search) : recentProjects;
             if (projects.Count == 0) return;
             foreach (var it in projects)
