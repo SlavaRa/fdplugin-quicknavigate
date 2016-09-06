@@ -124,7 +124,7 @@ namespace QuickNavigate.Helpers
             return default(T);
         }
 
-        static Dictionary<char, char> ruToEn = new Dictionary<char, char>
+        static readonly Dictionary<char, char> RuToEn = new Dictionary<char, char>
         {
             {'й', 'q'},
             {'ц', 'w'},
@@ -158,7 +158,7 @@ namespace QuickNavigate.Helpers
         public static string Transcriptor([NotNull] string s)
         {
             if (s.Trim().Length == 0) return s;
-            var result = new string(s.ToCharArray().Select(c => ruToEn.ContainsKey(c) ? ruToEn[c] : c).ToArray());
+            var result = new string(s.ToCharArray().Select(c => RuToEn.ContainsKey(c) ? RuToEn[c] : c).ToArray());
             return result;
         }
     }
