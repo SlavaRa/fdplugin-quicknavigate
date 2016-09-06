@@ -83,6 +83,7 @@ namespace QuickNavigate.Forms
         {
             var separator = Path.PathSeparator;
             var search = input.Text.Replace('\\', separator).Replace('/', separator);
+            search = FormHelper.Transcriptor(search);
             if (openedFiles.Count > 0)
             {
                 var matches = openedFiles;

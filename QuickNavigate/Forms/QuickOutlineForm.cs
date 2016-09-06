@@ -95,9 +95,11 @@ namespace QuickNavigate.Forms
 
         void RefreshTree()
         {
+            var search = input.Text.Trim();
+            search = FormHelper.Transcriptor(search);
             tree.BeginUpdate();
             tree.Nodes.Clear();
-            FillTree(input.Text.Trim());
+            FillTree(search);
             tree.ExpandAll();
             tree.EndUpdate();
         }
