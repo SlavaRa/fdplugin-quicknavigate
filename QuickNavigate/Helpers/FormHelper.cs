@@ -151,7 +151,8 @@ namespace QuickNavigate.Helpers
             {'м', 'v'},
             {'и', 'b'},
             {'т', 'n'},
-            {'ь', 'm'}
+            {'ь', 'm'},
+            {'ю', '.'}
         };
 
         [NotNull]

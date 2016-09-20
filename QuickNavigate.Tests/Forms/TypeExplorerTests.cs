@@ -10,16 +10,16 @@ namespace QuickNavigate.Tests.Forms
         [TestMethod]
         public void TestNewTypeNode()
         {
-            ClassModel model = new ClassModel()
+            var model = new ClassModel
             {
-                InFile = new FileModel()
+                InFile = new FileModel
                 {
                     FileName = "test/TestClass.as",
                     Package = "test"
                 },
                 Name = "TestClass"
             };
-            ClassNode node = new ClassNode(model, 0);
+            var node = new ClassNode(model, 0);
             Assert.AreEqual(model, node.Model);
             Assert.IsFalse(node.IsPrivate);
             Assert.IsNull(node.Module);
@@ -30,16 +30,16 @@ namespace QuickNavigate.Tests.Forms
         [TestMethod]
         public void TestNewTypeNodeWithClassFromSWC()
         {
-            ClassModel model = new ClassModel()
+            var model = new ClassModel
             {
-                InFile = new FileModel()
+                InFile = new FileModel
                 {
                     FileName = "../libs/playerglobal.swc/flash/display/DisplayObject",
                     Package = "flash.display"
                 },
                 Name = "DisplayObject"
             };
-            ClassNode node = new ClassNode(model, 0);
+            var node = new ClassNode(model, 0);
             Assert.AreEqual("playerglobal.swc", node.Module);
             Assert.AreEqual("DisplayObject", node.Text);
             Assert.AreEqual("flash.display", node.In);
@@ -48,9 +48,10 @@ namespace QuickNavigate.Tests.Forms
         [TestMethod]
         public void TestNewTypeNodeWithPrivateClass()
         {
-            ClassModel model = new ClassModel()
+            var model = new ClassModel
             {
-                InFile = new FileModel()
+                InFile = new FileModel
+
                 {
                     FileName = "test/TestClass.as",
                     Package = "test"
@@ -58,7 +59,7 @@ namespace QuickNavigate.Tests.Forms
                 Name = "TestClass2",
                 Access = Visibility.Private
             };
-            ClassNode node = new ClassNode(model, 0);
+            var node = new ClassNode(model, 0);
             Assert.IsTrue(node.IsPrivate);
             Assert.AreEqual("TestClass2", node.Text);
             Assert.AreEqual("test.TestClass", node.In);
