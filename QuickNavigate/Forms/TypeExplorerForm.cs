@@ -133,6 +133,7 @@ namespace QuickNavigate.Forms
         void RefreshTree()
         {
             var search = input.Text.Trim();
+            search = FormHelper.Transcriptor(search);
             ClassNode selectedNode = null;
             if (search.Length > 1 && search.Contains('.') && tree.Nodes.Count > 0)
             {

@@ -282,7 +282,9 @@ namespace QuickNavigate.Forms
         void OnInputTextChanged(object sender, EventArgs e)
         {
             if (tree.Nodes.Count == 0) return;
-            var matches = SearchUtil.FindAll(typeToNode.Keys.ToList(), input.Text);
+            var search = input.Text;
+            search = FormHelper.Transcriptor(search);
+            var matches = SearchUtil.FindAll(typeToNode.Keys.ToList(), search);
             var mathesIsEmpty = matches.Count == 0;
             foreach (var k in typeToNode)
             {
