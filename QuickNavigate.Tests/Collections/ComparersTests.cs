@@ -13,7 +13,7 @@ namespace QuickNavigate.Tests.Collections
         [TestMethod]
         public void TestSortNameAndPackage0()
         {
-            List<string> matches = new List<string>(new[]
+            var matches = new List<string>(new[]
             {
                 "ru.crazypanda.core.display.BaseSprite",
                 "ru.crazypanda.core.display.MainResourceSprite",
