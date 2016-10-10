@@ -143,7 +143,7 @@ namespace QuickNavigate.Forms
         void FillNodes(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe, bool currentClass, string search)
         {
             var items = FilterTypes(members.Items.ToList());
-            items = SearchUtil.FindAll(items, search);
+            items = SearchUtil.FindAll(items, search, isHaxe);
             foreach (var it in items)
             {
                 nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
