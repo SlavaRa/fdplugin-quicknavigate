@@ -260,7 +260,7 @@ namespace QuickNavigate.Forms
 
         protected override void ShowContextMenu(Point position)
         {
-            if (SelectedNode == null) return;
+            if (!(SelectedNode is ClassNode)) return;
             ContextMenuStrip.Items.Clear();
             var classModel = ((ClassNode) SelectedNode).Model;
             var flags = classModel.Flags;
@@ -274,7 +274,6 @@ namespace QuickNavigate.Forms
                 ContextMenuStrip.Items.Add(new ToolStripSeparator());
             }
             ContextMenuStrip.Items.Add(QuickContextMenuItem.GotoPositionOrLineMenuItem);
-            ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInQuickOutlineMenuItem);
             ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInClassHierarchyMenuItem);
             ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInProjectManagerMenuItem);
             if (File.Exists(fileName)) ContextMenuStrip.Items.Add(QuickContextMenuItem.ShowInFileExplorerMenuItem);
