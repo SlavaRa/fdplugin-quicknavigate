@@ -5,7 +5,7 @@ QuickNavigate plugin for [FlashDevelop](http://www.flashdevelop.org)/[HaxeDevelo
 
 ### Installation
 
-Download [the latest release](https://github.com/SlavaRa/fdplugin-quicknavigate/releases). Open the .fdz file with FlashDevelop.
+Download [the latest release](https://github.com/SlavaRa/fdplugin-quicknavigate/releases). Open the .fdz file with FlashDevelop/HaxeDevelop.
 
 ### Usage 
 
