@@ -4,3 +4,5 @@ Controls/OpenResourceForm.resx
 Controls/OpenTypeForm.resx
 Controls/QuickOutlineForm.resx
 packages/
+QuickNavigate.Tests/bin/
+.vs/
