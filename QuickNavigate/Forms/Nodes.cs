@@ -72,7 +72,7 @@ namespace QuickNavigate.Forms
             if (InFile.Context.Features.hasModules)
             {
                 var module = InFile.Module;
-                if (!string.IsNullOrEmpty(module) && module != Name) In = !string.IsNullOrEmpty(In)? $"{In}.{module}" : module;
+                if (!string.IsNullOrEmpty(module) && module != Name) In = !string.IsNullOrEmpty(In) ? $"{In}.{module}" : module;
             }
             ImageIndex = imageIndex;
             SelectedImageIndex = selectedImageIndex;
