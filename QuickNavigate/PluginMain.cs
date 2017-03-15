@@ -344,7 +344,7 @@ namespace QuickNavigate
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
             {
                 var ui = FormHelper.GetProjectManagerPluginUI();
-                Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI != null");
+                Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI is null");
                 ui.Parent.Show();
                 ui.Tree.Select(model.InFile.FileName);
             }));
@@ -356,7 +356,7 @@ namespace QuickNavigate
             ((Control) PluginBase.MainForm).BeginInvoke((MethodInvoker) (() =>
             {
                 var ui = FormHelper.GetFileExplorerPluginUI();
-                Debug.Assert(ui != null, "FileExplorer.PluginMain.pluginUI != null");
+                Debug.Assert(ui != null, "FileExplorer.PluginMain.pluginUI is null");
                 ui.BrowseTo(Path.GetDirectoryName(model.InFile.FileName));
                 ui.Parent.Show();
             }));
@@ -420,7 +420,7 @@ namespace QuickNavigate
             project.SetDocumentClass(model.InFile.FileName, true);
             project.Save();
             var ui = FormHelper.GetProjectManagerPluginUI();
-            Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI != null");
+            Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI is null");
             ui.Tree.RefreshTree();
         }
 
@@ -429,42 +429,42 @@ namespace QuickNavigate
         void OnSetDocumentClassMenuClick(object sender, EventArgs e)
         {
             var node = (ClassNode) openedForm.SelectedNode;
-            Debug.Assert(node != null, "node != null");
+            Debug.Assert(node != null, "node is null");
             SetDocumentClass(node.Model);
         }
 
         void OnGotoPositionOrLineMenuClick(object sender, EventArgs e)
         {
             var node = (ClassNode) openedForm.SelectedNode;
-            Debug.Assert(node != null, "node != null");
+            Debug.Assert(node != null, "node is null");
             GotoPositionOrLine(openedForm, node.Model);
         }
 
         void OnShowInQuickOutlineMenuClick(object sender, EventArgs e)
         {
             var node = (ClassNode) openedForm.SelectedNode;
-            Debug.Assert(node != null, "node != null");
+            Debug.Assert(node != null, "node is null");
             ShowQuickOutline(openedForm, node.Model);
         }
 
         void OnShowInClassHierarchyMenuClick(object sender, EventArgs e)
         {
             var node = (ClassNode) openedForm.SelectedNode;
-            Debug.Assert(node != null, "node != null");
+            Debug.Assert(node != null, "node is null");
             ShowClassHierarchy(openedForm, node.Model);
         }
 
         void OnShowInProjectManagerMenuClick(object sender, EventArgs e)
         {
             var node = (ClassNode) openedForm.SelectedNode;
-            Debug.Assert(node != null, "node != null");
+            Debug.Assert(node != null, "node is null");
             ShowInProjectManager(openedForm, node.Model);
         }
 
         void OnShowInFileExplorerMenuClick(object sender, EventArgs e)
         {
             var node = (ClassNode) openedForm.SelectedNode;
-            Debug.Assert(node != null, "node != null");
+            Debug.Assert(node != null, "node is null");
             ShowInFileExplorer(openedForm, node.Model);
         }
 
