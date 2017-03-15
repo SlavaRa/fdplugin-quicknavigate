@@ -198,7 +198,7 @@ namespace QuickNavigate.Forms
             if (hasClosedMatches) nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
         }
 
-        void FillNodes(TreeNodeCollection nodes, ClassModel inClass, string search)
+        static void FillNodes(TreeNodeCollection nodes, ClassModel inClass, string search)
         {
             var inFile = inClass.InFile;
             var isHaxe = inFile.haXe;
