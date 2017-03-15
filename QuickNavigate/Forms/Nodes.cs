@@ -58,20 +58,25 @@ namespace QuickNavigate.Forms
         {
             Model = model;
             Name = model.Name;
-            InFile = model.InFile;
-            Package = InFile != null ? InFile.Package : string.Empty;
+            InFile = model.InFile ?? FileModel.Ignore;
+            Package = InFile.Package;
             IsPrivate = (model.Access & Visibility.Private) > 0;
             Text = Name;
             Tag = "class";
             In = Package;
-            if (!string.IsNullOrEmpty(Package))
+            if (IsPrivate)
             {
-                if (IsPrivate) In = $"{Package}.{Path.GetFileNameWithoutExtension(InFile.FileName)}";
+                In = Path.GetFileNameWithoutExtension(InFile.FileName);
+                if (!string.IsNullOrEmpty(Package)) In = $"{Package}.{In}";
             }
-            else if (IsPrivate) In = Path.GetFileNameWithoutExtension(InFile.FileName);
+            if (InFile.Context.Features.hasModules)
+            {
+                var module = InFile.Module;
+                if (!string.IsNullOrEmpty(module) && module != Name) In = !string.IsNullOrEmpty(In)? $"{In}.{module}" : module;
+            }
             ImageIndex = imageIndex;
             SelectedImageIndex = selectedImageIndex;
-            if (InFile == null) return;
+            if (InFile == FileModel.Ignore) return;
             var match = Regex.Match(InFile.FileName, @"\S*.swc", RegexOptions.Compiled);
             if (match.Success) Module = Path.GetFileName(match.Value);
         }

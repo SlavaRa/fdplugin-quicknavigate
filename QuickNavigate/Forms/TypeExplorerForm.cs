@@ -168,8 +168,8 @@ namespace QuickNavigate.Forms
 
         void FillNodes(TreeNodeCollection nodes)
         {
-            var openedTypes = FilterTypes(this.openedTypes.ToList());
-            if (openedTypes.Count > 0) nodes.AddRange(CreateNodes(openedTypes, string.Empty).ToArray());
+            var types = FilterTypes(openedTypes.ToList());
+            if (types.Count > 0) nodes.AddRange(CreateNodes(types, string.Empty).ToArray());
         }
 
         void FillNodes(TreeNodeCollection nodes, string search)
