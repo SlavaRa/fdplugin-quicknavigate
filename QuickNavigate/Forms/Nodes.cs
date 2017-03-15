@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Model;
 using JetBrains.Annotations;
+using PluginCore.Managers;
 
 namespace QuickNavigate.Forms
 {
@@ -69,10 +70,10 @@ namespace QuickNavigate.Forms
                 In = Path.GetFileNameWithoutExtension(InFile.FileName);
                 if (!string.IsNullOrEmpty(Package)) In = $"{Package}.{In}";
             }
-            if (InFile.Context.Features.hasModules)
+            else if (InFile.Context.Features.hasModules)
             {
                 var module = InFile.Module;
-                if (!string.IsNullOrEmpty(module) && module != Name) In = !string.IsNullOrEmpty(In)? $"{In}.{module}" : module;
+                if (!string.IsNullOrEmpty(module) && module != Name) In = !string.IsNullOrEmpty(In) ? $"{In}.{module}" : module;
             }
             ImageIndex = imageIndex;
             SelectedImageIndex = selectedImageIndex;
