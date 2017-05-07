@@ -85,7 +85,6 @@
     <Compile Include="Forms\ClassHierarchyForm.Designer.cs">
       <DependentUpon>ClassHierarchyForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Collections\Comparers.cs" />
     <Compile Include="Forms\Nodes.cs" />
     <Compile Include="Forms\OpenRecentProjectsForm.cs">
       <SubType>Form</SubType>
