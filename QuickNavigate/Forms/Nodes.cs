@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using ASCompletion;
 using ASCompletion.Model;
 using JetBrains.Annotations;
-using PluginCore.Managers;
 
 namespace QuickNavigate.Forms
 {
@@ -25,10 +24,7 @@ namespace QuickNavigate.Forms
             return node;
         }
 
-        public static TreeNode CreateTreeNode(ClassModel classModel)
-        {
-            return new ClassNode(classModel, PluginUI.GetIcon(classModel.Flags, classModel.Access));
-        }
+        public static TreeNode CreateTreeNode(ClassModel classModel) => new ClassNode(classModel, PluginUI.GetIcon(classModel.Flags, classModel.Access));
     }
 
     public class MemberNode : TreeNode
