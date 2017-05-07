@@ -16,29 +16,29 @@ Open Search in the topmenu.
 ### Features
 
 ##### 1. Type Explorer
-Shortcut: QuickNavigate.TypeExplorer
+Shortcut: QuickNavigate.TypeExplorer<br/>
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.gif)
 
-Synchronize input field with selected type, shortcut: ctrl+right
+Synchronize input field with selected type, shortcut: ctrl+right<br/>
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorerSyncWithSelectedType.gif)
 
 Outline mode<br/>
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/TypeExplorer.Outline.gif)
 
 ##### 2. Quick Outline
-Shortcut: QuickNavigate.Outline
+Shortcut: QuickNavigate.Outline<br/>
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/QuickOutlineForm.gif)
 
 ##### 3. Class Hierarchy
-Shortcut: QuickNavigate.ClassHierarchy
+Shortcut: QuickNavigate.ClassHierarchy<br/>
 ![image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/ClassHierarchy.gif)
 
 ##### 4. Recent files
-Shortcut: QuickNavigate.RecentFiles
+Shortcut: QuickNavigate.RecentFiles<br/>
 ![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentFiles.gif)
 
 ##### 5. Recent projects
-Shortcut: QuickNavigate.RecentProjects
+Shortcut: QuickNavigate.RecentProjects<br/>
 ![Image](https://dl.dropboxusercontent.com/u/63456010/GitHub/QuickNavigate/OpenRecentProjects.gif)
 
 ##### 6. Go to previous/next member
