@@ -11,7 +11,6 @@ using ASCompletion.Model;
 using JetBrains.Annotations;
 using PluginCore;
 using ProjectManager.Projects;
-using QuickNavigate.Collections;
 using QuickNavigate.Helpers;
 
 namespace QuickNavigate.Forms
@@ -151,8 +150,12 @@ namespace QuickNavigate.Forms
             tree.Nodes.Clear();
             if (selectedNode == null)
             {
-                if (search.Length == 0) FillNodes(tree.Nodes);
-                else FillNodes(tree.Nodes, search);
+                if (search.Length == 0) FillNodes(tree.Nodes, FilterTypes(openedTypes.ToList()));
+                else
+                {
+                    var separator = Settings.EnableItemSpacer ? Settings.ItemSpacer : null;
+                    FillNodes(tree.Nodes, search, FilterTypes(openedTypes.ToList()), FilterTypes(closedTypes.ToList()), Settings.MaxItems, separator);
+                }
                 tree.SelectedNode = tree.TopNode;
             }
             else
@@ -166,39 +169,35 @@ namespace QuickNavigate.Forms
             tree.EndUpdate();
         }
 
-        void FillNodes(TreeNodeCollection nodes)
+        static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] ICollection<string> types)
         {
-            var types = FilterTypes(openedTypes.ToList());
-            if (types.Count > 0) nodes.AddRange(CreateNodes(types, string.Empty).ToArray());
+            if (types.Count > 0) nodes.AddRange(types.Select(it => NodeFactory.CreateTreeNode(TypeToClassModel[it])).ToArray());
         }
 
-        void FillNodes(TreeNodeCollection nodes, string search)
+        static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] string search, [NotNull] List<string> openedTypes, [NotNull] List<string> closedTypes, int maxItems, string separator)
         {
-            var openedTypes = FilterTypes(this.openedTypes.ToList());
-            var closedTypes = FilterTypes(this.closedTypes.ToList());
-            var maxItems = Settings.MaxItems;
-            var openedMatches = openedTypes.Count > 0 ? SearchUtil.FindAll(openedTypes, search) : new List<string>();
-            var closedMatches = new List<string>();
+            if (openedTypes.Count > 0) openedTypes = SearchUtil.FindAll(openedTypes, search);
+            TreeNode[] openedNodes;
+            TreeNode[] closedNodes;
             if (maxItems > 0)
             {
-                if (openedMatches.Count >= maxItems) openedMatches = openedMatches.GetRange(0, maxItems);
-                maxItems -= openedMatches.Count;
-                if (maxItems > 0)
-                {
-                    closedMatches = SearchUtil.FindAll(closedTypes, search);
-                    if (closedMatches.Count >= maxItems) closedMatches = closedMatches.GetRange(0, maxItems);
-                }
+                openedNodes = CreateClassNodes(search, openedTypes, maxItems);
+                maxItems -= openedTypes.Count;
+                closedNodes = maxItems > 0 ? CreateClassNodes(search, SearchUtil.FindAll(closedTypes, search), maxItems) : new TreeNode[0];
             }
-            else closedMatches = SearchUtil.FindAll(closedTypes, search);
-            var hasOpenedMatches = openedMatches.Count > 0;
-            var hasClosedMatches = closedMatches.Count > 0;
-            if (hasOpenedMatches) nodes.AddRange(CreateNodes(openedMatches, search).ToArray());
-            if (Settings.EnableItemSpacer && hasOpenedMatches && hasClosedMatches)
-                nodes.Add(Settings.ItemSpacer);
-            if (hasClosedMatches) nodes.AddRange(CreateNodes(closedMatches, search).ToArray());
+            else
+            {
+                openedNodes = CreateClassNodes(search, openedTypes);
+                closedNodes = CreateClassNodes(search, SearchUtil.FindAll(closedTypes, search));
+            }
+            var hasOpenedMatches = openedNodes.Length > 0;
+            var hasClosedMatches = closedNodes.Length > 0;
+            if (hasOpenedMatches) nodes.AddRange(openedNodes);
+            if (!string.IsNullOrEmpty(separator) && hasOpenedMatches && hasClosedMatches) nodes.Add(separator);
+            if (hasClosedMatches) nodes.AddRange(closedNodes);
         }
 
-        static void FillNodes(TreeNodeCollection nodes, ClassModel inClass, string search)
+        static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] ClassModel inClass, [NotNull] string search)
         {
             var inFile = inClass.InFile;
             var isHaxe = inFile.haXe;
@@ -210,48 +209,33 @@ namespace QuickNavigate.Forms
         }
 
         [NotNull]
-        List<string> FilterTypes(List<string> list)
+        static TreeNode[] CreateClassNodes([NotNull] string search, [NotNull] IEnumerable<string> source)
         {
-            if (CurrentFilter != null)
-            {
-                var flags = (FlagType) CurrentFilter.Tag;
-                list.RemoveAll(it => (TypeToClassModel[it].Flags & flags) == 0);
-            }
+            return source
+                .Select(it => TypeToClassModel[it])
+                .SortModels(search)
+                .Select(NodeFactory.CreateTreeNode)
+                .ToArray();
+        }
+
+        [NotNull]
+        static TreeNode[] CreateClassNodes([NotNull] string search, [NotNull] IEnumerable<string> source, int count)
+        {
+            return source
+                .Select(it => TypeToClassModel[it])
+                .SortModels(search)
+                .Take(count)
+                .Select(NodeFactory.CreateTreeNode)
+                .ToArray();
+        }
+
+        [NotNull]
+        List<string> FilterTypes([NotNull] List<string> list)
+        {
+            if (CurrentFilter == null) return list;
+            var flags = (FlagType) CurrentFilter.Tag;
+            list.RemoveAll(it => (TypeToClassModel[it].Flags & flags) == 0);
             return list;
-        }
-
-        [NotNull]
-        static IEnumerable<ClassNode> CreateNodes([NotNull] IEnumerable<string> matches, [NotNull] string search)
-        {
-            var nodes = matches.Select(CreateNode);
-            return SortNodes(nodes, search);
-        }
-
-        [NotNull]
-        static ClassNode CreateNode([NotNull] string type)
-        {
-            var classModel = TypeToClassModel[type];
-            return (ClassNode) NodeFactory.CreateTreeNode(classModel);
-        }
-
-        [NotNull]
-        static IEnumerable<ClassNode> SortNodes([NotNull] IEnumerable<ClassNode> nodes, [NotNull] string search)
-        {
-            search = search.ToLower();
-            var nodes0 = new List<ClassNode>();
-            var nodes1 = new List<ClassNode>();
-            var nodes2 = new List<ClassNode>();
-            foreach (var node in nodes)
-            {
-                var name = node.Name.ToLower();
-                if (name == search) nodes0.Add(node);
-                else if (name.StartsWith(search)) nodes1.Add(node);
-                else nodes2.Add(node);
-            }
-            nodes0.Sort(TypeExplorerNodeComparer.Package);
-            nodes1.Sort(TypeExplorerNodeComparer.NameIgnoreCase);
-            nodes2.Sort(TypeExplorerNodeComparer.NamePackageIgnoreCase);
-            return nodes0.Concat(nodes1).Concat(nodes2);
         }
 
         protected override void ShowContextMenu()
@@ -324,7 +308,7 @@ namespace QuickNavigate.Forms
             }
         }
 
-        void RefreshFilterTip(Button filter)
+        void RefreshFilterTip([NotNull] Button filter)
         {
             var text = filter == CurrentFilter ? filterToDisabledTip[filter] : filterToEnabledTip[filter];
             if (filterToolTip == null) filterToolTip = new ToolTip();
@@ -547,5 +531,55 @@ namespace QuickNavigate.Forms
         }
 
         #endregion
+    }
+
+    internal static class ListExtensions
+    {
+        static readonly List<ClassModel> Nodes0 = new List<ClassModel>();
+        static readonly List<ClassModel> Nodes1 = new List<ClassModel>();
+        static readonly List<ClassModel> Nodes2 = new List<ClassModel>();
+
+        public static List<ClassModel> SortModels(this IEnumerable<ClassModel> list, string search)
+        {
+            Nodes0.Clear();
+            Nodes1.Clear();
+            Nodes2.Clear();
+            search = search.ToLower();
+            foreach (var it in list)
+            {
+                var name = it.Name.ToLower();
+                if (name == search) Nodes0.Add(it);
+                else if (name.StartsWith(search)) Nodes1.Add(it);
+                else Nodes2.Add(it);
+            }
+            Nodes0.Sort(ClassModelComparers.Package);
+            Nodes1.Sort(ClassModelComparers.Name);
+            Nodes2.Sort(ClassModelComparers.NamePackage);
+            Nodes0.AddRange(Nodes1);
+            Nodes0.AddRange(Nodes2);
+            return Nodes0;
+        }
+    }
+
+    internal static class ClassModelComparers
+    {
+        internal static IComparer<ClassModel> Name = new NameComparer();
+        internal static IComparer<ClassModel> Package = new PackageComparer();
+        internal static IComparer<ClassModel> NamePackage = new NamePackageComparer();
+
+        public class NameComparer : IComparer<ClassModel>
+        {
+            public int Compare(ClassModel x, ClassModel y) => CaseSensitiveImportComparer.CompareImports(x.Name, y.Name);
+        }
+
+        public class PackageComparer : IComparer<ClassModel>
+        {
+            public int Compare(ClassModel x, ClassModel y) => CaseSensitiveImportComparer.CompareImports(x.InFile.Package, y.InFile.Package);
+        }
+
+        public class NamePackageComparer : IComparer<ClassModel>
+        {
+            public int Compare(ClassModel x, ClassModel y) => CaseSensitiveImportComparer.CompareImports(x.Name + "." + x.InFile.Package, y.Name + "." + y.InFile.Package);
+        }
     }
 }
