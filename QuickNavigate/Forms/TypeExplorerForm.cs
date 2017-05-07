@@ -150,8 +150,12 @@ namespace QuickNavigate.Forms
             tree.Nodes.Clear();
             if (selectedNode == null)
             {
-                if (search.Length == 0) FillNodes(tree.Nodes);
-                else FillNodes(tree.Nodes, search);
+                if (search.Length == 0) FillNodes(tree.Nodes, FilterTypes(openedTypes.ToList()));
+                else
+                {
+                    var separator = Settings.EnableItemSpacer ? Settings.ItemSpacer : null;
+                    FillNodes(tree.Nodes, search, FilterTypes(openedTypes.ToList()), FilterTypes(closedTypes.ToList()), Settings.MaxItems, separator);
+                }
                 tree.SelectedNode = tree.TopNode;
             }
             else
@@ -165,17 +169,13 @@ namespace QuickNavigate.Forms
             tree.EndUpdate();
         }
 
-        void FillNodes([NotNull] TreeNodeCollection nodes)
+        static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] ICollection<string> types)
         {
-            var types = FilterTypes(openedTypes.ToList());
-            if (types.Count > 0) nodes.AddRange(types.Select(it => (ClassNode) NodeFactory.CreateTreeNode(TypeToClassModel[it])).ToArray());
+            if (types.Count > 0) nodes.AddRange(types.Select(it => NodeFactory.CreateTreeNode(TypeToClassModel[it])).ToArray());
         }
 
-        void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] string search)
+        static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] string search, [NotNull] List<string> openedTypes, [NotNull] List<string> closedTypes, int maxItems, string separator)
         {
-            var openedTypes = FilterTypes(this.openedTypes.ToList());
-            var closedTypes = FilterTypes(this.closedTypes.ToList());
-            var maxItems = Settings.MaxItems;
             if (openedTypes.Count > 0) openedTypes = SearchUtil.FindAll(openedTypes, search);
             TreeNode[] openedNodes;
             TreeNode[] closedNodes;
@@ -193,29 +193,8 @@ namespace QuickNavigate.Forms
             var hasOpenedMatches = openedNodes.Length > 0;
             var hasClosedMatches = closedNodes.Length > 0;
             if (hasOpenedMatches) nodes.AddRange(openedNodes);
-            if (Settings.EnableItemSpacer && hasOpenedMatches && hasClosedMatches) nodes.Add(Settings.ItemSpacer);
+            if (!string.IsNullOrEmpty(separator) && hasOpenedMatches && hasClosedMatches) nodes.Add(separator);
             if (hasClosedMatches) nodes.AddRange(closedNodes);
-        }
-
-        [NotNull]
-        static TreeNode[] CreateClassNodes([NotNull] string search, [NotNull] IEnumerable<string> sources)
-        {
-            return sources
-                .Select(it => TypeToClassModel[it])
-                .SortModels(search)
-                .Select(NodeFactory.CreateTreeNode)
-                .ToArray();
-        }
-
-        [NotNull]
-        static TreeNode[] CreateClassNodes([NotNull] string search, [NotNull] IEnumerable<string> sources, int count)
-        {
-            return sources
-                .Select(it => TypeToClassModel[it])
-                .SortModels(search)
-                .Take(count)
-                .Select(NodeFactory.CreateTreeNode)
-                .ToArray();
         }
 
         static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] ClassModel inClass, [NotNull] string search)
@@ -227,6 +206,27 @@ namespace QuickNavigate.Forms
             {
                 nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
             }
+        }
+
+        [NotNull]
+        static TreeNode[] CreateClassNodes([NotNull] string search, [NotNull] IEnumerable<string> source)
+        {
+            return source
+                .Select(it => TypeToClassModel[it])
+                .SortModels(search)
+                .Select(NodeFactory.CreateTreeNode)
+                .ToArray();
+        }
+
+        [NotNull]
+        static TreeNode[] CreateClassNodes([NotNull] string search, [NotNull] IEnumerable<string> source, int count)
+        {
+            return source
+                .Select(it => TypeToClassModel[it])
+                .SortModels(search)
+                .Take(count)
+                .Select(NodeFactory.CreateTreeNode)
+                .ToArray();
         }
 
         [NotNull]
