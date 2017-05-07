@@ -67,7 +67,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Collections\ComparersTests.cs" />
     <Compile Include="Forms\TypeExplorerTests.cs" />
     <Compile Include="PluginMainTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,6 +84,9 @@
       <Project>{36B91299-9080-4052-839D-74166B18DD24}</Project>
       <Name>QuickNavigate</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Collections\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
