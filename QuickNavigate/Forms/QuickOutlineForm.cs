@@ -106,7 +106,7 @@ namespace QuickNavigate.Forms
             tree.EndUpdate();
         }
 
-        void FillTree(string search)
+        void FillTree([NotNull] string search)
         {
             var isHaxe = InFile.haXe;
             if (InFile.Members.Count > 0) FillNodes(tree.Nodes, InFile, InFile.Members, isHaxe, search);
@@ -119,8 +119,7 @@ namespace QuickNavigate.Forms
             if (SelectedNode != null || tree.Nodes.Count == 0) return;
             if (search.Length == 0)
             {
-                if (InClass.Equals(ClassModel.VoidClass)) tree.SelectedNode = tree.TopNode;
-                else tree.SelectedNode = tree.Nodes.OfType<ClassNode>().FirstOrDefault(it => it.Model.Equals(InClass));
+                tree.SelectedNode = InClass.IsVoid() ? tree.Nodes[0] : tree.Nodes.OfType<ClassNode>().FirstOrDefault(it => it.Model.Equals(InClass));
             }   
             else
             {
