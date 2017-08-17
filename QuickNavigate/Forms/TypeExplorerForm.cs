@@ -156,7 +156,7 @@ namespace QuickNavigate.Forms
                     var separator = Settings.EnableItemSpacer ? Settings.ItemSpacer : null;
                     FillNodes(tree.Nodes, search, FilterTypes(openedTypes.ToList()), FilterTypes(closedTypes.ToList()), Settings.MaxItems, separator);
                 }
-                tree.SelectedNode = tree.TopNode;
+                if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
             }
             else
             {
