@@ -8,8 +8,8 @@ namespace QuickNavigate
 {
     internal static class SearchUtil
     {
-        [NotNull]
-        public static List<string> FindAll([NotNull] List<string> items, [NotNull] string search)
+        [NotNull, ItemNotNull]
+        public static List<string> FindAll([NotNull, ItemNotNull] List<string> items, [NotNull] string search)
         {
             var length = search.Length;
             if (length == 0) return items;
@@ -17,11 +17,11 @@ namespace QuickNavigate
             return result;
         }
 
-        [NotNull]
-        public static List<MemberModel> FindAll([NotNull] List<MemberModel> items, [NotNull] string search) => FindAll(items, search, false);
+        [NotNull, ItemNotNull]
+        public static List<MemberModel> FindAll([NotNull, ItemNotNull] List<MemberModel> items, [NotNull] string search) => FindAll(items, search, false);
 
-        [NotNull]
-        public static List<MemberModel> FindAll([NotNull] List<MemberModel> items, [NotNull] string search, bool isHaxe)
+        [NotNull, ItemNotNull]
+        public static List<MemberModel> FindAll([NotNull, ItemNotNull] List<MemberModel> items, [NotNull] string search, bool isHaxe)
         {
             var length = search.Length;
             if (length == 0) return items;

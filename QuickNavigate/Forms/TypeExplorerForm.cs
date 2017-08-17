@@ -176,6 +176,17 @@ namespace QuickNavigate.Forms
 
         static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] string search, [NotNull] List<string> openedTypes, [NotNull] List<string> closedTypes, int maxItems, string separator)
         {
+            if ("Main".StartsWith(search, StringComparison.OrdinalIgnoreCase))
+            {
+                var project = (Project)PluginBase.CurrentProject;
+                foreach (var types in new[] { openedTypes, closedTypes })
+                {
+                    var type = types.FirstOrDefault(it => project.IsDocumentClass(TypeToClassModel[it].InFile.FileName));
+                    if (string.IsNullOrEmpty(type)) continue;
+                    nodes.Add(NodeFactory.CreateTreeNode(TypeToClassModel[type]));
+                    break;
+                }
+            }
             if (openedTypes.Count > 0) openedTypes = SearchUtil.FindAll(openedTypes, search);
             TreeNode[] openedNodes;
             TreeNode[] closedNodes;
@@ -193,7 +204,7 @@ namespace QuickNavigate.Forms
             var hasOpenedMatches = openedNodes.Length > 0;
             var hasClosedMatches = closedNodes.Length > 0;
             if (hasOpenedMatches) nodes.AddRange(openedNodes);
-            if (!string.IsNullOrEmpty(separator) && hasOpenedMatches && hasClosedMatches) nodes.Add(separator);
+            if (hasOpenedMatches && hasClosedMatches && !string.IsNullOrEmpty(separator)) nodes.Add(separator);
             if (hasClosedMatches) nodes.AddRange(closedNodes);
         }
 
