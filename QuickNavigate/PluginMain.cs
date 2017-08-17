@@ -216,7 +216,7 @@ namespace QuickNavigate
         {
             typeExplorerItem.Enabled = PluginBase.CurrentProject != null;
             var currentModel = ASContext.Context.CurrentModel;
-            quickOutlineItem.Enabled = currentModel?.Classes?.Count > 0 && currentModel.Members?.Count > 0;
+            quickOutlineItem.Enabled = currentModel?.Classes?.Count > 0 || currentModel?.Members?.Count > 0;
             var enabled = GetCanShowClassHierarchy();
             classHierarchyItem.Enabled = enabled;
             editorClassHierarchyItem.Enabled = enabled;
