@@ -23,7 +23,7 @@ using QuickNavigate.Helpers;
 
 namespace QuickNavigate
 {
-    public class PluginMain : IPlugin
+    public class PluginMain : IPlugin, IDisposable
 	{
         string settingFilename;
 	    ControlClickManager controlClickManager;
@@ -190,6 +190,7 @@ namespace QuickNavigate
             editorClassHierarchyItem = CreateEditorMenuItem("Class Hierarchy", "99|16|0|0", ShowClassHierarchy, 8);
         }
 
+        [NotNull]
 	    static ToolStripMenuItem CreateMenuItem([NotNull] ToolStripDropDownItem menu, [NotNull] string text, [NotNull] string imageData, [NotNull] EventHandler onClick, [NotNull] string shortcutId)
 	    {
 	        var image = PluginBase.MainForm.FindImage(imageData);
@@ -199,6 +200,7 @@ namespace QuickNavigate
 	        return result;
 	    }
 
+        [NotNull]
 	    static ToolStripMenuItem CreateEditorMenuItem([NotNull] string text, [NotNull] string imageData, [NotNull] EventHandler onClick, int index)
 	    {
 	        var image = PluginBase.MainForm.FindImage(imageData);
