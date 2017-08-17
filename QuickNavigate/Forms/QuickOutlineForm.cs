@@ -145,11 +145,12 @@ namespace QuickNavigate.Forms
         {
             var items = FilterTypes(members.Items.ToList());
             items = SearchUtil.FindAll(items, search, isHaxe);
+            if (items.Count == 0) return;
             foreach (var it in items)
             {
                 nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
             }
-            if ((search.Length > 0 && SelectedNode == null || currentClass) && nodes.Count > 0)
+            if (search.Length > 0 && SelectedNode == null || currentClass)
                 tree.SelectedNode = nodes[0];
         }
 

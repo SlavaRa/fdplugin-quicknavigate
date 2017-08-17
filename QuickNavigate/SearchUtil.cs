@@ -25,9 +25,9 @@ namespace QuickNavigate
         {
             var length = search.Length;
             if (length == 0) return items;
-            var result = items.FindAll(it => IsMatch(it.FullName, search, length) 
-                                             || ((it.Flags & FlagType.Constructor) != 0 
-                                                 && (IsMatch("constructor", search, length) || (isHaxe && IsMatch("new", search, length)))));
+            var result = items.FindAll(it => IsMatch(it.FullName, search, length)
+                                             || ((it.Flags & FlagType.Constructor) != 0
+                                                 && ("constructor".StartsWith(search) || (isHaxe && "new".StartsWith(search)))));
             return result;
         }
 
