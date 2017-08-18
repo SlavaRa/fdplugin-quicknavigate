@@ -1,4 +1,5 @@
 ﻿## develop
+ - Fix: [ClassHierarchy] The input field does not lose focus after clicking on the list items
  - Fix: [OpenRecentFiles] The input field does not lose focus after clicking on the list items
  - Fix: [OpenRecentProjects] The input field does not lose focus after clicking on the list items
  - Fix: [QuickOutline] The input field does not lose focus after clicking on the list items
