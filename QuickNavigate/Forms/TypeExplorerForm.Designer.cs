@@ -43,6 +43,7 @@ namespace QuickNavigate.Forms
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.PreviewKeyDown += OnInputPreviewKeyDown;
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
+            this.input.LostFocus += (sender, args) => this.input.Focus();
             // 
             // searchingInExternalClasspaths
             // 
