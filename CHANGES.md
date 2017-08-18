@@ -1,4 +1,5 @@
 ﻿## develop
+ - Fix: [QuickOutline] The input field does not lose focus after clicking on the list items
  - Fix: [TypeExplorer] The input field does not lose focus after clicking on the list items
  - Improvement: [TypeExplorer] Skipping the item separator when navigating
  - Improvement: [TypeExplorer] If the words `Main` or `main` starts with the entered text, then the `Document Class` in the list is the first item
