@@ -470,11 +470,21 @@ namespace QuickNavigate.Forms
                     e.Handled = e.Control;
                     return;
                 case Keys.Down:
-                    if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                    if (tree.SelectedNode.NextVisibleNode != null)
+                    {
+                        tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                        if (tree.SelectedNode.Text == Settings.ItemSpacer && tree.SelectedNode.NextVisibleNode != null)
+                            tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                    }
                     else if (PluginBase.MainForm.Settings.WrapList) tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
-                    if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                    if (tree.SelectedNode.PrevVisibleNode != null)
+                    {
+                        tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                        if (tree.SelectedNode.Text == Settings.ItemSpacer && tree.SelectedNode.PrevVisibleNode != null)
+                            tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                    }
                     else if (PluginBase.MainForm.Settings.WrapList)
                     {
                         node = tree.SelectedNode;
