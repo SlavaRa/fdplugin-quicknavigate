@@ -49,6 +49,7 @@ namespace QuickNavigate.Forms
             this.input.TabIndex = 0;
             this.input.TextChanged += new System.EventHandler(this.OnInputTextChanged);
             this.input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnInputKeyDown);
+            this.input.LostFocus += (sender, args) => this.input.Focus();
             // 
             // tree
             // 
