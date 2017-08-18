@@ -385,10 +385,12 @@ namespace QuickNavigate.Forms
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            var node = e.Node as ClassNode;
-            if (node == null) return;
-            tree.SelectedNode = node;
-            base.OnTreeNodeMouseClick(sender, e);
+            if (e.Node is ClassNode node)
+            {
+                tree.SelectedNode = node;
+                base.OnTreeNodeMouseClick(sender, e);
+            }
+            input.Select();
         }
 
         void OnTreeNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e) => Navigate();
