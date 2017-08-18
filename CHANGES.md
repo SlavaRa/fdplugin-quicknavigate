@@ -1,4 +1,5 @@
 ﻿## develop
+ - Fix: [OpenRecentFiles] The input field does not lose focus after clicking on the list items
  - Fix: [OpenRecentProjects] The input field does not lose focus after clicking on the list items
  - Fix: [QuickOutline] The input field does not lose focus after clicking on the list items
  - Fix: [TypeExplorer] The input field does not lose focus after clicking on the list items
