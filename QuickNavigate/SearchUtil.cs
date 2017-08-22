@@ -37,7 +37,7 @@ namespace QuickNavigate
             return result;
         }
 
-        static bool IsMatch(string word, string search, int length)
+        public static bool IsMatch([NotNull] string word, [NotNull] string search, int length)
         {
             var score = PluginCore.Controls.CompletionList.SmartMatch(word, search, length);
             return score > 0 && score < 6;

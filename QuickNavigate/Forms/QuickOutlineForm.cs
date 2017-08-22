@@ -124,12 +124,7 @@ namespace QuickNavigate.Forms
             }   
             else
             {
-                var nodes = tree.Nodes.OfType<ClassNode>().ToList().FindAll(it =>
-                {
-                    var word = it.Model.QualifiedName;
-                    var score = PluginCore.Controls.CompletionList.SmartMatch(word, search, search.Length);
-                    return score > 0 && score < 6;
-                });
+                var nodes = tree.Nodes.OfType<ClassNode>().ToList().FindAll(it => SearchUtil.IsMatch(it.Model.QualifiedName, search, search.Length));
                 tree.Nodes.Clear();
                 if (nodes.Count == 0) return;
                 tree.Nodes.AddRange(nodes.ToArray());
@@ -241,6 +236,8 @@ namespace QuickNavigate.Forms
             CenterToParent();
         }
 
+        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.QuickOutlineSize = Size;
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var keyCode = e.KeyCode;
@@ -271,8 +268,6 @@ namespace QuickNavigate.Forms
                     break;
             }
         }
-
-        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.QuickOutlineSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 
