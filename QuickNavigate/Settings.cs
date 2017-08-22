@@ -17,8 +17,8 @@ namespace QuickNavigate
         [DefaultValue(true)]
         public bool CtrlClickEnabled
         {
-            get { return ctrlClickEnabled; }
-            set { ctrlClickEnabled = value; }
+            get => ctrlClickEnabled;
+            set => ctrlClickEnabled = value;
         }
 
         bool enableItemSpacer = true;
@@ -28,8 +28,8 @@ namespace QuickNavigate
         [DefaultValue(true)]
         public bool EnableItemSpacer
         {
-            get { return enableItemSpacer; }
-            set { enableItemSpacer = value; }
+            get => enableItemSpacer;
+            set => enableItemSpacer = value;
         }
 
         string itemSpacer = "—————————————————————————————————————————————————————————————";
@@ -39,8 +39,8 @@ namespace QuickNavigate
         [DefaultValue("—————————————————————————————————————————————————————————————")]
         public string ItemSpacer
         {
-            get { return itemSpacer; }
-            set { itemSpacer = value; }
+            get => itemSpacer;
+            set => itemSpacer = value;
         }
 
         int maxItems = 100;
@@ -50,8 +50,8 @@ namespace QuickNavigate
         [DefaultValue(100)]
         public int MaxItems
         {
-            get { return maxItems; }
-            set { maxItems = value; }
+            get => maxItems;
+            set => maxItems = value;
         }
 
         bool typeExplorerSearchExternalClassPath = true;
@@ -59,8 +59,8 @@ namespace QuickNavigate
         [Browsable(false)]
         public bool TypeExplorerSearchExternalClassPath
         {
-            get { return typeExplorerSearchExternalClassPath; }
-            set { typeExplorerSearchExternalClassPath = value; }
+            get => typeExplorerSearchExternalClassPath;
+            set => typeExplorerSearchExternalClassPath = value;
         }
 
         [Browsable(false)] public Size TypeExplorerSize { get; set; }

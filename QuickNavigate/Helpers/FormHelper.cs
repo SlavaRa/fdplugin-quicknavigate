@@ -20,10 +20,7 @@ namespace QuickNavigate.Helpers
     {
         protected QuickForm() { }
 
-        protected QuickForm([NotNull] Settings settings)
-        {
-            Settings = settings;
-        }
+        protected QuickForm([NotNull] Settings settings) => Settings = settings;
 
         [CanBeNull] protected Settings Settings;
 
@@ -52,21 +49,17 @@ namespace QuickNavigate.Helpers
 
         protected virtual void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button != MouseButtons.Right) return;
-            var node = e.Node as ClassNode;
-            if (node == null) return;
+            if (e.Button != MouseButtons.Right || !(e.Node is ClassNode node)) return;
             ShowContextMenu(new Point(e.Location.X, node.Bounds.Bottom));
         }
     }
 
     class FormHelper
     {
-        [NotNull] internal static readonly ContextMenu EmptyContextMenu = new ContextMenu();
+        [NotNull] 
+        internal static readonly ContextMenu EmptyContextMenu = new ContextMenu();
 
-        public static bool IsFileOpened([NotNull] string fileName)
-        {
-            return PluginBase.MainForm.Documents.Any(it => it.FileName == fileName);
-        }
+        public static bool IsFileOpened([NotNull] string fileName) => PluginBase.MainForm.Documents.Any(it => it.FileName == fileName);
 
         [NotNull]
         public static List<string> FilterOpenedFiles([NotNull] ICollection<string> fileNames)
@@ -97,16 +90,10 @@ namespace QuickNavigate.Helpers
         public const string ProjectManagerGUID = "30018864-fadd-1122-b2a5-779832cbbf23";
 
         [CanBeNull]
-        public static ProjectManager.PluginUI GetProjectManagerPluginUI()
-        {
-            return GetPluginUI<ProjectManager.PluginUI>(ProjectManagerGUID);
-        }
+        public static ProjectManager.PluginUI GetProjectManagerPluginUI() => GetPluginUI<ProjectManager.PluginUI>(ProjectManagerGUID);
 
         [CanBeNull]
-        public static FileExplorer.PluginUI GetFileExplorerPluginUI()
-        {
-            return GetPluginUI<FileExplorer.PluginUI>("f534a520-bcc7-4fe4-a4b9-6931948b2686");
-        }
+        public static FileExplorer.PluginUI GetFileExplorerPluginUI() => GetPluginUI<FileExplorer.PluginUI>("f534a520-bcc7-4fe4-a4b9-6931948b2686");
 
         [CanBeNull]
         static T GetPluginUI<T>(string pluginGUID)
@@ -126,7 +113,7 @@ namespace QuickNavigate.Helpers
             return default(T);
         }
 
-        static Dictionary<char, char> ruToEn = new Dictionary<char, char>
+        static readonly Dictionary<char, char> RuToEn = new Dictionary<char, char>
         {
             {'й', 'q'},
             {'ц', 'w'},
@@ -161,7 +148,7 @@ namespace QuickNavigate.Helpers
         public static string Transcriptor([NotNull] string s)
         {
             if (s.Trim().Length == 0) return s;
-            var result = new string(s.ToCharArray().Select(c => ruToEn.ContainsKey(c) ? ruToEn[c] : c).ToArray());
+            var result = new string(s.ToCharArray().Select(c => RuToEn.ContainsKey(c) ? RuToEn[c] : c).ToArray());
             return result;
         }
     }
