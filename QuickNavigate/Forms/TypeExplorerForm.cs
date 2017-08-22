@@ -241,7 +241,7 @@ namespace QuickNavigate.Forms
                 .ToArray();
         }
 
-        [NotNull]
+        [NotNull, ItemNotNull]
         List<string> FilterTypes([NotNull] List<string> list)
         {
             if (CurrentFilter == null) return list;
@@ -258,9 +258,9 @@ namespace QuickNavigate.Forms
 
         protected override void ShowContextMenu(Point position)
         {
-            if (!(SelectedNode is ClassNode)) return;
+            if (!(SelectedNode is ClassNode node)) return;
             ContextMenuStrip.Items.Clear();
-            var classModel = ((ClassNode) SelectedNode).Model;
+            var classModel = node.Model;
             var flags = classModel.Flags;
             var fileName = classModel.InFile.FileName;
             if ((flags & FlagType.Class) > 0
