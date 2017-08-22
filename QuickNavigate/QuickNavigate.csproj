@@ -140,7 +140,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CHANGES.md" />
     <None Include="packages.config" />
   </ItemGroup>
 </Project>
