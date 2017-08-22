@@ -56,7 +56,7 @@ namespace QuickNavigate.Forms
         [CanBeNull]
         Button CurrentFilter
         {
-            get { return currentFilter; }
+            get => currentFilter;
             set
             {
                 if (currentFilter != null)
@@ -145,7 +145,11 @@ namespace QuickNavigate.Forms
         void FillNodes(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe, bool currentClass, string search)
         {
             var items = FilterTypes(members.Items.ToList());
-            items = SearchUtil.FindAll(items, search, isHaxe);
+            items = SearchUtil.FindAll(items, search, it =>
+            {
+                return (it.Flags & FlagType.Constructor) != 0
+                    && ("constructor".StartsWith(search) || (isHaxe && "new".StartsWith(search)));
+            });
             if (items.Count == 0) return;
             foreach (var it in items)
             {

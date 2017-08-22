@@ -1,5 +1,7 @@
 ﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+using System;
 using System.Collections.Generic;
 using ASCompletion.Model;
 using JetBrains.Annotations;
@@ -18,16 +20,20 @@ namespace QuickNavigate
         }
 
         [NotNull, ItemNotNull]
-        public static List<MemberModel> FindAll([NotNull, ItemNotNull] List<MemberModel> items, [NotNull] string search) => FindAll(items, search, false);
-
-        [NotNull, ItemNotNull]
-        public static List<MemberModel> FindAll([NotNull, ItemNotNull] List<MemberModel> items, [NotNull] string search, bool isHaxe)
+        public static List<MemberModel> FindAll([NotNull, ItemNotNull] List<MemberModel> items, [NotNull] string search)
         {
             var length = search.Length;
             if (length == 0) return items;
-            var result = items.FindAll(it => IsMatch(it.FullName, search, length)
-                                             || ((it.Flags & FlagType.Constructor) != 0
-                                                 && ("constructor".StartsWith(search) || (isHaxe && "new".StartsWith(search)))));
+            var result = items.FindAll(it => IsMatch(it.FullName, search, length));
+            return result;
+        }
+
+        [NotNull, ItemNotNull]
+        public static List<MemberModel> FindAll([NotNull, ItemNotNull] List<MemberModel> items, [NotNull] string search, Func<MemberModel, bool> match)
+        {
+            var length = search.Length;
+            if (length == 0) return items;
+            var result = items.FindAll(it => IsMatch(it.FullName, search, length) || match(it));
             return result;
         }
 
