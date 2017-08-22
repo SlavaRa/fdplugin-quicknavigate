@@ -162,6 +162,11 @@ namespace QuickNavigate
             else Settings = (Settings) ObjectSerializer.Deserialize(settingFilename, Settings);
         }
 
+	    /// <summary>
+	    /// Saves the plugin settings
+	    /// </summary>
+	    void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
+
         /// <summary>
         /// Adds the required event handlers
         /// </summary>
@@ -230,11 +235,6 @@ namespace QuickNavigate
 	        PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextTab, Keys.None);
         }
 
-        /// <summary>
-        /// Saves the plugin settings
-        /// </summary>
-        void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
-
         void ShowRecentFiles(object sender, EventArgs e) => ShowRecentFiles();
 
         void ShowRecentFiles()
@@ -262,7 +262,6 @@ namespace QuickNavigate
 
         void ShowTypeExplorer()
         {
-            if (PluginBase.CurrentProject == null) return;
             var form = new TypeExplorerForm((Settings) Settings);
             var features = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language).Features;
             if (features.hasClasses) form.AddFilter(QuickFilterMenuItem.ShowOnlyClasses);
@@ -298,7 +297,8 @@ namespace QuickNavigate
             form.Shown += OnFormShown;
             form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
-            FormHelper.Navigate(form.SelectedNode);
+            var node = form.SelectedNode;
+            if (node != null) FormHelper.Navigate(node);
         }
 
         void ShowClassHierarchy(object sender, EventArgs e) => ShowClassHierarchy();
@@ -374,7 +374,7 @@ namespace QuickNavigate
 
         static void GotoPreviousMember()
         {
-            var members = GetCurrentFileMembers();
+            var members = GetMembers(ASContext.Context.CurrentModel);
             if (members.Count == 0) return;
             members.Reverse();
             var line = ASContext.Context.CurrentLine;
@@ -384,7 +384,7 @@ namespace QuickNavigate
 
         static void GotoNextMember()
         {
-            var members = GetCurrentFileMembers();
+            var members = GetMembers(ASContext.Context.CurrentModel);
             if (members.Count == 0) return;
             var line = ASContext.Context.CurrentLine;
             var target = members.FirstOrDefault(member => member.LineFrom > line);
@@ -392,9 +392,8 @@ namespace QuickNavigate
         }
 
         [NotNull, ItemNotNull]
-        static List<MemberModel> GetCurrentFileMembers()
+        static List<MemberModel> GetMembers(FileModel file)
         {
-            var file = ASContext.Context.CurrentModel;
             var result = new List<MemberModel>(file.Members.Items);
             foreach (var it in file.Classes)
             {
@@ -422,19 +421,19 @@ namespace QuickNavigate
             documents[index].Activate();
         }
 
-        #endregion
+	    static void SetDocumentClass([NotNull] MemberModel model)
+	    {
+	        var project = (Project)PluginBase.CurrentProject;
+	        project.SetDocumentClass(model.InFile.FileName, true);
+	        project.Save();
+	        var ui = FormHelper.GetProjectManagerPluginUI();
+	        Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI is null");
+	        ui.Tree.RefreshTree();
+	    }
 
-        static void SetDocumentClass([NotNull] MemberModel model)
-        {
-            var project = (Project)PluginBase.CurrentProject;
-            project.SetDocumentClass(model.InFile.FileName, true);
-            project.Save();
-            var ui = FormHelper.GetProjectManagerPluginUI();
-            Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI is null");
-            ui.Tree.RefreshTree();
-        }
+	    #endregion
 
-        #region Event Handlers
+	    #region Event Handlers
 
         void OnSetDocumentClassMenuClick(object sender, EventArgs e)
         {
