@@ -36,6 +36,7 @@ namespace QuickNavigate.Forms
             InitializeComponent();
             InitializeTree();
             InitializeTheme();
+            input.LostFocus += (sender, args) => input.Focus();
             RefreshTree();
         }
 

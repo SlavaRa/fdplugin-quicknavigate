@@ -38,6 +38,7 @@ namespace QuickNavigate.Forms
             CreateItemsList();
             InitializeTree();
             InitializeTheme();
+            input.LostFocus += (sender, args) => input.Focus();
             RefreshTree();
         }
 
@@ -47,7 +48,7 @@ namespace QuickNavigate.Forms
         [CanBeNull]
         Button CurrentFilter
         {
-            get { return currentFilter; }
+            get => currentFilter;
             set
             {
                 if (currentFilter != null)

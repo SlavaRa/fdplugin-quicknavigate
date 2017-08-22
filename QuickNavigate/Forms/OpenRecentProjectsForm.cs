@@ -29,6 +29,7 @@ namespace QuickNavigate.Forms
             InitializeContextMenu();
             InitializeTheme();
             openInNewWindow.Visible = PluginBase.MainForm.MultiInstanceMode;
+            input.LostFocus += (sender, args) => input.Focus();
             RefrestTree();
         }
 
