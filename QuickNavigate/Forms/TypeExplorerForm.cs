@@ -329,6 +329,27 @@ namespace QuickNavigate.Forms
 
         #region Event Handlers
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Settings != null)
+            {
+                if (Settings.TypeExplorerSize.Width > MinimumSize.Width) Size = Settings.TypeExplorerSize;
+                searchingInExternalClasspaths.Checked = Settings.TypeExplorerSearchExternalClassPath;
+            }
+            CenterToParent();
+            timer.Interval = Math.Max(PluginBase.MainForm.Settings.DisplayDelay, 100);
+            timer.Tick += OnTimerTick;
+            timer.Start();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            timer.Stop();
+            Settings.TypeExplorerSize = Size;
+            Settings.TypeExplorerSearchExternalClassPath = searchingInExternalClasspaths.Checked;
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var keyCode = e.KeyCode;
@@ -361,27 +382,6 @@ namespace QuickNavigate.Forms
                     ShowContextMenu();
                     break;
             }
-        }
-
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            if (Settings != null)
-            {
-                if (Settings.TypeExplorerSize.Width > MinimumSize.Width) Size = Settings.TypeExplorerSize;
-                searchingInExternalClasspaths.Checked = Settings.TypeExplorerSearchExternalClassPath;
-            }
-            CenterToParent();
-            timer.Interval = Math.Max(PluginBase.MainForm.Settings.DisplayDelay, 100);
-            timer.Tick += OnTimerTick;
-            timer.Start();
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            timer.Stop();
-            Settings.TypeExplorerSize = Size;
-            Settings.TypeExplorerSearchExternalClassPath = searchingInExternalClasspaths.Checked;
         }
 
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
