@@ -20,11 +20,10 @@ using ProjectManager;
 using ProjectManager.Projects;
 using QuickNavigate.Forms;
 using QuickNavigate.Helpers;
-using ScintillaNet;
 
 namespace QuickNavigate
 {
-    public class PluginMain : IPlugin
+    public class PluginMain : IPlugin, IDisposable
 	{
         string settingFilename;
 	    ControlClickManager controlClickManager;
@@ -86,10 +85,11 @@ namespace QuickNavigate
             AddEventHandlers();
             CreateMenuItems();
             UpdateMenuItems();
+		    RegisterShortcuts();
             if (((Settings) Settings).CtrlClickEnabled) controlClickManager = new ControlClickManager();
         }
-		
-		/// <summary>
+
+	    /// <summary>
 		/// Disposes the plugin
 		/// </summary>
 		public void Dispose()
@@ -162,6 +162,11 @@ namespace QuickNavigate
             else Settings = (Settings) ObjectSerializer.Deserialize(settingFilename, Settings);
         }
 
+	    /// <summary>
+	    /// Saves the plugin settings
+	    /// </summary>
+	    void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
+
         /// <summary>
         /// Adds the required event handlers
         /// </summary>
@@ -182,31 +187,32 @@ namespace QuickNavigate
         void CreateMenuItems()
         {
             var menu = (ToolStripMenuItem)PluginBase.MainForm.FindMenuItem("SearchMenu");
-            var image = PluginBase.MainForm.FindImage("99|16|0|0");
-            typeExplorerItem = new ToolStripMenuItem("Type Explorer", image, ShowTypeExplorer);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.TypeExplorer, typeExplorerItem);
-            menu.DropDownItems.Add(typeExplorerItem);
-            image = PluginBase.MainForm.FindImage("315|16|0|0");
-            quickOutlineItem = new ToolStripMenuItem("Quick Outline", image, ShowQuickOutline);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.QuickOutline, quickOutlineItem);
-            menu.DropDownItems.Add(quickOutlineItem);
-            image = PluginBase.MainForm.FindImage("99|16|0|0");
-            classHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
-            menu.DropDownItems.Add(classHierarchyItem);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.ClassHierarchy, classHierarchyItem);
-            editorClassHierarchyItem = new ToolStripMenuItem("Class Hierarchy", image, ShowClassHierarchy);
-            PluginBase.MainForm.EditorMenu.Items.Insert(8, editorClassHierarchyItem);
-            var item = new ToolStripMenuItem("Recent Files", PluginBase.MainForm.FindImage("209"), ShowRecentFiles);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.RecentFiles, item);
-            menu.DropDownItems.Add(item);
-            item = new ToolStripMenuItem("Recent Projects", PluginBase.MainForm.FindImage("274"), ShowRecentProjets);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.RecentProjects, item);
-            menu.DropDownItems.Add(item);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextMember, Keys.None);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoPreviousMember, Keys.None);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoPreviousTab, Keys.None);
-            PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextTab, Keys.None);
+            typeExplorerItem = CreateMenuItem(menu, "Type Explorer", "99|16|0|0", ShowTypeExplorer, ShortcutId.TypeExplorer);
+            quickOutlineItem = CreateMenuItem(menu, "Quick Outline", "315|16|0|0", ShowQuickOutline, ShortcutId.QuickOutline);
+            classHierarchyItem = CreateMenuItem(menu, "Class Hierarchy", "99|16|0|0", ShowClassHierarchy, ShortcutId.ClassHierarchy);
+            CreateMenuItem(menu, "Recent Files", "209", ShowRecentFiles, ShortcutId.RecentFiles);
+            CreateMenuItem(menu, "Recent Projects", "274", ShowRecentProjets, ShortcutId.RecentProjects);
+            editorClassHierarchyItem = CreateEditorMenuItem("Class Hierarchy", "99|16|0|0", ShowClassHierarchy, 8);
         }
+
+        [NotNull]
+	    static ToolStripMenuItem CreateMenuItem([NotNull] ToolStripDropDownItem menu, [NotNull] string text, [NotNull] string imageData, [NotNull] EventHandler onClick, [NotNull] string shortcutId)
+	    {
+	        var image = PluginBase.MainForm.FindImage(imageData);
+	        var result = new ToolStripMenuItem(text, image, onClick);
+	        menu.DropDownItems.Add(result);
+	        PluginBase.MainForm.RegisterShortcutItem(shortcutId, result);
+	        return result;
+	    }
+
+        [NotNull]
+	    static ToolStripMenuItem CreateEditorMenuItem([NotNull] string text, [NotNull] string imageData, [NotNull] EventHandler onClick, int index)
+	    {
+	        var image = PluginBase.MainForm.FindImage(imageData);
+	        var result = new ToolStripMenuItem(text, image, onClick);
+	        PluginBase.MainForm.EditorMenu.Items.Insert(index, result);
+	        return result;
+	    }
 
         /// <summary>
         /// Updates the state of the menu items
@@ -214,16 +220,20 @@ namespace QuickNavigate
         void UpdateMenuItems()
         {
             typeExplorerItem.Enabled = PluginBase.CurrentProject != null;
-            quickOutlineItem.Enabled = ASContext.Context.CurrentModel != null;
+            var currentModel = ASContext.Context.CurrentModel;
+            quickOutlineItem.Enabled = currentModel?.Classes?.Count > 0 || currentModel?.Members?.Count > 0;
             var enabled = GetCanShowClassHierarchy();
             classHierarchyItem.Enabled = enabled;
             editorClassHierarchyItem.Enabled = enabled;
         }
 
-        /// <summary>
-        /// Saves the plugin settings
-        /// </summary>
-        void SaveSettings() => ObjectSerializer.Serialize(settingFilename, Settings);
+	    static void RegisterShortcuts()
+	    {
+	        PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextMember, Keys.None);
+	        PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoPreviousMember, Keys.None);
+	        PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoPreviousTab, Keys.None);
+	        PluginBase.MainForm.RegisterShortcutItem(ShortcutId.GotoNextTab, Keys.None);
+        }
 
         void ShowRecentFiles(object sender, EventArgs e) => ShowRecentFiles();
 
@@ -252,7 +262,6 @@ namespace QuickNavigate
 
         void ShowTypeExplorer()
         {
-            if (PluginBase.CurrentProject == null) return;
             var form = new TypeExplorerForm((Settings) Settings);
             var features = ASContext.GetLanguageContext(PluginBase.CurrentProject.Language).Features;
             if (features.hasClasses) form.AddFilter(QuickFilterMenuItem.ShowOnlyClasses);
@@ -288,7 +297,8 @@ namespace QuickNavigate
             form.Shown += OnFormShown;
             form.Closing += OnFormClosing;
             if (form.ShowDialog() != DialogResult.OK) return;
-            FormHelper.Navigate(form.SelectedNode);
+            var node = form.SelectedNode;
+            if (node != null) FormHelper.Navigate(node);
         }
 
         void ShowClassHierarchy(object sender, EventArgs e) => ShowClassHierarchy();
@@ -364,7 +374,7 @@ namespace QuickNavigate
 
         static void GotoPreviousMember()
         {
-            var members = GetCurrentFileMembers();
+            var members = GetMembers(ASContext.Context.CurrentModel);
             if (members.Count == 0) return;
             members.Reverse();
             var line = ASContext.Context.CurrentLine;
@@ -374,7 +384,7 @@ namespace QuickNavigate
 
         static void GotoNextMember()
         {
-            var members = GetCurrentFileMembers();
+            var members = GetMembers(ASContext.Context.CurrentModel);
             if (members.Count == 0) return;
             var line = ASContext.Context.CurrentLine;
             var target = members.FirstOrDefault(member => member.LineFrom > line);
@@ -382,9 +392,8 @@ namespace QuickNavigate
         }
 
         [NotNull, ItemNotNull]
-        static List<MemberModel> GetCurrentFileMembers()
+        static List<MemberModel> GetMembers(FileModel file)
         {
-            var file = ASContext.Context.CurrentModel;
             var result = new List<MemberModel>(file.Members.Items);
             foreach (var it in file.Classes)
             {
@@ -412,19 +421,19 @@ namespace QuickNavigate
             documents[index].Activate();
         }
 
-        #endregion
+	    static void SetDocumentClass([NotNull] MemberModel model)
+	    {
+	        var project = (Project)PluginBase.CurrentProject;
+	        project.SetDocumentClass(model.InFile.FileName, true);
+	        project.Save();
+	        var ui = FormHelper.GetProjectManagerPluginUI();
+	        Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI is null");
+	        ui.Tree.RefreshTree();
+	    }
 
-        static void SetDocumentClass([NotNull] MemberModel model)
-        {
-            var project = (Project)PluginBase.CurrentProject;
-            project.SetDocumentClass(model.InFile.FileName, true);
-            project.Save();
-            var ui = FormHelper.GetProjectManagerPluginUI();
-            Debug.Assert(ui != null, "ProjectManager.PluginMain.pluginUI is null");
-            ui.Tree.RefreshTree();
-        }
+	    #endregion
 
-        #region Event Handlers
+	    #region Event Handlers
 
         void OnSetDocumentClassMenuClick(object sender, EventArgs e)
         {

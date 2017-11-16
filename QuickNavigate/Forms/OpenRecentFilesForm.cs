@@ -31,6 +31,7 @@ namespace QuickNavigate.Forms
             recentFiles.RemoveAll(openedFiles.Contains);
             InitializeTree();
             InitializeTheme();
+            input.LostFocus += (sender, args) => input.Focus();
             RefreshTree();
         }
 

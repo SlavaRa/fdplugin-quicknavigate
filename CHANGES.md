@@ -1,0 +1,13 @@
+﻿## develop
+ - Fix: [ClassHierarchy] The input field does not lose focus after clicking on the list items
+ - Fix: [OpenRecentFiles] The input field does not lose focus after clicking on the list items
+ - Fix: [OpenRecentProjects] The input field does not lose focus after clicking on the list items
+ - Fix: [QuickOutline] The input field does not lose focus after clicking on the list items
+ - Fix: [TypeExplorer] The input field does not lose focus after clicking on the list items
+ - Improvement: [TypeExplorer] Skipping the item separator when navigating
+ - Improvement: [TypeExplorer] If the words `Main` or `main` starts with the entered text, then the `Document Class` in the list is the first item
+ - Fix: [QuickOutline] Selection a constructor occurs if the words `constructor`(ActionScript|Haxe) or `new`(Haxe) starts with the text entered
+ - Fix: [QuickOutline] Select the first node if search text is empty
+ - Fix: [TypeExplorer] Select the first node when entering text if the list of matches is not empty
+ - Update to JetBrains.Annotations v11.0.0
+ - Update to .NET Framework 4.0

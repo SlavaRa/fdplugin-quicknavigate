@@ -36,6 +36,7 @@ namespace QuickNavigate.Forms
             InitializeComponent();
             InitializeTree();
             InitializeTheme();
+            input.LostFocus += (sender, args) => input.Focus();
             RefreshTree();
         }
 
@@ -55,7 +56,7 @@ namespace QuickNavigate.Forms
         [CanBeNull]
         Button CurrentFilter
         {
-            get { return currentFilter; }
+            get => currentFilter;
             set
             {
                 if (currentFilter != null)
@@ -106,7 +107,7 @@ namespace QuickNavigate.Forms
             tree.EndUpdate();
         }
 
-        void FillTree(string search)
+        void FillTree([NotNull] string search)
         {
             var isHaxe = InFile.haXe;
             if (InFile.Members.Count > 0) FillNodes(tree.Nodes, InFile, InFile.Members, isHaxe, search);
@@ -119,17 +120,11 @@ namespace QuickNavigate.Forms
             if (SelectedNode != null || tree.Nodes.Count == 0) return;
             if (search.Length == 0)
             {
-                if (InClass.Equals(ClassModel.VoidClass)) tree.SelectedNode = tree.TopNode;
-                else tree.SelectedNode = tree.Nodes.OfType<ClassNode>().FirstOrDefault(it => it.Model.Equals(InClass));
+                tree.SelectedNode = InClass.IsVoid() ? tree.Nodes[0] : tree.Nodes.OfType<ClassNode>().FirstOrDefault(it => it.Model.Equals(InClass));
             }   
             else
             {
-                var nodes = tree.Nodes.OfType<ClassNode>().ToList().FindAll(it =>
-                {
-                    var word = it.Model.QualifiedName;
-                    var score = PluginCore.Controls.CompletionList.SmartMatch(word, search, search.Length);
-                    return score > 0 && score < 6;
-                });
+                var nodes = tree.Nodes.OfType<ClassNode>().ToList().FindAll(it => SearchUtil.IsMatch(it.Model.QualifiedName, search, search.Length));
                 tree.Nodes.Clear();
                 if (nodes.Count == 0) return;
                 tree.Nodes.AddRange(nodes.ToArray());
@@ -145,12 +140,17 @@ namespace QuickNavigate.Forms
         void FillNodes(TreeNodeCollection nodes, FileModel inFile, MemberList members, bool isHaxe, bool currentClass, string search)
         {
             var items = FilterTypes(members.Items.ToList());
-            items = SearchUtil.FindAll(items, search, isHaxe);
+            items = SearchUtil.FindAll(items, search, it =>
+            {
+                return (it.Flags & FlagType.Constructor) != 0
+                    && ("constructor".StartsWith(search) || (isHaxe && "new".StartsWith(search)));
+            });
+            if (items.Count == 0) return;
             foreach (var it in items)
             {
                 nodes.Add(NodeFactory.CreateTreeNode(inFile, isHaxe, it));
             }
-            if ((search.Length > 0 && SelectedNode == null || currentClass) && nodes.Count > 0)
+            if (search.Length > 0 && SelectedNode == null || currentClass)
                 tree.SelectedNode = nodes[0];
         }
 
@@ -236,6 +236,8 @@ namespace QuickNavigate.Forms
             CenterToParent();
         }
 
+        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.QuickOutlineSize = Size;
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var keyCode = e.KeyCode;
@@ -266,8 +268,6 @@ namespace QuickNavigate.Forms
                     break;
             }
         }
-
-        protected override void OnFormClosing(FormClosingEventArgs e) => Settings.QuickOutlineSize = Size;
 
         void OnInputTextChanged(object sender, EventArgs e) => RefreshTree();
 

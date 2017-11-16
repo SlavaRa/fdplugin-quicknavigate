@@ -38,6 +38,7 @@ namespace QuickNavigate.Forms
             CreateItemsList();
             InitializeTree();
             InitializeTheme();
+            input.LostFocus += (sender, args) => input.Focus();
             RefreshTree();
         }
 
@@ -47,7 +48,7 @@ namespace QuickNavigate.Forms
         [CanBeNull]
         Button CurrentFilter
         {
-            get { return currentFilter; }
+            get => currentFilter;
             set
             {
                 if (currentFilter != null)
@@ -156,7 +157,7 @@ namespace QuickNavigate.Forms
                     var separator = Settings.EnableItemSpacer ? Settings.ItemSpacer : null;
                     FillNodes(tree.Nodes, search, FilterTypes(openedTypes.ToList()), FilterTypes(closedTypes.ToList()), Settings.MaxItems, separator);
                 }
-                tree.SelectedNode = tree.TopNode;
+                if (tree.Nodes.Count > 0) tree.SelectedNode = tree.Nodes[0];
             }
             else
             {
@@ -176,6 +177,17 @@ namespace QuickNavigate.Forms
 
         static void FillNodes([NotNull] TreeNodeCollection nodes, [NotNull] string search, [NotNull] List<string> openedTypes, [NotNull] List<string> closedTypes, int maxItems, string separator)
         {
+            if ("Main".StartsWith(search, StringComparison.OrdinalIgnoreCase))
+            {
+                var project = (Project)PluginBase.CurrentProject;
+                foreach (var types in new[] { openedTypes, closedTypes })
+                {
+                    var type = types.FirstOrDefault(it => project.IsDocumentClass(TypeToClassModel[it].InFile.FileName));
+                    if (string.IsNullOrEmpty(type)) continue;
+                    nodes.Add(NodeFactory.CreateTreeNode(TypeToClassModel[type]));
+                    break;
+                }
+            }
             if (openedTypes.Count > 0) openedTypes = SearchUtil.FindAll(openedTypes, search);
             TreeNode[] openedNodes;
             TreeNode[] closedNodes;
@@ -193,7 +205,7 @@ namespace QuickNavigate.Forms
             var hasOpenedMatches = openedNodes.Length > 0;
             var hasClosedMatches = closedNodes.Length > 0;
             if (hasOpenedMatches) nodes.AddRange(openedNodes);
-            if (!string.IsNullOrEmpty(separator) && hasOpenedMatches && hasClosedMatches) nodes.Add(separator);
+            if (hasOpenedMatches && hasClosedMatches && !string.IsNullOrEmpty(separator)) nodes.Add(separator);
             if (hasClosedMatches) nodes.AddRange(closedNodes);
         }
 
@@ -229,7 +241,7 @@ namespace QuickNavigate.Forms
                 .ToArray();
         }
 
-        [NotNull]
+        [NotNull, ItemNotNull]
         List<string> FilterTypes([NotNull] List<string> list)
         {
             if (CurrentFilter == null) return list;
@@ -246,9 +258,9 @@ namespace QuickNavigate.Forms
 
         protected override void ShowContextMenu(Point position)
         {
-            if (!(SelectedNode is ClassNode)) return;
+            if (!(SelectedNode is ClassNode node)) return;
             ContextMenuStrip.Items.Clear();
-            var classModel = ((ClassNode) SelectedNode).Model;
+            var classModel = node.Model;
             var flags = classModel.Flags;
             var fileName = classModel.InFile.FileName;
             if ((flags & FlagType.Class) > 0
@@ -317,6 +329,27 @@ namespace QuickNavigate.Forms
 
         #region Event Handlers
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Settings != null)
+            {
+                if (Settings.TypeExplorerSize.Width > MinimumSize.Width) Size = Settings.TypeExplorerSize;
+                searchingInExternalClasspaths.Checked = Settings.TypeExplorerSearchExternalClassPath;
+            }
+            CenterToParent();
+            timer.Interval = Math.Max(PluginBase.MainForm.Settings.DisplayDelay, 100);
+            timer.Tick += OnTimerTick;
+            timer.Start();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            timer.Stop();
+            Settings.TypeExplorerSize = Size;
+            Settings.TypeExplorerSearchExternalClassPath = searchingInExternalClasspaths.Checked;
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             var keyCode = e.KeyCode;
@@ -351,31 +384,9 @@ namespace QuickNavigate.Forms
             }
         }
 
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            if (Settings != null)
-            {
-                if (Settings.TypeExplorerSize.Width > MinimumSize.Width) Size = Settings.TypeExplorerSize;
-                searchingInExternalClasspaths.Checked = Settings.TypeExplorerSearchExternalClassPath;
-            }
-            CenterToParent();
-            timer.Interval = Math.Max(PluginBase.MainForm.Settings.DisplayDelay, 100);
-            timer.Tick += OnTimerTick;
-            timer.Start();
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            timer.Stop();
-            Settings.TypeExplorerSize = Size;
-            Settings.TypeExplorerSearchExternalClassPath = searchingInExternalClasspaths.Checked;
-        }
-
         protected override void OnTreeNodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            var node = e.Node as ClassNode;
-            if (node == null) return;
+            if (!(e.Node is ClassNode node)) return;
             tree.SelectedNode = node;
             base.OnTreeNodeMouseClick(sender, e);
         }
@@ -459,11 +470,21 @@ namespace QuickNavigate.Forms
                     e.Handled = e.Control;
                     return;
                 case Keys.Down:
-                    if (tree.SelectedNode.NextVisibleNode != null) tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                    if (tree.SelectedNode.NextVisibleNode != null)
+                    {
+                        tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                        if (tree.SelectedNode.Text == Settings.ItemSpacer && tree.SelectedNode.NextVisibleNode != null)
+                            tree.SelectedNode = tree.SelectedNode.NextVisibleNode;
+                    }
                     else if (PluginBase.MainForm.Settings.WrapList) tree.SelectedNode = tree.Nodes[0];
                     break;
                 case Keys.Up:
-                    if (tree.SelectedNode.PrevVisibleNode != null) tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                    if (tree.SelectedNode.PrevVisibleNode != null)
+                    {
+                        tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                        if (tree.SelectedNode.Text == Settings.ItemSpacer && tree.SelectedNode.PrevVisibleNode != null)
+                            tree.SelectedNode = tree.SelectedNode.PrevVisibleNode;
+                    }
                     else if (PluginBase.MainForm.Settings.WrapList)
                     {
                         node = tree.SelectedNode;

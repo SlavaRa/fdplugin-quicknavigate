@@ -68,6 +68,7 @@ namespace QuickNavigate.Forms
             extendsToClasses = GetAllProjectExtendsClasses();
             InitializeTree();
             InitializeTheme();
+            input.LostFocus += (sender, args) => input.Focus();
             RefreshTree();
         }
 
