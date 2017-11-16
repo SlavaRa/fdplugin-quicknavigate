@@ -1,7 +1,7 @@
 os: Visual Studio 2017
 environment:
   ID: quicknavigate
-  PLUGIN_VERSION: 2.9
+  PLUGIN_VERSION: 3.0
   PLUGIN_NAME: QuickNavigate
   PLUGIN_DESC: Quickly navigate through Types, Fields, Projects and more
   PLUGIN_PATH: C:\projects\FlashDevelop\External\Plugins\QuickNavigate
@@ -10,8 +10,8 @@ environment:
   PLUGIN_GITHUB_RELEASES: https:\/\/github.com\/SlavaRa\/fdplugin-quicknavigate\/releases
   APPMAN_TEMPLATE: C:\projects\FlashDevelop\External\Plugins\QuickNavigate\appman.template
   APPMAN_CONFIG_XML: appman.txt
-install:
-- set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
+#install:
+#- set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 version: $(PLUGIN_VERSION).{build}
 skip_tags: true
 init:
