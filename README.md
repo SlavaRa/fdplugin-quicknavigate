@@ -1,4 +1,4 @@
-QuickNavigate plugin for [FlashDevelop](http://www.flashdevelop.org)/[HaxeDevelop](http://haxedevelop.org)
+QuickNavigate plugin for [FlashDevelop](http://flashdevelop.org)/[HaxeDevelop](https://haxedevelop.org/)
 ========================
 [![Build status](https://ci.appveyor.com/api/projects/status/2ilh8bc97hl52hye?svg=true)](https://ci.appveyor.com/project/slavara/fdplugin-quicknavigate)
 [![Github Issues](https://img.shields.io/github/issues/SlavaRa/fdplugin-quicknavigate.svg)](https://github.com/SlavaRa/fdplugin-quicknavigate/issues)
